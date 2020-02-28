@@ -1,4 +1,6 @@
 # cloud-veg-et
+HELLO FROM TONY
+HI FROM STEFANIE
 repository on all things to compute VegET model in the cloud
 
 ## Evapotranspiration Modeling in AWS using the PANGEO Architecture
