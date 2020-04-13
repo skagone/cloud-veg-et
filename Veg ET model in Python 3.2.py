@@ -417,7 +417,8 @@ try:
         print('Created Soil Water')
         log_file.write('Created Soil Water' + '\n')
         print(swflist)
-        if con_year == 1984 or con_year == 1988 or con_year == 1992 or con_year == 1996                 or con_year == 2000 or con_year == 2004 or con_year == 2008 or con_year == 2012:
+        if con_year == 1984 or con_year == 1988 or con_year == 1992 or con_year == 1996 
+        or con_year == 2000 or con_year == 2004 or con_year == 2008 or con_year == 2012:
             if m == 366:
                 m = 0
                 con_year += 1
