@@ -366,15 +366,16 @@ try:
         # Deep Drainage
         # DDrain occurs if SWi > WHC, amount of DDrain is SAT <> WHC with a maximum DDrain of SAT - WHC
 
-        sat_fc = SAT - FC
+        sat_fc = SAT - FC  1-1 = 0
         # sat_whc = SAT - WHC
         rf1 = SWi - WHC
 
-        rf = arcpy.sa.Con(rf1 < 0, 0, rf1)
+        rf = arcpy.sa.Con(rf1 < 0, 0, rf1)  50
         dc_coeff = 0.65  # drainage coefficient
         rf_coeff = 1 - dc_coeff  # runoff coefficient
         SRf = arcpy.sa.Con(rf <= sat_fc, rf * rf_coeff, (rf - sat_fc) + rf_coeff * sat_fc)
-        DDrain = rf - SRf
+                            50 <  0                                 50 -0 + 0.35 * 0
+        DDrain = rf - SRf  50 - 50   = 0
         arcpy.env.compression = 'LZW'
         arcpy.CopyRaster_management(DDrain, os.path.join(ddDir, 'dd' + str(jjdate)),
                                     "#", "#", "#", "NONE", "NONE", "#", "NONE", "NONE")
