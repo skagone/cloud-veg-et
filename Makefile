@@ -5,11 +5,3 @@ publish:
 	git add .
 	git commit -m "automatic git update from Makefile"
 	git push
-
-
-up:
-	(cd swarm; make start; make xrdp)
-
-
-lite:
-	(cd opt; git clone http://github.com/tonybutzer/lite-stac)
