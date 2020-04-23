@@ -1,0 +1,3 @@
+gabe_outputs/model_outputs/dd_2013.tif
+gabe_outputs/model_outputs/etasw_2013.tif
+gabe_outputs/model_outputs/srf_2013.tif
