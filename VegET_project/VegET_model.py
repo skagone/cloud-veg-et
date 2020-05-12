@@ -9,10 +9,69 @@ import os
 import boto3
 import sys
 import yaml
-
+import fiona
+import rasterio.mask
+from rasterio.crs import CRS
+from rasterio.enums import Resampling
+from rasterio import shutil as rio_shutil
+from rasterio.vrt import WarpedVRT
 
 #TODO - get large extent tif files for testing the RasterManager warping functions
 
+
+class VegConfig:
+    """"""
+
+    # Attributes Here.
+
+    # === Minimalist Beta Version Params ====
+    start_year = None
+    end_year = None
+    start_day = None
+    end_day = None
+    sample_tiff = None
+    shapefile = None
+
+    # ==== Version 2.0 params ====
+    #input/output
+    in_root = None
+    out_root = None
+
+    precip_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    ndvi_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    pet_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tmin_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tavg_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tmax_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+
+    non_std_inputs = False
+
+
+    def __init__(self, config_dictionary):
+        for key, val in config_dictionary.items():
+            setattr(self, key, val)
+
+    def update_config(self, k, v, cfg_path):
+        """"""
+        setattr(self, k, v)
+        with open(cfg_path, 'r') as cfg:
+            file_dict = yaml.safe_load(cfg)
+        file_dict['{}'.format(k)] = v
+        with open(cfg_path, 'w') as w_file:
+            w_file.write(yaml.dump(file_dict))
+            # # old way
+            # append_file.write('{}: {}\n'.format(k, v))
+    def update_feature(selfs, k, v, cfg_path):
+        """Used to update the config file when a configuration needs to be ADDED or APPENDED to something, like a
+        dictionary that gets new entries
+        This function does not update the attribute like update_config does. This function is used when an attribute
+         has ALREADY been appended or updated in the code but we still need to update the configuration FILE"""
+        with open(cfg_path, 'r') as cfg:
+            file_dict = yaml.safe_load(cfg)
+        # overprint the entries with the new config
+        file_dict['{}'.format(k)] = v
+        with open(cfg_path, 'w') as w_file:
+            w_file.write(yaml.dump(file_dict))
 
 
 
@@ -26,9 +85,14 @@ class PathManager:
     #  name formatting to model std formats. Right now, non_std_inputs must be false and only 1 type of naming
     #  convention per paramter file is allowed.
 
-    non_std_inputs = False  # todo- get from config.
-    ndvi_user_fmt = None
-    ndvi_fmt = config.ndvi_fmt
+    ndvif = None
+    pptf = None
+    petf = None
+    tavgf = None
+    tminf = None
+    tmaxf = None
+
+
 
     def __init__(self, config):
             self.config = config
@@ -45,45 +109,51 @@ class PathManager:
             print('precipitation datasets other than GRIDMET are not implemented at this time')
             sys.exit(0)
 
-    def s3_get_data(self, today, DOY):
+    def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
+        """
+        This gets dynamic data that changes over time.
+        :param today: datetime object to retrieve year, month, day, etc. from today
+        :param settings: data set characteristics from the configurations file
+        :return:
+        """
 
-        # TODO - Set up to be grabbed from the config
-        ndvif = 'ga-et-data/Cloud_Veg_ET/Data/NDVI/' + str(year) + DOY + '.250_m_NDVI_gw.npy'
-        pptf = 'ga-et-data/Cloud_Veg_ET/Data/PPT/prec_' + str(year) + DOY + '.tif_gw.npy'
-        petf = 'ga-et-data/Cloud_Veg_ET/Data/ETO/medianETo' + DOY + '.tif_gw.npy'
-        tavgf = 'ga-et-data/Cloud_Veg_ET/Data/TAVG/tavg_' + DOY + '_gw.tif.npy'
-        tminf = 'ga-et-data/Cloud_Veg_ET/Data/TMIN/tmin_' + DOY + '_gw.tif.npy'
-        tmaxf = 'ga-et-data/Cloud_Veg_ET/Data/TMAX/tmax_' + DOY + '_gw.tif.npy'
+        name_key = 'name_fmt'
+        loc_key = 'dir_loc'
+        dt_key = 'dt_fmt'
+        clim_key = 'climatology'
+        doy = today.timetuple().tm_yday
 
-        s3 = S3FileSystem()
-        ndvi = np.load(s3.open(ndvif))
-        pet = np.load(s3.open(petf))
-        ppt = np.load(s3.open(pptf))
-        tavg = np.load(s3.open(tavgf))
-        tmin = np.load(s3.open(tminf))
-        tmax = np.load(s3.open(tmaxf))
+        if settings[clim_key]:
+            # for climatology then we expect a DOY format
+            if settings[dt_key] == 'doy':
+                dynamic_key = '{:03d}'.format(doy)
+            else:
+                print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                                                                                          settings[dt_key]))
+                sys.exit(0)
+        elif settings[dt_key] == 'YYYYdoy':
+            dynamic_key = '{}{:03d}'.format(today.year, doy)
+        else:
+            print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
+                  'this time'.format(settings[dt_key]))
+            sys.exit(0)
 
-        return ndvi, pet, ppt, tavg, tmin, tmax
+        fpath = os.path.join(settings[loc_key], settings[name_key].format(dynamic_key))
+        return fpath
 
 
-    def s3_get_static_data(self):
-        # Todo - set up to be grabbed from config....
-        # load all soil rasters
-        interception1 = 'ga-et-data/Cloud_Veg_ET/Data/SOILS/Intercept2016_gw.tif.npy'
-        whc1 = 'ga-et-data/Cloud_Veg_ET/Data/SOILS/awc_nbliss_filled_gw.tif.npy'
-        field_capacity1 = 'ga-et-data/Cloud_Veg_ET/Data/SOILS/fc_nbliss_filled_gw.tif.npy'
-        saturation1 = 'ga-et-data/Cloud_Veg_ET/Data/SOILS/sat_nbliss_filled_gw.tif.npy'
-        s3 = S3FileSystem()
-        interception = np.load('intercept_drb.npy')  # (s3.open(interception1))
-        whc = np.load(s3.open(whc1))
-        field_capacity = np.load(s3.open(field_capacity1))
-        saturation = np.load(s3.open(saturation1))
-        watermask = np.load('us_water_mask.npy')
-
-        return interception, whc, field_capacity, saturation, watermask
+    def get_static_data(self, settings):
+        """
+        This gets static data sucha as soil data sets.
+        :param settings: data set characteristics from the configurations file
+        :return:
+        """
+        fpath = settings['file_loc']
+        return fpath
 
 
     def s3_delete_local(outpath, from_file, bucket, prefix_no_slash):
+        # TODO - make a function like this that is particular to cloud envs, configurable and only operational in cloud.
         from_file = outpath
         bucket = 'dev-et-data'
         prefix_no_slash = 'v1DRB_outputs'
@@ -117,18 +187,23 @@ class RasterManager:
     left = None
     # top geo coord e.g highest Latitude extent
     top = None
-    transform = [xres, 0.0, left, 0.0, -yres, top]
+    transform = [xres, 0.0, left, 0.0, yres, top]
+
+    sample_tiff = None
+    # can contain multiple features of interest
+    shapefile = None
 
 
 
     def __init__(self, config):
-            self.config = config
+        self.config = config
 
+        self.sample_tiff = config.sample_tiff
+        self.shapefile = config.shapefile
 
-    def standardize_raster(self, raster, settings, shpfeature):
-        """Use virtual warp from rasterio to standardize the raster"""
-        # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
-        pass
+        if self.sample_tiff == None or self.shapefile==None:
+            print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
+            sys.exit(0)
 
     # ----------- create output rasters -----------------
     def output_rasters(arr, outdir, outname, sample_tiff=None, geo_dict=None):
@@ -154,61 +229,78 @@ class RasterManager:
                 wrast.write(band1, indexes=1)
 
         # delete files created locally and put in bucket
-        PathManager.s3_delete_local(from_file, bucket, prefix_no_slash)
+        # TODO -- fix below to be configurable cloud/no cloud processing
+        # PathManager.s3_delete_local(from_file, bucket, prefix_no_slash)
 
 
-class VegConfig:
-    """"""
+    def crop_to_std_grid(self, feat=0):
+        """Clips and crops a tiff to the extent of a feature in a shapefile
+        :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
+        # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
+        """
 
-    # Attributes Here.
+        with fiona.open(self.shapefile, 'r') as shapefile:
+            # todo - set up an error if user has shapefile with more than one feature.
+            # shape = shapefile[0]['geometry']
+            shapes = [feature["geometry"] for feature in shapefile]
 
-    # === Minimalist Beta Version Params ====
-    start_year = None
-    end_year = None
-    start_day = None
-    end_day = None
-    sample_tiff = None
+            for feature in shapefile:
+                # matching the FID of the given shapefile from a typical geoJSON (Not Ordered Dict nonsense)
+                if feat == feature['id']:
+                    shapes = [feature['geometry']]
+        # print('This is the shape var:', shapes)
 
-    # ==== Version 2.0 params ====
-    # --- Paths to inputs ----
-    bucket_root = None
-    precip_dir = None
-    refet_dir = None
+        with rasterio.open(self.sample_tiff, 'r') as src:
+            out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
+            out_meta = src.meta
+        # once the image is cropped, the image metadata dictionary is updated with the cropped transform and bounds.
+        out_meta.update({"driver": "GTiff",
+                         "height": out_image.shape[1],
+                         "width": out_image.shape[2],
+                         "transform": out_transform})
+        # return the dictionary
 
-    precip_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    ndvi_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    pet_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tmin_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tavg_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tmax_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
+        self.crs = out_meta['crs']
+        self.transform = out_meta['transform']
+        self.left = self.transform[2]
+        self.top = self .transform[5]
+        self.cols = out_meta['width']
+        self.rows = out_meta['height']
+        self.xres = self.transform[0]
+        self.yres = self.transform[4]
+        # return out_meta
 
-    non_std_inputs = False
+    def normalize_to_std_grid(self, inputs, outloc, resamplemethod = 'nearest'):
+        """
+        Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
+        :param inputs: a list of (daily) raster input files for the water balance.
+        :param outloc: output locations 'temp' for the virtual files
+        :return: list of numpy arrays
+        """
+        if resamplemethod == 'nearest':
+            rs = Resampling.nearest
+        else:
+            print('only nearest neighbor resampling is supported at this time')
+            sys.exit(0)
+
+        for warpfile in inputs:
+            with rasterio.open(warpfile) as src:
+                # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+                with WarpedVRT(src, resampling=rs,
+                               crs=self.crs,
+                               transform=self.transform,
+                               height=self.rows,
+                               width=self.cols) as vrt:
+                    data = vrt.read()
+                    print(type(vrt))
 
 
-    def __init__(self, config_dictionary):
-        for key, val in config_dictionary.items():
-            setattr(self, key, val)
-    def update_config(self, k, v, cfg_path):
-        """"""
-        setattr(self, k, v)
-        with open(cfg_path, 'r') as cfg:
-            file_dict = yaml.safe_load(cfg)
-        file_dict['{}'.format(k)] = v
-        with open(cfg_path, 'w') as w_file:
-            w_file.write(yaml.dump(file_dict))
-            # # old way
-            # append_file.write('{}: {}\n'.format(k, v))
-    def update_feature(selfs, k, v, cfg_path):
-        """Used to update the config file when a configuration needs to be ADDED or APPENDED to something, like a
-        dictionary that gets new entries
-        This function does not update the attribute like update_config does. This function is used when an attribute
-         has ALREADY been appended or updated in the code but we still need to update the configuration FILE"""
-        with open(cfg_path, 'r') as cfg:
-            file_dict = yaml.safe_load(cfg)
-        # overprint the entries with the new config
-        file_dict['{}'.format(k)] = v
-        with open(cfg_path, 'w') as w_file:
-            w_file.write(yaml.dump(file_dict))
+        # todo - output each virtual file as a temporary .tif file in a temp folder somewhere in the outputs directory.
+        # for each file in the temp directory read in the raster as a numpy array and return the list of numpy arrays
+        # from this method for us in the rest of the code.
+        # rio_shutil.copy(vrt, outwarp, driver='GTiff')
+
+        return None
 
 
 class VegET:
@@ -240,17 +332,20 @@ class VegET:
     watermask = None
 
     # dataset_configurations
-    precip_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    ndvi_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    pet_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tmin_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tavg_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
-    tmax_settings = {crs: None, cols: None, rows: None, xres: None, yres: None, left: None, top: None}
+    precip_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    ndvi_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    pet_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tmin_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tavg_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
+    tmax_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
     # TODO -- write all of them in the config file and have init set them up
 
-    for day i in all the days of the model:
-
-        prism_arr = RasterManager.standardize(prism[i], setting=precip_settings)
+    # for day i in all the days of the model:
+    #
+    #
+    #
+    #
+    #     prism_arr = RasterManager.standardize(prism[i], setting=precip_settings)
 
     def __init__(self, veget_config_path=None):
         if veget_config_path is None:
@@ -265,16 +360,11 @@ class VegET:
             else:
                 print('the path does not exist, check the path you gave VegET()')
                 sys.exit(0)
+            # create an instance of the VegET model using the configurations from the file.
             self.config = VegConfig(self.config_dict)
-
-            self.interception, self.whc, self.field_capacity, self.saturation, self.watermask = PathManager.s3_get_static_data()
-            self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = PathManager.s3_get_data(today, DOY)
-
-            self.precip_settings = self.config.precip_settings
-
+            # initialize the classes that manage Raster data and input/output paths to the data
             self.rmanager = RasterManager(config=self.config)
             self.pmanager = PathManager(config=self.config)
-            # Todo - dont forget to set sample tiff from the config and so on...
 
     def day_of_year(self, today):
         year = today.year
@@ -283,6 +373,7 @@ class VegET:
         print(f'today is {DOY}')
 
         return DOY, year
+
 
     def end_of_month(self, day, mon, year):
         #  calendar.monthrange return a tuple
@@ -514,8 +605,26 @@ class VegET:
         and output datasets set up for daily, monthly, yearly rasters.
         """
 
-        #PathManager.s3_get_data(today)
-        #PathManager.s3_get_static_data()
+        #dynamic inputs to the model
+        self.ndvi = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
+        self.pet = self.pmanager.get_dynamic_data(today, self.pet_settings)
+        self.ppt = self.pmanager.get_dynamic_data(today, self.precip_settings)
+        self.tavg = self.pmanager.get_dynamic_data(today, self.tavg_settings)
+        self.tmin = self.pmanager.get_dynamic_data(today, self.tmin_settings)
+        self.tmax = self.pmanager.get_dynamic_data(today, self.tmax_settings)
+
+
+        # TODO - Call Raster Manager function to standardize all the input dataset.
+
+
+        #static inputs # Todo - Divide up each input get_static_data() as above.
+        self.interception, self.whc, self.field_capacity, self.saturation, self.watermask = self.pmanager.get_static_data()
+
+
+        """
+                        # you'll call this once for static per aoi/model run and then each time step for the dynamic model inputs
+                        interception, whc, field_capacty, saturation, rf_coeff =rm.normailze_to_std_grid(inputs=[interception, whc, field_capacty, saturation, rf_coeff], outloc=place, resample_method='nearest')
+                        """
 
         # ====== Call the functions ======
         # output SWi and SNWpk
@@ -536,7 +645,7 @@ class VegET:
             RasterManager.output_rasters(snow_melt, outdir, outname=snow_meltout, sample_tiff=sample_tiff, geo_dict=geo_dict)
 
         # output DDRAIN and SRf
-        DDrain, SRf = self.surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity, whc=self.whc, rf_coeff, geo_dict=geo_dict)
+        DDrain, SRf = self.surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity, whc=self.whc, rf_coeff=self.rf_coeff, geo_dict=geo_dict)
         DDrainout = f'model_outputs/dd_{year}{DOY}.tif'
         SRfout = f'model_outputs/srf_{year}{DOY}.tif'
         if daily_mode:
@@ -583,6 +692,16 @@ class VegET:
             output_daily_arr = True
 
         sample_shape = None
+
+
+        # TODO - Spawn an instance of RasterManager()
+
+        """
+        # e.g. rm = RasterManager(config, samplte tif, feat='0')
+        
+        """
+
+
         # set monthly and yearly cumulative arrays:
         if sample_tiff != None:
             sampleds = rasterio.open(sample_tiff)
@@ -609,7 +728,8 @@ class VegET:
             # so what day is it
             today = start_dt + timedelta(days=i)
             if i == 0:
-                swf, snwpck, etasw, DDrain, SRf = run_water_bal(i, today, interception, whc, field_capacity, saturation,
+
+                swf, snwpck, etasw, DDrain, SRf = self.run_water_bal(i, today, interception, whc, field_capacity, saturation,
                                                                 rf_coeff, k_factor, ndvi_factor, water_factor,
                                                                 bias_corr, alfa_factor, watermask,
                                                                 outdir=outdir,

@@ -1,14 +1,14 @@
 # ================ ACTIVE config SECTION ==============================
 # === Minimalist Beta Version Params ====
-start_year : 2013
-end_year : 2016
-start_day : 274
-end_day : 366
+start_year : 2015
+end_year : 2015
+start_day : 001
+end_day : 003
 
 # if the shapefile and/or sample tiff is none, the user will have to set the std_geo_info his/herself.
 # otherwise, leave crs-top as none, and they will be set by the program
 shapefile: None
-sample_tiff : r'geo_sample.tif'
+sample_tiff : C:\WaterSmart\Projects\CloudVegET\local_testing\ndvi\med001.250_m_NDVI.tif
 
 # std_geo_info
 crs: None
@@ -20,7 +20,7 @@ left: None
 top: None
 
 # output_location
-out_root: ga-et-data
+out_root: C:\WaterSmart\Projects\CloudVegET\local_testing\zztestout
 
 # Dataset info
 precip_settings:
@@ -31,9 +31,9 @@ precip_settings:
   yres: None
   left: None
   top: None
-  name_fmt: GRIDMET_{}_vo.tif
+  name_fmt: prec_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: ga-et-data/Cloud_Veg_ET/Data/PPT/
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\ppt  #ga-et-data/Cloud_Veg_ET/Data/PPT/
   climatology: False
 ndvi_settings:
   crs: None
@@ -43,10 +43,12 @@ ndvi_settings:
   yres: None
   left: None
   top: None
-  name_fmt: MODIS_{}_vo.tif
+  name_fmt: med{}.250m_NDVI.tif
   dt_fmt: doy
-  dir_loc: None
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\ndvi
   climatology: True
+
+# -- todo: change names, etc.
 pet_settings:
   crs: None
   cols: None
