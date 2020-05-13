@@ -77,8 +77,9 @@ class VegConfig:
 
 class PathManager:
     """
-    The class that deals with data on the cloud in a bucket.
+    This class creates the input paths for the dynamic and static data needed in the model.
     """
+
 
     # Todo - configuration non_std_inputs = True, accept parameters such as ndvi_fmt = userndvi_{}_vers1.tif
     #  where {} is the date and date_fmt YYYYmmdd or YYYYdd etc for a filepath. A dictionary can relate user-input
@@ -92,26 +93,13 @@ class PathManager:
     tminf = None
     tmaxf = None
 
-
-
     def __init__(self, config):
             self.config = config
 
-    def get_precip(self):
-        """"""
-        if self.config.ppt_fmt == 'GRIDMET':
-            # we do the standard thing
-            pass
-        elif self.config.ppt_fmt == None:
-            # set to default value
-            self.config.ppt_fmt = 'GRIDMET'
-        else:
-            print('precipitation datasets other than GRIDMET are not implemented at this time')
-            sys.exit(0)
 
     def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
         """
-        This gets dynamic data that changes over time.
+        This gets dynamic data, such as NDVI, precipitation, temperature, etc..
         :param today: datetime object to retrieve year, month, day, etc. from today
         :param settings: data set characteristics from the configurations file
         :return:
@@ -122,6 +110,8 @@ class PathManager:
         dt_key = 'dt_fmt'
         clim_key = 'climatology'
         doy = today.timetuple().tm_yday
+
+        print('settings', settings)
 
         if settings[clim_key]:
             # for climatology then we expect a DOY format
@@ -144,7 +134,7 @@ class PathManager:
 
     def get_static_data(self, settings):
         """
-        This gets static data sucha as soil data sets.
+        This gets static data, such as soil data sets.
         :param settings: data set characteristics from the configurations file
         :return:
         """
@@ -152,12 +142,16 @@ class PathManager:
         return fpath
 
 
-    def s3_delete_local(outpath, from_file, bucket, prefix_no_slash):
-        # TODO - make a function like this that is particular to cloud envs, configurable and only operational in cloud.
-        from_file = outpath
-        bucket = 'dev-et-data'
-        prefix_no_slash = 'v1DRB_outputs'
-        objecta='{}/{}'.format(prefix_no_slash,from_file)
+    def s3_delete_local(self, outpath, from_file, bucket, prefix_no_slash):
+        """
+        This function will move the model outputs from a local folder to a cloud bucket.
+        :param from_file: path the the local folder
+        :param bucket: name of the cloud bucket = 'dev-et-data'
+        :param prefix_no_slash: "folder" in cloud bucket  = 'v1DRB_outputs'
+        :return:
+        """
+
+        objecta='{}/{}'.format(prefix_no_slash,outpath)
         s3 = boto3.client('s3')
         with open(from_file, "rb") as f:
             s3.upload_fileobj(f, bucket, objecta)
@@ -165,7 +159,11 @@ class PathManager:
 
 
 class RasterManager:
-    """ all raster needs
+    """
+    This class addresses all the data wrangling needs to get the data sets needed in the model
+    to the extent nad resolution chosen by the user.
+    The user needs to input a sample shapefile (polygon) and geotiff file that is used to
+    get the attributes for processing extent and resolution, etc.
     """
 
     # TODO - get large extent tif files for testing the RasterManager warping functions
@@ -173,8 +171,6 @@ class RasterManager:
     # TODO - rasterio either clips based on a sample raster and shapefile, or based on user defined geo info
     # #TODO - https://rasterio.readthedocs.io/en/latest/topics/masking-by-shapefile.html
     # Todo - test raster manager as a standalone module.
-
-
 
     out_root = None
     # --- geographic info for destination files ---
@@ -193,6 +189,7 @@ class RasterManager:
     # can contain multiple features of interest
     shapefile = None
 
+    temp_folder = None
 
 
     def __init__(self, config):
@@ -200,45 +197,41 @@ class RasterManager:
 
         self.sample_tiff = config.sample_tiff
         self.shapefile = config.shapefile
+        self.temp_folder = os.path.join(config.out_root, config.temp_folder)
+        if not os.path.exists(self.temp_folder):
+            os.makedirs(self.temp_folder)
 
         if self.sample_tiff == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
     # ----------- create output rasters -----------------
-    def output_rasters(arr, outdir, outname, sample_tiff=None, geo_dict=None):
+    def output_rasters(self, arr, outdir, outname):
+        """
+        This function creates geotiff files from the model output arrays.
+        """
 
-        # geo_dict = {'transform' : '| 0.00, 0.00,-77.02 |', 'coord_sys' : 'EPSG:4326', 'h' : int(3124), 'w' : int(1938)}
-
-        outpath = '{}{}'.format(outdir, outname)
+        outpath = os.path.join(outdir, outname)
         print('the outpath for file {} is {}'.format(outname, outpath))
-        if sample_tiff != None:
-            # get the geoinfo from sample tiff to output intermediate files
-            ds = rasterio.open(sample_tiff)
-            band1 = arr
-            with rasterio.open(outpath, 'w', driver='GTiff', height=ds.height, width=ds.width,
-                               count=1, dtype='float64', crs=ds.crs, transform=ds.transform) as wrast:
-                wrast.write(band1, indexes=1)
 
-        elif geo_dict != None:
-            # assume you're given a numpy array
-            print('sample tiff output not yet implemented')
-            band1 = arr
-            with rasterio.open(outpath, 'w', driver='GTiff', height=geo_dict['h'], width=geo_dict['w'],
-                               count=1, dtype='float64', crs=geo_dict['crs'], transform=geo_dict['transform']) as wrast:
-                wrast.write(band1, indexes=1)
+        # get the geoinfo from sample tiff to output intermediate files
+        ds = rasterio.open(self.sample_tiff)
+        band1 = arr
+        with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
+                           count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
+            wrast.write(band1, indexes=1)
 
+        # TODO - Set an AWS Cloud flag in the config file to activate this function or not...
         # delete files created locally and put in bucket
-        # TODO -- fix below to be configurable cloud/no cloud processing
         # PathManager.s3_delete_local(from_file, bucket, prefix_no_slash)
 
 
-    def crop_to_std_grid(self, feat=0):
+    def set_model_std_grid(self, feat=0):
         """Clips and crops a tiff to the extent of a feature in a shapefile
         :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
         # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
         """
-
+        print(self.shapefile)
         with fiona.open(self.shapefile, 'r') as shapefile:
             # todo - set up an error if user has shapefile with more than one feature.
             # shape = shapefile[0]['geometry']
@@ -258,7 +251,6 @@ class RasterManager:
                          "height": out_image.shape[1],
                          "width": out_image.shape[2],
                          "transform": out_transform})
-        # return the dictionary
 
         self.crs = out_meta['crs']
         self.transform = out_meta['transform']
@@ -270,20 +262,23 @@ class RasterManager:
         self.yres = self.transform[4]
         # return out_meta
 
-    def normalize_to_std_grid(self, inputs, outloc, resamplemethod = 'nearest'):
+    def normalize_to_std_grid(self, inputs, resamplemethod = 'nearest'):
         """
         Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
         :param inputs: a list of (daily) raster input files for the water balance.
         :param outloc: output locations 'temp' for the virtual files
         :return: list of numpy arrays
         """
+        outputs = []
+        npy_outputs = []
         if resamplemethod == 'nearest':
             rs = Resampling.nearest
         else:
             print('only nearest neighbor resampling is supported at this time')
             sys.exit(0)
 
-        for warpfile in inputs:
+        for i, warpfile in enumerate(inputs):
+            print('warpfile', warpfile)
             with rasterio.open(warpfile) as src:
                 # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
                 with WarpedVRT(src, resampling=rs,
@@ -293,14 +288,20 @@ class RasterManager:
                                width=self.cols) as vrt:
                     data = vrt.read()
                     print(type(vrt))
+                    # save the file as an enumerated tiff. reopen outside this loop with the outputs list
+                    outwarp = os.path.join(self.temp_folder, 'temp_{}.tif'.format(i))
+                    rio_shutil.copy(vrt, outwarp, driver='GTiff')
+                    outputs.append(outwarp)
 
-
-        # todo - output each virtual file as a temporary .tif file in a temp folder somewhere in the outputs directory.
+        # output each virtual file as a temporary .tif file in a temp folder somewhere in the outputs directory.
         # for each file in the temp directory read in the raster as a numpy array and return the list of numpy arrays
         # from this method for us in the rest of the code.
-        # rio_shutil.copy(vrt, outwarp, driver='GTiff')
+        for ow in outputs:
+            with rasterio.open(ow, 'r') as src:
+                arr = src.read(1)
+                npy_outputs.append(arr)
 
-        return None
+        return npy_outputs
 
 
 class VegET:
@@ -314,38 +315,36 @@ class VegET:
     end_year = None
     start_day = None
     end_day = None
+
+    rf_low_thresh_temp = None
+    rf_high_thresh_temp = None
+    rf_value = None
+    melt_factor = None
+    dc_coeff = None
     rf_coeff = None
     k_factor = None
     ndvi_factor = None
     water_factor = None
     bias_corr = None
     alfa_factor = None
-    geo_dict = None
+
     sample_tiff = None
     outdir = None
     accumulate_mode = None
     # ----- static soil rasters for model run------
-    interception = None
-    whc = None
-    field_capacity = None
-    saturation = None
-    watermask = None
+    interception_settings = None
+    whc_settings = None
+    field_capacity_settings = None
+    saturation_settings = None
+    watermask_settings = None
 
     # dataset_configurations
-    precip_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    ndvi_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    pet_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    tmin_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    tavg_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    tmax_settings = {'crs': None, 'cols': None, 'rows': None, 'xres': None, 'yres': None, 'left': None, 'top': None}
-    # TODO -- write all of them in the config file and have init set them up
-
-    # for day i in all the days of the model:
-    #
-    #
-    #
-    #
-    #     prism_arr = RasterManager.standardize(prism[i], setting=precip_settings)
+    precip_settings = None
+    ndvi_settings = None
+    pet_settings = None
+    tmin_settings = None
+    tavg_settings = None
+    tmax_settings = None
 
     def __init__(self, veget_config_path=None):
         if veget_config_path is None:
@@ -364,9 +363,50 @@ class VegET:
             self.config = VegConfig(self.config_dict)
             # initialize the classes that manage Raster data and input/output paths to the data
             self.rmanager = RasterManager(config=self.config)
+            sgrid = self.rmanager.set_model_std_grid(self)
             self.pmanager = PathManager(config=self.config)
 
-    def day_of_year(self, today):
+            # set startday and endday
+            self.start_day = self.config.start_day
+            self.end_day = self.config.end_day
+            self.start_year = self.config.start_year
+            self.end_year = self.config.end_year
+            # set interception settings
+            self.interception_settings = self.config.interception_settings
+            self.whc_settings = self.config.whc_settings
+            self.saturation_settings = self.config.saturation_settings
+            self.watermask_settings = self.config.watermask_settings
+            self.field_capacity_settings = self.config.field_capacity_settings
+            self.ndvi_settings = self.config.ndvi_settings
+            self.precip_settings = self.config.precip_settings
+            self.pet_settings = self.config.pet_settings
+            self.tavg_settings = self.config.tavg_settings
+            self.tmin_settings = self.config.tmin_settings
+            self.tmax_settings = self.config.tmax_settings
+
+            # set here in init so they can be float
+            self.rf_low_thresh_temp = float(self.config.rf_low_thresh_temp)
+            self.rf_high_thresh_temp = float(self.config.rf_high_thresh_temp)
+            self.rf_value = float(self.config.rf_value)
+            self.melt_factor = float(self.config.melt_factor)
+            self.dc_coeff = float(self.config.dc_coeff)
+            self.rf_coeff = float(self.config.rf_coeff)
+            self.k_factor = float(self.config.k_factor)
+            self.ndvi_factor = float(self.config.ndvi_factor)
+            self.water_factor = float(self.config.water_factor)
+            self.bias_corr = float(self.config.bias_corr)
+            self.alfa_factor = float(self.config.alfa_factor)
+
+
+            # accumulation modes
+            self.accumulate_mode = self.config.accumulate_mode
+
+            # set the output dir and make it if it doens't exist
+            self.outdir = self.config.out_root
+            if not os.path.exists(self.outdir):
+                os.makedirs(self.outdir)
+
+    def _day_of_year(self, today):
         year = today.year
         print(year, today.month, today.day)
         DOY = '{:03d}'.format(today.timetuple().tm_yday)
@@ -374,8 +414,7 @@ class VegET:
 
         return DOY, year
 
-
-    def end_of_month(self, day, mon, year):
+    def _end_of_month(self, day, mon, year):
         #  calendar.monthrange return a tuple
         # (weekday of first day of the month, number of days in month)
         last_day_of_month = calendar.monthrange(year, mon)[1]
@@ -385,8 +424,8 @@ class VegET:
 
         return False
 
-    def soil_water(self, i, ppt, interception, tmin, tmax, tavg, melt_factor, rf_high_thresh_temp, rf_low_thresh_temp,
-                   yest_swf=None, yest_snwpck=None):
+    def _soil_water(self, i, ppt, interception, tmin, tmax, tavg, melt_factor, rf_high_thresh_temp, rf_low_thresh_temp,
+                    yest_swf=None, yest_snwpck=None):
 
         """
         This function takes precipitation, interception, and temperature data to determine
@@ -443,13 +482,13 @@ class VegET:
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
             temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
 
             RAIN = rain_frac * effppt
             SWE = np.zeros(ppt.shape)  # inital snowpack raster with only 0 values
             snow_melt = SWE
             SNWpk = np.zeros(ppt.shape)  # inital snowpack raster with only 0 values
-            SWi = (whc * 0.5) + effppt + snow_melt
+            SWi = (self.whc * 0.5) + effppt + snow_melt
             SWi[SWi < 0] = np.nan
 
             return SWi, SNWpk, RAIN, SWE, snow_melt
@@ -462,7 +501,7 @@ class VegET:
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
             temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
 
             RAIN = rain_frac * effppt
             SWE = (1 - rain_frac) * effppt
@@ -486,7 +525,7 @@ class VegET:
 
             return SWi, SNWpk, RAIN, SWE, snow_melt
 
-    def surface_runoff(self, SWi, saturation, field_capacity, whc, rf_coeff, geo_dict=None):
+    def _surface_runoff(self, SWi, saturation, field_capacity, whc, rf_coeff, geo_dict=None):
         """
         This function determines the runoff part of the model. Runoff is the total of deep drainage and surface runoff.
         :param SWi: initial/starting soil water balance for the day after adding the water amount (rain/snow)
@@ -522,7 +561,7 @@ class VegET:
 
         return DDrain, SRf
 
-    def veg_et(self, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, pet, ndvi, SWi):
+    def _veg_et(self, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, pet, ndvi, SWi):
         """
         :param k_factor: 1.25  -> adjusting value in ETa calculation
         :param ndvi_factor: 0.2 -> adjusting value in ETa calculation
@@ -594,12 +633,9 @@ class VegET:
 
         return etasw, SWf, etasw5
 
-
-    def run_water_bal(self, i, today, interception, whc, field_capacity, saturation,
-                      rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, outdir,
-                      yest_snwpck=None, yest_swf=None,
-                      geo_dict=None, sample_tiff=None,
-                      daily_mode=True):
+    def _run_water_bal(self, i, today, interception, whc, field_capacity, saturation,
+                       rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, outdir,
+                       yest_snwpck=None, yest_swf=None, sample_tiff=None, daily_mode=True):
         """Here the water balance functions are combined into the water balance model.
         The needed input datasets are collected from buckets in the cloud, the needed functions executed
         and output datasets set up for daily, monthly, yearly rasters.
@@ -613,113 +649,111 @@ class VegET:
         self.tmin = self.pmanager.get_dynamic_data(today, self.tmin_settings)
         self.tmax = self.pmanager.get_dynamic_data(today, self.tmax_settings)
 
+        # Call Raster Manager function to standardize all the input dataset.
+        dynamic_inpts = [self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax]
 
-        # TODO - Call Raster Manager function to standardize all the input dataset.
-
-
-        #static inputs # Todo - Divide up each input get_static_data() as above.
-        self.interception, self.whc, self.field_capacity, self.saturation, self.watermask = self.pmanager.get_static_data()
-
-
-        """
-                        # you'll call this once for static per aoi/model run and then each time step for the dynamic model inputs
-                        interception, whc, field_capacty, saturation, rf_coeff =rm.normailze_to_std_grid(inputs=[interception, whc, field_capacty, saturation, rf_coeff], outloc=place, resample_method='nearest')
-                        """
+        # All the variables are now Numpy Arrays!
+        self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
+            self.rmanager.normalize_to_std_grid(inputs=dynamic_inpts, resamplemethod='nearest')
 
         # ====== Call the functions ======
         # output SWi and SNWpk
-        SWi, SNWpk, RAIN, SWE, snow_melt = self.soil_water(self, i, ppt, interception, tmin, tmax, tavg,
-                                                      melt_factor, rf_high_thresh_temp, rf_low_thresh_temp,
-                                                      yest_swf, yest_snwpck)
-        SWiout = f'model_outputs/swi_{year}{DOY}.tif'
-        SNWpkout = f'model_outputs/snwpk_{year}{DOY}.tif'
-        RAINout = f'model_outputs/rain_{year}{DOY}.tif'
-        SWEout = f'model_outputs/swe_{year}{DOY}.tif'
-        snow_meltout = f'model_outputs/snowmelt_{year}{DOY}.tif'
+        SWi, SNWpk, RAIN, SWE, snow_melt = self._soil_water(i, self.ppt, interception, self.tmin, self.tmax, self.tavg,
+                                                            self.melt_factor, self.rf_high_thresh_temp, self.rf_low_thresh_temp,
+                                                            yest_swf, yest_snwpck)
+        DOY, year = self._day_of_year(today=today)
+
+        SWiout =  f'swi_{year}{DOY}.tif'
+        print('swout', SWiout)
+        SNWpkout = f'snwpk_{year}{DOY}.tif'
+        RAINout =  f'rain_{year}{DOY}.tif'
+        SWEout = f'swe_{year}{DOY}.tif'
+        snow_meltout =  f'snowmelt_{year}{DOY}.tif'
 
         if daily_mode:
-            RasterManager.output_rasters(SWi, outdir, outname=SWiout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(SNWpk, outdir, outname=SNWpkout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(RAIN, outdir, outname=RAINout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(SWE, outdir, outname=SWEout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(snow_melt, outdir, outname=snow_meltout, sample_tiff=sample_tiff, geo_dict=geo_dict)
+            self.rmanager.output_rasters(SWi, self.outdir, outname=SWiout)
+            self.rmanager.output_rasters(SNWpk, self.outdir, outname=SNWpkout)
+            self.rmanager.output_rasters(RAIN, self.outdir, outname=RAINout)
+            self.rmanager.output_rasters(SWE, self.outdir, outname=SWEout)
+            self.rmanager.output_rasters(snow_melt, self.outdir, outname=snow_meltout)
 
         # output DDRAIN and SRf
-        DDrain, SRf = self.surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity, whc=self.whc, rf_coeff=self.rf_coeff, geo_dict=geo_dict)
-        DDrainout = f'model_outputs/dd_{year}{DOY}.tif'
-        SRfout = f'model_outputs/srf_{year}{DOY}.tif'
+        DDrain, SRf = self._surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity,
+                                           whc=self.whc, rf_coeff=self.rf_coeff)
+        DDrainout = f'dd_{year}{DOY}.tif'
+        SRfout = f'srf_{year}{DOY}.tif'
         if daily_mode:
-            RasterManager.output_rasters(DDrain, outdir, outname=DDrainout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(SRf, outdir, outname=SRfout, sample_tiff=sample_tiff, geo_dict=geo_dict)
+            self.rmanager.output_rasters(DDrain, self.outdir, outname=DDrainout)
+            self.rmanager.output_rasters(SRf, self.outdir, outname=SRfout)
 
         # output eta and SWf
-        etasw, SWf, etasw5 = veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, pet, ndvi, SWi)
-        etaswout = f'model_outputs/etasw_{year}{DOY}.tif'
-        SWfout = f'model_outputs/swf_{year}{DOY}.tif'
-        etasw5out = f'model_outputs/etasw5_{year}{DOY}.tif'
+        etasw, SWf, etasw5 = self._veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
+                                          self.pet, self.ndvi, SWi)
+        etaswout = f'etasw_{year}{DOY}.tif'
+        SWfout = f'swf_{year}{DOY}.tif'
+        etasw5out = f'etasw5_{year}{DOY}.tif'
         if daily_mode:
-            RasterManager.output_rasters(etasw, outdir, outname=etaswout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(SWf, outdir, outname=SWfout, sample_tiff=sample_tiff, geo_dict=geo_dict)
-            RasterManager.output_rasters(etasw5, outdir, outname=etasw5out, sample_tiff=sample_tiff, geo_dict=geo_dict)
+            self.rmanager.output_rasters(etasw, outdir, outname=etaswout)
+            self.rmanager.output_rasters(SWf, outdir, outname=SWfout)
+            self.rmanager.output_rasters(etasw5, outdir, outname=etasw5out)
 
         return SWf, SNWpk, etasw, DDrain, SRf
 
     def run_veg_et(self):
         print(
-            '''_ _            ___  ___  _  _ 
+            '''             _ _            ___  ___  _  _ 
             | | | ___  ___ | __>|_ _|| || |
             | ' |/ ._>/ . || _>  | | |_/|_/
             |__/ \___.\_. ||___> |_| <_><_>
                        <___'                '''
         )
 
-        start_dt = datetime.strptime("{}-{:03d}".format(start_year, start_day), '%Y-%j')
+        start_dt = datetime.strptime("{}-{:03d}".format(self.start_year, self.start_day), '%Y-%j')
         print(start_dt)
-        end_dt = datetime.strptime("{}-{:03d}".format(end_year, end_day), '%Y-%j')
+        end_dt = datetime.strptime("{}-{:03d}".format(self.end_year, self.end_day), '%Y-%j')
         print(end_dt)
         time_interval = end_dt - start_dt
         num_days = time_interval.days
         print(num_days)
 
-        # initially set output_yearly_arrya and output_monhly array to False and you will change
+        accumulate_mode = self.accumulate_mode
+
+        # initially set output_yearly_arrays and output_monhly array to False and you will change
         # them later depending on what is in the accumulate_mode list
+        # todo - set these in config.
         output_monthly_arr = False
         output_yearly_arr = False
         # step daily. It is false if not included by default.
-        if 'daily' not in accumulate_mode:
-            output_daily_arr = False
-        else:
-            output_daily_arr = True
+        output_daily_arr = False
+        output_daily_arr = True
 
-        sample_shape = None
+        # Open static inputs and normalize them to standard numpy arrays
+
+        # static inputs
+        self.interception = self.pmanager.get_static_data(self.interception_settings)
+        self.whc = self.pmanager.get_static_data(self.whc_settings)
+        self.field_capacity = self.pmanager.get_static_data(self.field_capacity_settings)
+        self.saturation = self.pmanager.get_static_data(self.saturation_settings)
+        self.watermask = self.pmanager.get_static_data(self.watermask_settings)
+        # package as a list
+        static_inputs = [self.interception, self.whc, self.field_capacity, self.saturation, self.watermask]
+        # normalizing.
+        self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
+            = self.rmanager.normalize_to_std_grid(inputs=static_inputs,resamplemethod='nearest')
 
 
-        # TODO - Spawn an instance of RasterManager()
-
-        """
-        # e.g. rm = RasterManager(config, samplte tif, feat='0')
-        
-        """
-
-
-        # set monthly and yearly cumulative arrays:
-        if sample_tiff != None:
-            sampleds = rasterio.open(sample_tiff)
-            sampleband = sampleds.read(1)
-            sample_shape = sampleband.shape
-            # A total of six output arrays must be instantiated in case accumulate_mode != None
-            # monthly
-            et_month_cum_arr = np.zeros(sample_shape)
-            dd_month_cum_arr = np.zeros(sample_shape)
-            srf_month_cum_arr = np.zeros(sample_shape)
-            # yearly
-            et_yearly_cum_arr = np.zeros(sample_shape)
-            dd_yearly_cum_arr = np.zeros(sample_shape)
-            srf_yearly_cum_arr = np.zeros(sample_shape)
-
-        elif geo_dict != None:
-            # todo - for steffi l8er? using (width, height)
-            pass
+        # set monthly and yearly cumulative arrays (use one of the numpys from the
+        # static array that has been normalized):
+        model_arr_shape = self.interception.shape
+        # A total of six output arrays must be instantiated in case accumulate_mode != None
+        # monthly
+        et_month_cum_arr = np.zeros(model_arr_shape)
+        dd_month_cum_arr = np.zeros(model_arr_shape)
+        srf_month_cum_arr = np.zeros(model_arr_shape)
+        # yearly
+        et_yearly_cum_arr = np.zeros(model_arr_shape)
+        dd_yearly_cum_arr = np.zeros(model_arr_shape)
+        srf_yearly_cum_arr = np.zeros(model_arr_shape)
 
         # the soil water fraction and snowpack are none to start out.
         changing_swf = None
@@ -729,13 +763,12 @@ class VegET:
             today = start_dt + timedelta(days=i)
             if i == 0:
 
-                swf, snwpck, etasw, DDrain, SRf = self.run_water_bal(i, today, interception, whc, field_capacity, saturation,
-                                                                rf_coeff, k_factor, ndvi_factor, water_factor,
-                                                                bias_corr, alfa_factor, watermask,
-                                                                outdir=outdir,
-                                                                yest_snwpck=None, yest_swf=None, geo_dict=geo_dict,
-                                                                sample_tiff=sample_tiff,
-                                                                daily_mode=output_daily_arr)
+                swf, snwpck, etasw, DDrain, SRf = self._run_water_bal(i, today, self.interception, self.whc, self.field_capacity,
+                                                                      self.saturation, self.rf_coeff, self.k_factor,
+                                                                      self.ndvi_factor, self.water_factor, self.bias_corr,
+                                                                      self.alfa_factor, self.watermask,
+                                                                      outdir=self.outdir, yest_snwpck=None, yest_swf=None,
+                                                                      sample_tiff=self.sample_tiff, daily_mode=output_daily_arr)
                 changing_swf = swf
                 changing_snwpck = snwpck
 
@@ -746,7 +779,7 @@ class VegET:
                     d = today.day
                     mo = today.month
                     yr = today.year
-                    output_monthly_arr = end_of_month(d, mo, yr)
+                    output_monthly_arr = self._end_of_month(d, mo, yr)
 
                 if 'yearly' in accumulate_mode:
                     # todo - deal with Water Year mode later
@@ -762,12 +795,14 @@ class VegET:
 
                 print('output monthly is {} and output yearly is {}'.format(output_monthly_arr, output_yearly_arr))
 
-                swf, snwpck, etasw, DDrain, SRf = run_water_bal(i, today, interception, whc, field_capacity, saturation,
-                                                                rf_coeff, k_factor, ndvi_factor, water_factor,
-                                                                bias_corr, alfa_factor, watermask,
-                                                                outdir=outdir, yest_snwpck=changing_snwpck,
-                                                                yest_swf=changing_swf, geo_dict=geo_dict,
-                                                                sample_tiff=sample_tiff, daily_mode=output_daily_arr)
+                swf, snwpck, etasw, DDrain, SRf = self._run_water_bal(i, today, self.interception, self.whc,
+                                                                      self.field_capacity, self.saturation,
+                                                                      self.rf_coeff, self.k_factor, self.ndvi_factor,
+                                                                      self.water_factor, self.bias_corr, self.alfa_factor,
+                                                                      self.watermask, outdir=self.outdir, yest_snwpck=changing_snwpck,
+                                                                      yest_swf=changing_swf, sample_tiff=self.sample_tiff,
+                                                                      daily_mode=output_daily_arr)
+
                 # monthly
                 et_month_cum_arr += etasw
                 dd_month_cum_arr += DDrain
@@ -779,36 +814,29 @@ class VegET:
 
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
-                    output_rasters(et_month_cum_arr, outdir,
-                                   'model_outputs/etasw_{}{:02d}.tif'.format(today.year, today.month),
-                                   sample_tiff=sample_tiff, geo_dict=geo_dict)
-                    output_rasters(dd_month_cum_arr, outdir,
-                                   'model_outputs/dd_{}{:02d}.tif'.format(today.year, today.month),
-                                   sample_tiff=sample_tiff,
-                                   geo_dict=geo_dict)
-                    output_rasters(srf_month_cum_arr, outdir,
-                                   'model_outputs/srf_{}{:02d}.tif'.format(today.year, today.month),
-                                   sample_tiff=sample_tiff, geo_dict=geo_dict)
+                    self.rmanager.output_rasters(et_month_cum_arr, self.outdir,
+                                   'model_outputs/etasw_{}{:02d}.tif'.format(today.year, today.month))
+                    self.rmanager.output_rasters(dd_month_cum_arr, self.outdir,
+                                   'model_outputs/dd_{}{:02d}.tif'.format(today.year, today.month))
+                    self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
+                                   'model_outputs/srf_{}{:02d}.tif'.format(today.year, today.month))
 
                     # zero-out arrays to start the next month over.
-                    et_month_cum_arr = np.zeros(sample_shape)
-                    dd_month_cum_arr = np.zeros(sample_shape)
-                    srf_month_cum_arr = np.zeros(sample_shape)
+                    et_month_cum_arr = np.zeros(model_arr_shape)
+                    dd_month_cum_arr = np.zeros(model_arr_shape)
+                    srf_month_cum_arr = np.zeros(model_arr_shape)
                     output_monthly_arr = False
 
                 if output_yearly_arr:
                     # function to create yearly output rasters for each variables
-                    output_rasters(et_yearly_cum_arr, outdir, 'model_outputs/etasw_{}.tif'.format(today.year),
-                                   sample_tiff=sample_tiff, geo_dict=geo_dict)
-                    output_rasters(dd_yearly_cum_arr, outdir, 'model_outputs/dd_{}.tif'.format(today.year),
-                                   sample_tiff=sample_tiff, geo_dict=geo_dict)
-                    output_rasters(srf_yearly_cum_arr, outdir, 'model_outputs/srf_{}.tif'.format(today.year),
-                                   sample_tiff=sample_tiff, geo_dict=geo_dict)
+                    self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'model_outputs/etasw_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'model_outputs/dd_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'model_outputs/srf_{}.tif'.format(today.year))
 
                     # zero-out arrays to start the next year over.
-                    et_yearly_cum_arr = np.zeros(sample_shape)
-                    dd_yearly_cum_arr = np.zeros(sample_shape)
-                    srf_yearly_cum_arr = np.zeros(sample_shape)
+                    et_yearly_cum_arr = np.zeros(model_arr_shape)
+                    dd_yearly_cum_arr = np.zeros(model_arr_shape)
+                    srf_yearly_cum_arr = np.zeros(model_arr_shape)
                     output_yearly_arr = False
 
                 changing_swf = swf
@@ -824,21 +852,24 @@ class VegETAnalysis:
 
         
 if __name__ == '__main__':
-    print(datetime.now())
 
 
-    # todo - handle leap years, handle bad inputs, need to make command line inputs for all params? returns soils automatically for veg et
-    veg_model = VegET(veget_config_path=r'attributes.yml')
-
-
-
-    # run Veg ET model, Acceptable accumulate modes: 'monthly', 'yearly'
-    veg_model.run_veg_et(start_year, end_year, start_day, end_day,
-               interception, whc, field_capacity, saturation,
-               rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
-               geo_dict=None, sample_tiff=sample_tiff, outdir='',
-               accumulate_mode=['daily', 'monthly', 'yearly'])
-    print(datetime.now())
+    print('need to implement a main function')
+    # print(datetime.now())
+    #
+    #
+    # # todo - handle leap years, handle bad inputs, need to make command line inputs for all params? returns soils automatically for veg et
+    # veg_model = VegET(veget_config_path=r'attributes.yml')
+    #
+    #
+    #
+    # # run Veg ET model, Acceptable accumulate modes: 'monthly', 'yearly'
+    # veg_model.run_veg_et(start_year, end_year, start_day, end_day,
+    #            interception, whc, field_capacity, saturation,
+    #            rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
+    #            geo_dict=None, sample_tiff=sample_tiff, outdir='',
+    #            accumulate_mode=['daily', 'monthly', 'yearly'])
+    # print(datetime.now())
 
 
 
