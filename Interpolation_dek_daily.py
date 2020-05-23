@@ -13,6 +13,8 @@ import sys, os
 import arcpy
 from arcpy.sa import *
 
+print(' imessed up  mikes file')
+
 # Check out the ArcGIS Spatial Analyst extension license
 arcpy.CheckOutExtension("Spatial")
 arcpy.env.rasterStatistics = "STATISTICS"
