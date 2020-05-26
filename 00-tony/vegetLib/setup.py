@@ -1,12 +1,12 @@
 from setuptools import setup
 
-setup(name='playLib',
+setup(name='vegetLib',
       maintainer='Tony Butzer',
       maintainer_email='tonybutzer@gmail.com',
-      version='1.0.3',
-      description='helper functions for et model water balance',
+      version='1.0.0',
+      description='Classes for et model water balance',
       packages=[
-          'playLib',
+          'vegetLib',
       ],
       install_requires=[
           'boto3',

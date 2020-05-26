@@ -1,3 +1,5 @@
+import os
+
 class RasterManager:
     """
     This class addresses all the data wrangling needs to get the data sets needed in the model

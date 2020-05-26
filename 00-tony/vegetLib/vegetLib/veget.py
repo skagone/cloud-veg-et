@@ -1,3 +1,10 @@
+import os
+import yaml
+import sys
+
+from .vegconfig import return_veget_params
+from .rastermanager import RasterManager
+
 class VegET:
     """
     This is the heart of the Veg ET model, a soil-water balance model.
@@ -41,44 +48,29 @@ class VegET:
     tmax_settings = None
 
     def __init__(self, veget_config_path=None):
-        if veget_config_path is None:
-            print('You need to point to the configure file to get the path')
-            sys.exit(1)
-        else:
-            # this allows for the config to be created from a preexisting file
-            self.config_path = veget_config_path
-            if os.path.exists(self.config_path):
-                with open(self.config_path, 'r') as cfgpath:
-                    self.config_dict = yaml.safe_load(cfgpath)
-            else:
-                print('the path does not exist, check the path you gave VegET()')
-                sys.exit(0)
+        
             # create an instance of the VegET model using the configurations from the file.
-            self.config = VegConfig(self.config_dict)
-            # initialize the classes that manage Raster data and input/output paths to the data
-            self.rmanager = RasterManager(config=self.config)
-            sgrid = self.rmanager.set_model_std_grid(self)
-            self.pmanager = PathManager(config=self.config)
-
+            self.config_dict = return_veget_params(veget_config_path)
+            print('---'*30)
+            print(self.config_dict)
+            print(self.config_dict['start_day'])
+            
             # set startday and endday
-            self.start_day = self.config.start_day
-            self.end_day = self.config.end_day
-            self.start_year = self.config.start_year
-            self.end_year = self.config.end_year
-            # set interception settings
-            self.interception_settings = self.config.interception_settings
-            self.whc_settings = self.config.whc_settings
-            self.saturation_settings = self.config.saturation_settings
-            self.watermask_settings = self.config.watermask_settings
-            self.field_capacity_settings = self.config.field_capacity_settings
-            self.ndvi_settings = self.config.ndvi_settings
-            self.precip_settings = self.config.precip_settings
-            self.pet_settings = self.config.pet_settings
-            self.tavg_settings = self.config.tavg_settings
-            self.tmin_settings = self.config.tmin_settings
-            self.tmax_settings = self.config.tmax_settings
-
+            # ===========run parameters===================
+            self.start_day = self.config_dict['start_day']
+            self.end_day = self.config_dict['end_day']
+            self.start_year = self.config_dict['start_year']
+            self.end_year = self.config_dict['end_year']
+            
+            # accumulation modes
+            self.accumulate_mode = self.config_dict['accumulate_mode']
+            
+            print(self.start_day, self.end_day, self.start_year, self.end_year)
+            print (self.accumulate_mode)
+            sys.exit(0)
+            
             # set here in init so they can be float
+            # ====================== model parameters ==================================
             self.rf_low_thresh_temp = float(self.config.rf_low_thresh_temp)
             self.rf_high_thresh_temp = float(self.config.rf_high_thresh_temp)
             self.rf_value = float(self.config.rf_value)
@@ -92,8 +84,27 @@ class VegET:
             self.alfa_factor = float(self.config.alfa_factor)
 
 
-            # accumulation modes
-            self.accumulate_mode = self.config.accumulate_mode
+            
+            
+            # initialize the classes that manage Raster data and input/output paths to the data
+            self.rmanager = RasterManager(config=self.config)
+            sgrid = self.rmanager.set_model_std_grid(self)
+            self.pmanager = PathManager(config=self.config)
+
+            # set interception settings
+            self.interception_settings = self.config.interception_settings
+            self.whc_settings = self.config.whc_settings
+            self.saturation_settings = self.config.saturation_settings
+            self.watermask_settings = self.config.watermask_settings
+            self.field_capacity_settings = self.config.field_capacity_settings
+            self.ndvi_settings = self.config.ndvi_settings
+            self.precip_settings = self.config.precip_settings
+            self.pet_settings = self.config.pet_settings
+            self.tavg_settings = self.config.tavg_settings
+            self.tmin_settings = self.config.tmin_settings
+            self.tmax_settings = self.config.tmax_settings
+
+            
 
             # set the output dir and make it if it doens't exist
             self.outdir = self.config.out_root
