@@ -52,8 +52,7 @@ class VegET:
             # create an instance of the VegET model using the configurations from the file.
             self.config_dict = return_veget_params(veget_config_path)
             print('---'*30)
-            print(self.config_dict)
-            print(self.config_dict['start_day'])
+            # print(self.config_dict['start_day'])
             
             # set startday and endday
             # ===========run parameters===================
@@ -65,23 +64,27 @@ class VegET:
             # accumulation modes
             self.accumulate_mode = self.config_dict['accumulate_mode']
             
-            print(self.start_day, self.end_day, self.start_year, self.end_year)
-            print (self.accumulate_mode)
-            sys.exit(0)
+            # print(self.start_day, self.end_day, self.start_year, self.end_year)
+            # print (self.accumulate_mode)
             
             # set here in init so they can be float
             # ====================== model parameters ==================================
-            self.rf_low_thresh_temp = float(self.config.rf_low_thresh_temp)
-            self.rf_high_thresh_temp = float(self.config.rf_high_thresh_temp)
-            self.rf_value = float(self.config.rf_value)
-            self.melt_factor = float(self.config.melt_factor)
-            self.dc_coeff = float(self.config.dc_coeff)
-            self.rf_coeff = float(self.config.rf_coeff)
-            self.k_factor = float(self.config.k_factor)
-            self.ndvi_factor = float(self.config.ndvi_factor)
-            self.water_factor = float(self.config.water_factor)
-            self.bias_corr = float(self.config.bias_corr)
-            self.alfa_factor = float(self.config.alfa_factor)
+            self.rf_low_thresh_temp = float(self.config_dict['rf_low_thresh_temp'])
+            self.rf_high_thresh_temp = float(self.config_dict['rf_high_thresh_temp'])
+            self.rf_value = float(self.config_dict['rf_value'])
+            self.melt_factor = float(self.config_dict['melt_factor'])
+            self.dc_coeff = float(self.config_dict['dc_coeff'])
+            self.rf_coeff = float(self.config_dict['rf_coeff'])
+            self.k_factor = float(self.config_dict['k_factor'])
+            print(self.config_dict)
+            print('---'*30)
+            print(self.config_dict['start_day'])
+            print(self.k_factor)
+            sys.exit(0)
+            self.ndvi_factor = float(self.config_dict.ndvi_factor)
+            self.water_factor = float(self.config_dict.water_factor)
+            self.bias_corr = float(self.config_dict.bias_corr)
+            self.alfa_factor = float(self.config_dict.alfa_factor)
 
 
             
