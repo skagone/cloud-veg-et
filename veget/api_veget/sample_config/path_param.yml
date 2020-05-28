@@ -5,7 +5,10 @@
 # output_location
 out_root: dev-et-data/tile_modelrun1
 # temporary folder for rasterio vrt -> npy conversion
-temp_folder: dev-et-data/temp_data
+#temp_folder: dev-et-data/temp_data
+
+temp_folder: SOMEBLOCKSTORAGECOMPUTEDATRUNTIMENONBUCKETHUH
+
 # Dataset info
 
 precip_settings:

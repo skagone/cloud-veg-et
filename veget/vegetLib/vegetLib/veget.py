@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, date
 from .vegconfig import return_veget_params
 from .rastermanager import RasterManager
 from .pathmanager import PathManager
+from .log_logger import log_make_logger
 
 class VegET:
     """
@@ -50,7 +51,10 @@ class VegET:
     tavg_settings = None
     tmax_settings = None
 
-    def __init__(self, veget_config_path=None):
+    def __init__(self, veget_config_path, tile):
+
+            self.log = log_make_logger('VegET_CLASS')
+            self.log.info(tile)
         
             # create an instance of the VegET model using the configurations from the file.
             self.config_dict = return_veget_params(veget_config_path)
@@ -73,8 +77,10 @@ class VegET:
             # print (self.accumulate_mode)
             # print (self.path_mode)
 
+            self.config_dict['tile'] = tile
+
             # initialize the classes that manage Raster data and input/output paths to the data
-            self.rmanager = RasterManager(config=self.config)
+            self.rmanager = RasterManager(config_dict=self.config_dict)
             self.pmanager = PathManager(config=self.config)
 
             # based on the geoproperties tiff and shapefile the raster manager sets its own attributes to define the aoi

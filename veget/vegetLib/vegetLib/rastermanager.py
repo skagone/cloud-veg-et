@@ -14,7 +14,11 @@ from rasterio.crs import CRS
 from rasterio.enums import Resampling
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
-from veget.vegetLib.vegetLib.pathmanager import PathManager
+
+from .pathmanager import PathManager
+
+from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
+from .log_logger import log_make_logger
 
 
 class RasterManager:
@@ -50,14 +54,27 @@ class RasterManager:
     temp_folder = None
 
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config_dict):
+        self.log = log_make_logger('COOL RASTERMANAGER')
 
-        self.geoproperties_file = config.geoproperties_file
-        self.shapefile = config.shapefile
-        self.temp_folder = os.path.join(config.out_root, config.temp_folder)
+        self.config_dict = config_dict
+
+        tile = self.config_dict['tile']
+
+        self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
+
+        # self.geoproperties_file = config.geoproperties_file
+        # self.shapefile = config.shapefile
+        # self.temp_folder = os.path.join(config.out_root, config.temp_folder)
+
+        # self.temp_folder = config_dict['temp_folder']
+        self.temp_folder = './' + tile
+        self.log.info('temp folder is'.format(self.temp_folder))
+
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
+
+        shape_file_name = box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
 
         if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
