@@ -94,21 +94,21 @@ class VegET:
             self.alfa_factor = float(self.config_dict['alfa_factor'])
 
             # ====================== data settings ==================================
-            self.interception_settings = self.config['interception_settings']
-            self.whc_settings = self.config['whc_settings']
-            self.saturation_settings = self.config['saturation_settings']
-            self.watermask_settings = self.config['watermask_settings']
-            self.field_capacity_settings = self.config['field_capacity_settings']
-            self.ndvi_settings = self.config['ndvi_settings']
-            self.precip_settings = self.config['precip_settings']
-            self.pet_settings = self.config['pet_settings']
-            self.tavg_settings = self.config['tavg_settings']
-            self.tmin_settings = self.config['tmin_settings']
-            self.tmax_settings = self.config['tmax_settings']
+            self.interception_settings = self.config_dict['interception_settings']
+            self.whc_settings = self.config_dict['whc_settings']
+            self.saturation_settings = self.config_dict['saturation_settings']
+            self.watermask_settings = self.config_dict['watermask_settings']
+            self.field_capacity_settings = self.config_dict['field_capacity_settings']
+            self.ndvi_settings = self.config_dict['ndvi_settings']
+            self.precip_settings = self.config_dict['precip_settings']
+            self.pet_settings = self.config_dict['pet_settings']
+            self.tavg_settings = self.config_dict['tavg_settings']
+            self.tmin_settings = self.config_dict['tmin_settings']
+            self.tmax_settings = self.config_dict['tmax_settings']
             
 
             # # set the output dir and make it if it doens't exist (only for local)
-            self.outdir = self.config['out_root']
+            self.outdir = self.config_dict['out_root']
             self.pmanager.make_folder(folder_path=self.outdir)
 
     def _day_of_year(self, today):

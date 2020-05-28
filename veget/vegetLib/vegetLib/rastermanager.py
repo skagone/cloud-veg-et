@@ -88,12 +88,12 @@ class RasterManager:
                 wrast.write(band1, indexes=1)
 
             # Buckets are not directories but you can treat them like they are
-            bucketname = os.path.split(outdir)[0]
-            bucketdir = os.path.split(outdir)[-1]
-            bfilepath = os.path.join(bucketdir, outname)
+            bucket_name = os.path.split(self.config.out_root)[0]     # dev-et-data
+            bucket_prefix = os.path.split(self.config.out_root)[-1]  # tile_modelrun1
+            bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath
-            self.s3_delete_local(local_file=local_outpath, bucket=bucketname, bucket_filepath=bfilepath)
+            self.s3_delete_local(local_file=local_outpath, bucket=bucket_name, bucket_filepath=bucket_filepath)
 
 
     def set_model_std_grid(self, feat=0):
