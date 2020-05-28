@@ -1,4 +1,21 @@
 import os
+import sys
+import yaml
+import calendar
+from datetime import datetime, timedelta, date
+
+from s3fs.core import S3FileSystem
+import boto3
+import fiona
+
+import pandas as pd
+import rasterio.mask
+from rasterio.crs import CRS
+from rasterio.enums import Resampling
+from rasterio import shutil as rio_shutil
+from rasterio.vrt import WarpedVRT
+from veget.vegetLib.vegetLib.pathmanager import PathManager
+
 
 class RasterManager:
     """
@@ -27,10 +44,9 @@ class RasterManager:
     top = None
     transform = [xres, 0.0, left, 0.0, yres, top]
 
-    sample_tiff = None
+    geoproperties_file = None
     # can contain multiple features of interest
     shapefile = None
-
     temp_folder = None
 
 
@@ -52,20 +68,32 @@ class RasterManager:
         """
         This function creates geotiff files from the model output arrays.
         """
+        if self.config.path_mode == 'local':
+            outpath = os.path.join(outdir, outname)
+            print('the outpath for file {} is {}'.format(outname, outpath))
 
-        outpath = os.path.join(outdir, outname)
-        print('the outpath for file {} is {}'.format(outname, outpath))
+            band1 = arr
+            with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
+                               count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
+                wrast.write(band1, indexes=1)
 
-        # get the geoinfo from sample tiff to output intermediate files
-        ds = rasterio.open(self.geoproperties_file)
-        band1 = arr
-        with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
-                           count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
-            wrast.write(band1, indexes=1)
+        elif self.config.path_mode == 'aws':
+            # later on deleted by s3_delete_local()
+            local_outpath = os.path.join(self.config.temp_folder, outname)
 
-        # TODO - Set an AWS Cloud flag in the config file to activate this function or not...
-        # delete files created locally and put in bucket
-        # PathManager.s3_delete_local(from_file, bucket, prefix_no_slash)
+            band1 = arr
+            # wrte to a temp folder
+            with rasterio.open(local_outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
+                               count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
+                wrast.write(band1, indexes=1)
+
+            # Buckets are not directories but you can treat them like they are
+            bucketname = os.path.split(outdir)[0]
+            bucketdir = os.path.split(outdir)[-1]
+            bfilepath = os.path.join(bucketdir, outname)
+
+            # uploads to aws bucket with filepath
+            self.s3_delete_local(local_file=local_outpath, bucket=bucketname, bucket_filepath=bfilepath)
 
 
     def set_model_std_grid(self, feat=0):
@@ -144,5 +172,20 @@ class RasterManager:
                 npy_outputs.append(arr)
 
         return npy_outputs
+
+    def s3_delete_local(self, local_file, bucket, bucket_filepath):
+        """
+        This function will move the model outputs from a local folder to a cloud bucket.
+        :param local_file: path the the local geo file
+        :param outpath: path of a directory to be created in the cloud bucket
+        :param bucket: name of the cloud bucket = 'dev-et-data'
+        :param bucket_folder: "folder" in cloud bucket  = 'v1DRB_outputs'
+        :return:
+        """
+
+        s3 = boto3.client('s3')
+        with open(local_file, "rb") as f:
+            s3.upload_fileobj(f, bucket, bucket_filepath)
+        os.remove(local_file)
 
 

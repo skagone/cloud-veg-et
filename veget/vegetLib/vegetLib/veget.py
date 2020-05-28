@@ -4,6 +4,7 @@ import sys
 
 from .vegconfig import return_veget_params
 from .rastermanager import RasterManager
+from .pathmanager import PathManager
 
 class VegET:
     """
@@ -63,11 +64,20 @@ class VegET:
             
             # accumulation modes
             self.accumulate_mode = self.config_dict['accumulate_mode']
-            
+            # path modes
+            self.path_mode = self.config_dict['path_mode']
+
             # print(self.start_day, self.end_day, self.start_year, self.end_year)
             # print (self.accumulate_mode)
-            
-            # set here in init so they can be float
+            # print (self.path_mode)
+
+            # initialize the classes that manage Raster data and input/output paths to the data
+            self.rmanager = RasterManager(config=self.config)
+            self.pmanager = PathManager(config=self.config)
+
+            # based on the geoproperties tiff and shapefile the raster manager sets its own attributes to define the aoi
+            self.rmanager.set_model_std_grid(self)
+
             # ====================== model parameters ==================================
             self.rf_low_thresh_temp = float(self.config_dict['rf_low_thresh_temp'])
             self.rf_high_thresh_temp = float(self.config_dict['rf_high_thresh_temp'])
@@ -76,43 +86,28 @@ class VegET:
             self.dc_coeff = float(self.config_dict['dc_coeff'])
             self.rf_coeff = float(self.config_dict['rf_coeff'])
             self.k_factor = float(self.config_dict['k_factor'])
-            print(self.config_dict)
-            print('---'*30)
-            print(self.config_dict['start_day'])
-            print(self.k_factor)
-            sys.exit(0)
-            self.ndvi_factor = float(self.config_dict.ndvi_factor)
-            self.water_factor = float(self.config_dict.water_factor)
-            self.bias_corr = float(self.config_dict.bias_corr)
-            self.alfa_factor = float(self.config_dict.alfa_factor)
+            self.ndvi_factor = float(self.config_dict['ndvi_factor'])
+            self.water_factor = float(self.config_dict['water_factor'])
+            self.bias_corr = float(self.config_dict['bias_corr'])
+            self.alfa_factor = float(self.config_dict['alfa_factor'])
 
-
-            
-            
-            # initialize the classes that manage Raster data and input/output paths to the data
-            self.rmanager = RasterManager(config=self.config)
-            sgrid = self.rmanager.set_model_std_grid(self)
-            self.pmanager = PathManager(config=self.config)
-
-            # set interception settings
-            self.interception_settings = self.config.interception_settings
-            self.whc_settings = self.config.whc_settings
-            self.saturation_settings = self.config.saturation_settings
-            self.watermask_settings = self.config.watermask_settings
-            self.field_capacity_settings = self.config.field_capacity_settings
-            self.ndvi_settings = self.config.ndvi_settings
-            self.precip_settings = self.config.precip_settings
-            self.pet_settings = self.config.pet_settings
-            self.tavg_settings = self.config.tavg_settings
-            self.tmin_settings = self.config.tmin_settings
-            self.tmax_settings = self.config.tmax_settings
-
+            # ====================== data settings ==================================
+            self.interception_settings = self.config['interception_settings']
+            self.whc_settings = self.config['whc_settings']
+            self.saturation_settings = self.config['saturation_settings']
+            self.watermask_settings = self.config['watermask_settings']
+            self.field_capacity_settings = self.config['field_capacity_settings']
+            self.ndvi_settings = self.config['ndvi_settings']
+            self.precip_settings = self.config['precip_settings']
+            self.pet_settings = self.config['pet_settings']
+            self.tavg_settings = self.config['tavg_settings']
+            self.tmin_settings = self.config['tmin_settings']
+            self.tmax_settings = self.config['tmax_settings']
             
 
-            # set the output dir and make it if it doens't exist
-            self.outdir = self.config.out_root
-            if not os.path.exists(self.outdir):
-                os.makedirs(self.outdir)
+            # # set the output dir and make it if it doens't exist (only for local)
+            self.outdir = self.config['out_root']
+            self.pmanager.make_folder(folder_path=self.outdir)
 
     def _day_of_year(self, today):
         year = today.year

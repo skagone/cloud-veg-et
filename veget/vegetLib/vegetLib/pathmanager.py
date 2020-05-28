@@ -1,13 +1,18 @@
+import os
+from s3fs.core import S3FileSystem as s3
+import boto3
+import sys
+
 class PathManager:
     """
     This class creates the input paths for the dynamic and static data needed in the model.
     """
 
 
-    # Todo - configuration non_std_inputs = True, accept parameters such as ndvi_fmt = userndvi_{}_vers1.tif
-    #  where {} is the date and date_fmt YYYYmmdd or YYYYdd etc for a filepath. A dictionary can relate user-input
-    #  name formatting to model std formats. Right now, non_std_inputs must be false and only 1 type of naming
-    #  convention per paramter file is allowed.
+    # configuration non_std_inputs = True, accept parameters such as ndvi_fmt = userndvi_{}_vers1.tif
+    # where {} is the date and date_fmt YYYYmmdd or YYYYdd etc for a filepath. A dictionary can relate user-input
+    # name formatting to model std formats. Right now, non_std_inputs must be false and only 1 type of naming
+    # convention per parameter file is allowed.
 
     ndvif = None
     pptf = None
@@ -52,6 +57,14 @@ class PathManager:
             sys.exit(0)
 
         fpath = os.path.join(settings[loc_key], settings[name_key].format(dynamic_key))
+        if self.config.path_mode == 'local':
+            pass
+        elif self.config.path_mode == 'aws':
+            fpath = s3.open(fpath)
+        elif self.config.path_mode == 'google':
+            # TODO
+            print('google cloud bucket is not implemented. Returning as if the path were for a local')
+            pass
         return fpath
 
 
@@ -62,22 +75,35 @@ class PathManager:
         :return:
         """
         fpath = settings['file_loc']
+
+        if self.config.path_mode == 'local':
+            pass
+        elif self.config.path_mode == 'aws':
+            fpath = s3.open(fpath)
+        elif self.config.path_mode == 'google':
+            # TODO
+            print('google cloud bucket is not implemented. Returning as if the path were for a local')
+            pass
         return fpath
 
 
-    def s3_delete_local(self, outpath, from_file, bucket, prefix_no_slash):
-        """
-        This function will move the model outputs from a local folder to a cloud bucket.
-        :param from_file: path the the local folder
-        :param bucket: name of the cloud bucket = 'dev-et-data'
-        :param prefix_no_slash: "folder" in cloud bucket  = 'v1DRB_outputs'
-        :return:
-        """
+    def make_folder(self, folder_path):
+        """"""
+        # TODO - if user wants to put outputs in dir/subdir, how to handle with boto3???
+        if self.config.path_mode == 'local':
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+        elif self.config.path_mode == 'aws':
+            pass
+            # if not os.path.exists(folder_path):
+                # bucket= os.path.split(folder_path)[0]
+                # KeyFileName = os.path.split(folder_path)[1]
+                # s3 = boto3.client("s3")
+                # with open(myfilename) as f:
+                #     s3.
+                #     s3.client.put_object(Bucket=bucket, Key=KeyFileName)
 
-        objecta='{}/{}'.format(prefix_no_slash,outpath)
-        s3 = boto3.client('s3')
-        with open(from_file, "rb") as f:
-            s3.upload_fileobj(f, bucket, objecta)
-        os.remove(from_file)
+
+
 
 
