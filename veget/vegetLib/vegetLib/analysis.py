@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # veg_model.run_veg_et(start_year, end_year, start_day, end_day,
     #            interception, whc, field_capacity, saturation,
     #            rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
-    #            geo_dict=None, sample_tiff=sample_tiff, outdir='',
+    #            geo_dict=None, geoproperties_file=geoproperties_file, outdir='',
     #            accumulate_mode=['daily', 'monthly', 'yearly'])
     # print(datetime.now())
 

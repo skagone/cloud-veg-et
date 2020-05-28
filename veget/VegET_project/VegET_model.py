@@ -29,7 +29,7 @@ class VegConfig:
     end_year = None
     start_day = None
     end_day = None
-    sample_tiff = None
+    geoproperties_file = None
     shapefile = None
 
     # ==== Version 2.0 params ====
@@ -185,7 +185,7 @@ class RasterManager:
     top = None
     transform = [xres, 0.0, left, 0.0, yres, top]
 
-    sample_tiff = None
+    geoproperties_file = None
     # can contain multiple features of interest
     shapefile = None
 
@@ -195,13 +195,13 @@ class RasterManager:
     def __init__(self, config):
         self.config = config
 
-        self.sample_tiff = config.sample_tiff
+        self.geoproperties_file = config.geoproperties_file
         self.shapefile = config.shapefile
         self.temp_folder = os.path.join(config.out_root, config.temp_folder)
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        if self.sample_tiff == None or self.shapefile==None:
+        if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
@@ -215,7 +215,7 @@ class RasterManager:
         print('the outpath for file {} is {}'.format(outname, outpath))
 
         # get the geoinfo from sample tiff to output intermediate files
-        ds = rasterio.open(self.sample_tiff)
+        ds = rasterio.open(self.geoproperties_file)
         band1 = arr
         with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
                            count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
@@ -243,7 +243,7 @@ class RasterManager:
                     shapes = [feature['geometry']]
         # print('This is the shape var:', shapes)
 
-        with rasterio.open(self.sample_tiff, 'r') as src:
+        with rasterio.open(self.geoproperties_file, 'r') as src:
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta
         # once the image is cropped, the image metadata dictionary is updated with the cropped transform and bounds.
@@ -328,7 +328,7 @@ class VegET:
     bias_corr = None
     alfa_factor = None
 
-    sample_tiff = None
+    geoproperties_file = None
     outdir = None
     accumulate_mode = None
     # ----- static soil rasters for model run------
@@ -635,7 +635,7 @@ class VegET:
 
     def _run_water_bal(self, i, today, interception, whc, field_capacity, saturation,
                        rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, outdir,
-                       yest_snwpck=None, yest_swf=None, sample_tiff=None, daily_mode=True):
+                       yest_snwpck=None, yest_swf=None, geoproperties_file=None, daily_mode=True):
         """Here the water balance functions are combined into the water balance model.
         The needed input datasets are collected from buckets in the cloud, the needed functions executed
         and output datasets set up for daily, monthly, yearly rasters.
@@ -768,7 +768,7 @@ class VegET:
                                                                       self.ndvi_factor, self.water_factor, self.bias_corr,
                                                                       self.alfa_factor, self.watermask,
                                                                       outdir=self.outdir, yest_snwpck=None, yest_swf=None,
-                                                                      sample_tiff=self.sample_tiff, daily_mode=output_daily_arr)
+                                                                      geoproperties_file=self.geoproperties_file, daily_mode=output_daily_arr)
                 changing_swf = swf
                 changing_snwpck = snwpck
 
@@ -800,7 +800,7 @@ class VegET:
                                                                       self.rf_coeff, self.k_factor, self.ndvi_factor,
                                                                       self.water_factor, self.bias_corr, self.alfa_factor,
                                                                       self.watermask, outdir=self.outdir, yest_snwpck=changing_snwpck,
-                                                                      yest_swf=changing_swf, sample_tiff=self.sample_tiff,
+                                                                      yest_swf=changing_swf, geoproperties_file=self.geoproperties_file,
                                                                       daily_mode=output_daily_arr)
 
                 # monthly
@@ -867,7 +867,7 @@ if __name__ == '__main__':
     # veg_model.run_veg_et(start_year, end_year, start_day, end_day,
     #            interception, whc, field_capacity, saturation,
     #            rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
-    #            geo_dict=None, sample_tiff=sample_tiff, outdir='',
+    #            geo_dict=None, geoproperties_file=geoproperties_file, outdir='',
     #            accumulate_mode=['daily', 'monthly', 'yearly'])
     # print(datetime.now())
 

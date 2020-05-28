@@ -37,13 +37,13 @@ class RasterManager:
     def __init__(self, config):
         self.config = config
 
-        self.sample_tiff = config.sample_tiff
+        self.geoproperties_file = config.geoproperties_file
         self.shapefile = config.shapefile
         self.temp_folder = os.path.join(config.out_root, config.temp_folder)
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        if self.sample_tiff == None or self.shapefile==None:
+        if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
@@ -57,7 +57,7 @@ class RasterManager:
         print('the outpath for file {} is {}'.format(outname, outpath))
 
         # get the geoinfo from sample tiff to output intermediate files
-        ds = rasterio.open(self.sample_tiff)
+        ds = rasterio.open(self.geoproperties_file)
         band1 = arr
         with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
                            count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
@@ -85,7 +85,7 @@ class RasterManager:
                     shapes = [feature['geometry']]
         # print('This is the shape var:', shapes)
 
-        with rasterio.open(self.sample_tiff, 'r') as src:
+        with rasterio.open(self.geoproperties_file, 'r') as src:
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta
         # once the image is cropped, the image metadata dictionary is updated with the cropped transform and bounds.

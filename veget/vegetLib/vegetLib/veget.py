@@ -29,7 +29,7 @@ class VegET:
     bias_corr = None
     alfa_factor = None
 
-    sample_tiff = None
+    geoproperties_file = None
     outdir = None
     accumulate_mode = None
     # ----- static soil rasters for model run------
@@ -343,7 +343,7 @@ class VegET:
 
     def _run_water_bal(self, i, today, interception, whc, field_capacity, saturation,
                        rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, outdir,
-                       yest_snwpck=None, yest_swf=None, sample_tiff=None, daily_mode=True):
+                       yest_snwpck=None, yest_swf=None, geoproperties_file=None, daily_mode=True):
         """Here the water balance functions are combined into the water balance model.
         The needed input datasets are collected from buckets in the cloud, the needed functions executed
         and output datasets set up for daily, monthly, yearly rasters.
@@ -476,7 +476,7 @@ class VegET:
                                                                       self.ndvi_factor, self.water_factor, self.bias_corr,
                                                                       self.alfa_factor, self.watermask,
                                                                       outdir=self.outdir, yest_snwpck=None, yest_swf=None,
-                                                                      sample_tiff=self.sample_tiff, daily_mode=output_daily_arr)
+                                                                      geoproperties_file=self.geoproperties_file, daily_mode=output_daily_arr)
                 changing_swf = swf
                 changing_snwpck = snwpck
 
@@ -508,7 +508,7 @@ class VegET:
                                                                       self.rf_coeff, self.k_factor, self.ndvi_factor,
                                                                       self.water_factor, self.bias_corr, self.alfa_factor,
                                                                       self.watermask, outdir=self.outdir, yest_snwpck=changing_snwpck,
-                                                                      yest_swf=changing_swf, sample_tiff=self.sample_tiff,
+                                                                      yest_swf=changing_swf, geoproperties_file=self.geoproperties_file,
                                                                       daily_mode=output_daily_arr)
 
                 # monthly

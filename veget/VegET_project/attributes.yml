@@ -262,7 +262,7 @@ interception_settings:
 #
 ## === Raster Specs ===
 ## These could be populated by giving a sample file
-## sample_tiff
+## geoproperties_file
 #espg: 4326
 #extent: (3124,1938)
 #resolution: 250 # AKA pixel height witdth
