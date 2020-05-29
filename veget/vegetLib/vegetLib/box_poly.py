@@ -49,7 +49,7 @@ def box_w_geojson(filename,polyc):
 
 
 def box_w_shape(geojson_filename):
-    shp_filename = geojson_filename.split('.json')[0] + '.shp'
+    shp_filename = geojson_filename.split('.json')[0] + 'tile_geojson_file_name.shp'
     print(geojson_filename,shp_filename)
     cmd='ogr2ogr -f \"ESRI Shapefile\" {} {}'.format(shp_filename, geojson_filename)
     os.system(cmd)
@@ -57,3 +57,12 @@ def box_w_shape(geojson_filename):
 
 def box_create_ugly_proprietary_shapefile_plus_json_from_tile(temp_dir, tile):
     LOG.info('temp dir here is {}'.format(temp_dir))
+    my_tile_coords = box_make_poly(tile_name=tile, increment=10)
+    print(my_tile_coords)
+    tile_geojson_file_name = temp_dir + '/' + tile + '.json'
+    box_w_geojson(tile_geojson_file_name, my_tile_coords)
+    LOG.info('created simple geojson file named {}'.format(tile_geojson_file_name))
+    LOG.info('this file {} is github ready and no ESRI influence'.format(tile_geojson_file_name))
+
+    
+    
