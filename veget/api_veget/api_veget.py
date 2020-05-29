@@ -8,7 +8,7 @@ def get_parser():
     parser = argparse.ArgumentParser(description='Run the veget model with specified tile')
     parser.add_argument('tile', metavar='TILE', type=str, nargs='*',
             help='the tile to process - example: 40N-80E')
-    parser.add_argument('-c', '--configdir', help='specify and alternate config dir example: -c sample_config ', default='./sample_config', type=str)
+    parser.add_argument('-c', '--configdir', help='specify and alternate config_dict dir example: -c sample_config ', default='./sample_config', type=str)
     return parser
 
 
@@ -26,7 +26,7 @@ def command_line_runner():
 
     config_directory = args['configdir']
 
-    print('Using config dir {} to process tile {}'.format(config_directory, tile))
+    print('Using config_dict dir {} to process tile {}'.format(config_directory, tile))
 
     log.info('Processing Tile {}'.format(tile))
 

@@ -21,8 +21,8 @@ class PathManager:
     tminf = None
     tmaxf = None
 
-    def __init__(self, config):
-            self.config = config
+    def __init__(self, config_dict):
+            self.config_dict = config_dict
 
 
     def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
@@ -43,7 +43,7 @@ class PathManager:
 
         # TODO - make this flexibel enough so the non-climatological data doesnt have to organized in year folders
 
-        if self.config.path_mode == 'local':
+        if self.config_dict['path_mode'] == 'local':
             # todo - what is the boto3 bucket equivalent of this?
             if settings[clim_key]:
                 # for climatology then we expect a DOY format
@@ -52,7 +52,7 @@ class PathManager:
                     # we assume that there are no subdirectories so the final path is the same as the loc key
                     final_path = settings[loc_key]
                 else:
-                    print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                    print('{} is set to climatology but date format from config_dict is {}'.format(settings[name_key],
                                                                                               settings[dt_key]))
                     sys.exit(0)
 
@@ -69,7 +69,7 @@ class PathManager:
                       'this time'.format(settings[dt_key]))
                 sys.exit(0)
 
-        elif self.config.path_mode == 'aws':
+        elif self.config_dict['path_mode'] == 'aws':
             # account for subdirs, called prefix in the cloud, if data is not climatology
             if settings[clim_key]:
                 # for climatology then we expect a DOY format, and we assume no prefixes
@@ -77,7 +77,7 @@ class PathManager:
                     dynamic_key = '{:03d}'.format(doy)
                     final_path = settings[loc_key]
                 else:
-                    print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                    print('{} is set to climatology but date format from config_dict is {}'.format(settings[name_key],
                                                                                               settings[dt_key]))
                     sys.exit(0)
             # if its NOT a climatology add the year to the loc_dir (for now)
@@ -89,7 +89,7 @@ class PathManager:
                       'this time'.format(settings[dt_key]))
                 sys.exit(0)
 
-        elif self.config.path_mode == 'google':
+        elif self.config_dict['path_mode'] == 'google':
             # TODO
             print('google cloud bucket is not implemented. Please use *aws* or *local* input args to run the model!!!')
             sys.exit(0)
@@ -106,12 +106,12 @@ class PathManager:
         """
         fpath = settings['file_loc']
 
-        if self.config.path_mode == 'local':
+        if self.config_dict['path_mode'] == 'local':
             pass
-        elif self.config.path_mode == 'aws':
+        elif self.config_dict['path_mode'] == 'aws':
             # fpath = s3.open(fpath)
             pass
-        elif self.config.path_mode == 'google':
+        elif self.config_dict['path_mode'] == 'google':
             # TODO
             print('google cloud bucket is not implemented. Returning as if the path were for a local')
             pass
@@ -121,10 +121,10 @@ class PathManager:
     def make_folder(self, folder_path):
         """"""
         # TODO - if user wants to put outputs in dir/subdir, how to handle with boto3???
-        if self.config.path_mode == 'local':
+        if self.config_dict['path_mode'] == 'local':
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path)
-        elif self.config.path_mode == 'aws':
+        elif self.config_dict['path_mode'] == 'aws':
             pass
             # if not os.path.exists(folder_path):
                 # bucket= os.path.split(folder_path)[0]

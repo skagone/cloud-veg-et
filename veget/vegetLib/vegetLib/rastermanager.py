@@ -63,9 +63,9 @@ class RasterManager:
 
         self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
 
-        # self.geoproperties_file = config.geoproperties_file
-        # self.shapefile = config.shapefile
-        # self.temp_folder = os.path.join(config.out_root, config.temp_folder)
+        # self.geoproperties_file = config_dict.geoproperties_file
+        # self.shapefile = config_dict.shapefile
+        # self.temp_folder = os.path.join(config_dict.out_root, config_dict.temp_folder)
 
         # self.temp_folder = config_dict['temp_folder']
         self.temp_folder = './' + tile
@@ -79,7 +79,7 @@ class RasterManager:
         self.geoproperties_file = config_dict['geoproperties_file']
 
         if self.geoproperties_file == None or self.shapefile==None:
-            print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
+            print('Assuming the user entered values in the config_dict for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
     # ----------- create output rasters -----------------
@@ -87,7 +87,7 @@ class RasterManager:
         """
         This function creates geotiff files from the model output arrays.
         """
-        if self.config.path_mode == 'local':
+        if self.config_dict['path_mode'] == 'local':
             outpath = os.path.join(outdir, outname)
             print('the outpath for file {} is {}'.format(outname, outpath))
 
@@ -96,9 +96,9 @@ class RasterManager:
                                count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
                 wrast.write(band1, indexes=1)
 
-        elif self.config.path_mode == 'aws':
+        elif self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
-            local_outpath = os.path.join(self.config.temp_folder, outname)
+            local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
 
             band1 = arr
             # wrte to a temp folder
@@ -107,8 +107,8 @@ class RasterManager:
                 wrast.write(band1, indexes=1)
 
             # Buckets are not directories but you can treat them like they are
-            bucket_name = os.path.split(self.config.out_root)[0]     # dev-et-data
-            bucket_prefix = os.path.split(self.config.out_root)[-1]  # tile_modelrun1
+            bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
+            bucket_prefix = os.path.split(self.config_dict['out_root'])[-1]  # tile_modelrun1
             bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath

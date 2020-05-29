@@ -4,7 +4,7 @@ import yaml
 
 def return_veget_params(config_directory):
         
-    # this allows for the config to be created from a preexisting file
+    # this allows for the config_dict to be created from a preexisting file
     config_run_file_path = os.path.join(config_directory,'run_param.yml')
     if os.path.exists(config_run_file_path):
         with open(config_run_file_path, 'r') as cfgpath:

@@ -62,13 +62,13 @@ class VegConfig:
             # # old way
             # append_file.write('{}: {}\n'.format(k, v))
     def update_feature(selfs, k, v, cfg_path):
-        """Used to update the config file when a configuration needs to be ADDED or APPENDED to something, like a
+        """Used to update the config_dict file when a configuration needs to be ADDED or APPENDED to something, like a
         dictionary that gets new entries
         This function does not update the attribute like update_config does. This function is used when an attribute
          has ALREADY been appended or updated in the code but we still need to update the configuration FILE"""
         with open(cfg_path, 'r') as cfg:
             file_dict = yaml.safe_load(cfg)
-        # overprint the entries with the new config
+        # overprint the entries with the new config_dict
         file_dict['{}'.format(k)] = v
         with open(cfg_path, 'w') as w_file:
             w_file.write(yaml.dump(file_dict))
@@ -118,7 +118,7 @@ class PathManager:
             if settings[dt_key] == 'doy':
                 dynamic_key = '{:03d}'.format(doy)
             else:
-                print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                print('{} is set to climatology but date format from config_dict is {}'.format(settings[name_key],
                                                                                           settings[dt_key]))
                 sys.exit(0)
         elif settings[dt_key] == 'YYYYdoy':
@@ -202,7 +202,7 @@ class RasterManager:
             os.makedirs(self.temp_folder)
 
         if self.geoproperties_file == None or self.shapefile==None:
-            print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
+            print('Assuming the user entered values in the config_dict for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
     # ----------- create output rasters -----------------
@@ -221,7 +221,7 @@ class RasterManager:
                            count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
             wrast.write(band1, indexes=1)
 
-        # TODO - Set an AWS Cloud flag in the config file to activate this function or not...
+        # TODO - Set an AWS Cloud flag in the config_dict file to activate this function or not...
         # delete files created locally and put in bucket
         # PathManager.s3_delete_local(from_file, bucket, prefix_no_slash)
 
@@ -351,7 +351,7 @@ class VegET:
             print('You need to point to the configure file to get the path')
             sys.exit(1)
         else:
-            # this allows for the config to be created from a preexisting file
+            # this allows for the config_dict to be created from a preexisting file
             self.config_path = veget_config_path
             if os.path.exists(self.config_path):
                 with open(self.config_path, 'r') as cfgpath:
@@ -720,7 +720,7 @@ class VegET:
 
         # initially set output_yearly_arrays and output_monhly array to False and you will change
         # them later depending on what is in the accumulate_mode list
-        # todo - set these in config.
+        # todo - set these in config_dict.
         output_monthly_arr = False
         output_yearly_arr = False
         # step daily. It is false if not included by default.

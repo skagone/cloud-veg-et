@@ -81,7 +81,7 @@ class VegET:
 
             # initialize the classes that manage Raster data and input/output paths to the data
             self.rmanager = RasterManager(config_dict=self.config_dict)
-            self.pmanager = PathManager(config=self.config)
+            self.pmanager = PathManager(config=self.config_dict)
 
             # based on the geoproperties tiff and shapefile the raster manager sets its own attributes to define the aoi
             self.rmanager.set_model_std_grid(self)
@@ -431,7 +431,7 @@ class VegET:
 
         # initially set output_yearly_arrays and output_monhly array to False and you will change
         # them later depending on what is in the accumulate_mode list
-        # todo - set these in config.
+        # todo - set these in config_dict.
         output_monthly_arr = False
         output_yearly_arr = False
         # step daily. It is false if not included by default.
