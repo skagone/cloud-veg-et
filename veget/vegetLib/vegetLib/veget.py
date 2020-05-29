@@ -81,7 +81,7 @@ class VegET:
 
             # initialize the classes that manage Raster data and input/output paths to the data
             self.rmanager = RasterManager(config_dict=self.config_dict)
-            self.pmanager = PathManager(config=self.config_dict)
+            self.pmanager = PathManager(config_dict=self.config_dict)
 
             # based on the geoproperties tiff and shapefile the raster manager sets its own attributes to define the aoi
             self.rmanager.set_model_std_grid(self)
