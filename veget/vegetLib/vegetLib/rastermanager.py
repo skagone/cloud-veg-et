@@ -74,7 +74,7 @@ class RasterManager:
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        shape_file_name = box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
+        self.shapefile =  box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
 
         if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
@@ -118,7 +118,7 @@ class RasterManager:
         :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
         # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
         """
-        print(self.shapefile)
+        # print(self.shapefile)
         with fiona.open(self.shapefile, 'r') as shapefile:
             # todo - set up an error if user has shapefile with more than one feature.
             # shape = shapefile[0]['geometry']
