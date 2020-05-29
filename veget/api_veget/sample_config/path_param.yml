@@ -16,7 +16,6 @@ precip_settings:
   dt_fmt: YYYYdoy
   dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Precipitation_withHawaiiPuertoRico
   climatology: False
-  na_vals: []
 
 ndvi_settings:
   name_fmt: med{}.250_m_NDVI.tif

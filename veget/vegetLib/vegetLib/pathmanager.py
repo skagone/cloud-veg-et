@@ -41,30 +41,60 @@ class PathManager:
 
         print('settings', settings)
 
-        if settings[clim_key]:
-            # for climatology then we expect a DOY format
-            if settings[dt_key] == 'doy':
-                dynamic_key = '{:03d}'.format(doy)
-            else:
-                print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
-                                                                                          settings[dt_key]))
-                sys.exit(0)
-        elif settings[dt_key] == 'YYYYdoy':
-            dynamic_key = '{}{:03d}'.format(today.year, doy)
-        else:
-            print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
-                  'this time'.format(settings[dt_key]))
-            sys.exit(0)
+        # TODO - make this flexibel enough so the non-climatological data doesnt have to organized in year folders
 
-        fpath = os.path.join(settings[loc_key], settings[name_key].format(dynamic_key))
         if self.config.path_mode == 'local':
-            pass
+            # todo - what is the boto3 bucket equivalent of this?
+            if settings[clim_key]:
+                # for climatology then we expect a DOY format
+                if settings[dt_key] == 'doy':
+                    dynamic_key = '{:03d}'.format(doy)
+                    # we assume that there are no subdirectories so the final path is the same as the loc key
+                    final_path = settings[loc_key]
+                else:
+                    print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                                                                                              settings[dt_key]))
+                    sys.exit(0)
+
+            elif settings[dt_key] == 'YYYYdoy':
+                dynamic_key = '{}{:03d}'.format(today.year, doy)
+                # Do a walk in case there are subdirectories with each file in there.
+                walk_obj = os.walk(settings[loc_key])
+                for path, subdir, files in walk_obj:
+                    for file in files:
+                        if file == settings[name_key].format(dynamic_key):
+                            final_path = path
+            else:
+                print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
+                      'this time'.format(settings[dt_key]))
+                sys.exit(0)
+
         elif self.config.path_mode == 'aws':
-            fpath = s3.open(fpath)
+            # account for subdirs, called prefix in the cloud, if data is not climatology
+            if settings[clim_key]:
+                # for climatology then we expect a DOY format, and we assume no prefixes
+                if settings[dt_key] == 'doy':
+                    dynamic_key = '{:03d}'.format(doy)
+                    final_path = settings[loc_key]
+                else:
+                    print('{} is set to climatology but date format from config is {}'.format(settings[name_key],
+                                                                                              settings[dt_key]))
+                    sys.exit(0)
+            # if its NOT a climatology add the year to the loc_dir (for now)
+            elif settings[dt_key] == 'YYYYdoy':
+                dynamic_key = '{}{:03d}'.format(today.year, doy)
+                final_path = os.path.join(settings[loc_key], '{}'.format(today.year))
+            else:
+                print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
+                      'this time'.format(settings[dt_key]))
+                sys.exit(0)
+
         elif self.config.path_mode == 'google':
             # TODO
-            print('google cloud bucket is not implemented. Returning as if the path were for a local')
-            pass
+            print('google cloud bucket is not implemented. Please use *aws* or *local* input args to run the model!!!')
+            sys.exit(0)
+
+        fpath = os.path.join(final_path, settings[name_key].format(dynamic_key))
         return fpath
 
 
@@ -79,7 +109,8 @@ class PathManager:
         if self.config.path_mode == 'local':
             pass
         elif self.config.path_mode == 'aws':
-            fpath = s3.open(fpath)
+            # fpath = s3.open(fpath)
+            pass
         elif self.config.path_mode == 'google':
             # TODO
             print('google cloud bucket is not implemented. Returning as if the path were for a local')

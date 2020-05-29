@@ -140,6 +140,7 @@ class RasterManager:
                          "transform": out_transform})
 
         self.crs = out_meta['crs']
+        # TODO - Set Blocksize for sample raster and other useful optimization thingys
         self.transform = out_meta['transform']
         self.left = self.transform[2]
         self.top = self .transform[5]
