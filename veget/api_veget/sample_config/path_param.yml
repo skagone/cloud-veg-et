@@ -7,7 +7,7 @@ out_root: /vsis3/dev-et-data/tile_modelrun1
 # temporary folder for rasterio vrt -> npy conversion
 #temp_folder: dev-et-data/temp_data
 
-temp_folder: /vsis3/dev-et-data/heytonytonybuddy
+temp_folder: /vsis3/dev-et-data/tony
 
 # Dataset info
 
