@@ -76,6 +76,8 @@ class RasterManager:
 
         self.shapefile =  box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
 
+        self.geoproperties_file = config_dict['geoproperties_file']
+
         if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
