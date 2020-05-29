@@ -11,5 +11,5 @@ accumulate_mode: [daily]  # [yearly, monthly, daily]
 geojson_file: a.json
 shapefile: aoi/out_box.shp
 # sample tiff could/should be derived from the geojson clip of the ndvi - or maybe not needed - tbd
-geoproperties_file: dev-et-data/NA_data_for_cloud/NDVI/2015/2015001.250_m_16_days_NDVI.tif
+geoproperties_file: /vsis3/dev-et-data/NA_data_for_cloud/NDVI/2015/2015001.250_m_16_days_NDVI.tif
 
