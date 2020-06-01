@@ -479,7 +479,8 @@ class VegET:
                                                                       self.ndvi_factor, self.water_factor, self.bias_corr,
                                                                       self.alfa_factor, self.watermask,
                                                                       outdir=self.outdir, yest_snwpck=None, yest_swf=None,
-                                                                      geoproperties_file=self.geoproperties_file, daily_mode=output_daily_arr)
+                                                                      geoproperties_file=self.geoproperties_file, 
+                                                                      daily_mode=output_daily_arr)
                 changing_swf = swf
                 changing_snwpck = snwpck
 
@@ -526,11 +527,11 @@ class VegET:
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
                     self.rmanager.output_rasters(et_month_cum_arr, self.outdir,
-                                   'model_outputs/etasw_{}{:02d}.tif'.format(today.year, today.month))
+                                   'etasw_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(dd_month_cum_arr, self.outdir,
-                                   'model_outputs/dd_{}{:02d}.tif'.format(today.year, today.month))
+                                   'dd_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
-                                   'model_outputs/srf_{}{:02d}.tif'.format(today.year, today.month))
+                                   'srf_{}{:02d}.tif'.format(today.year, today.month))
 
                     # zero-out arrays to start the next month over.
                     et_month_cum_arr = np.zeros(model_arr_shape)
@@ -540,9 +541,9 @@ class VegET:
 
                 if output_yearly_arr:
                     # function to create yearly output rasters for each variables
-                    self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'model_outputs/etasw_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'model_outputs/dd_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'model_outputs/srf_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'etasw_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'dd_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'srf_{}.tif'.format(today.year))
 
                     # zero-out arrays to start the next year over.
                     et_yearly_cum_arr = np.zeros(model_arr_shape)

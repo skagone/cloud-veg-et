@@ -1,12 +1,12 @@
 # ================ ACTIVE config_dict SECTION ==============================
 # === Minimalist Beta Version Params ====
-start_year: 2015
+start_year: 2013
 end_year: 2015
-start_day: 001
-end_day: 003
+start_day: 275
+end_day: 366
 
 path_mode: aws  # aws, google, local
-accumulate_mode: [daily]  # [yearly, monthly, daily]
+accumulate_mode: [daily, monthly, yearly]
 
 geojson_file: a.json
 shapefile: aoi/out_box.shp

@@ -14,7 +14,11 @@ from rasterio.crs import CRS
 from rasterio.enums import Resampling
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
-from veget.vegetLib.vegetLib.pathmanager import PathManager
+
+from .pathmanager import PathManager
+
+from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
+from .log_logger import log_make_logger
 
 
 class RasterManager:
@@ -50,17 +54,32 @@ class RasterManager:
     temp_folder = None
 
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config_dict):
+        self.log = log_make_logger('COOL RASTERMANAGER')
 
-        self.geoproperties_file = config.geoproperties_file
-        self.shapefile = config.shapefile
-        self.temp_folder = os.path.join(config.out_root, config.temp_folder)
+        self.config_dict = config_dict
+
+        tile = self.config_dict['tile']
+
+        self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
+
+        # self.geoproperties_file = config_dict.geoproperties_file
+        # self.shapefile = config_dict.shapefile
+        # self.temp_folder = os.path.join(config_dict.out_root, config_dict.temp_folder)
+
+        # self.temp_folder = config_dict['temp_folder']
+        self.temp_folder = './' + tile
+        self.log.info('temp folder is'.format(self.temp_folder))
+
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
+        self.shapefile =  box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
+
+        self.geoproperties_file = config_dict['geoproperties_file']
+
         if self.geoproperties_file == None or self.shapefile==None:
-            print('Assuming the user entered values in the config for boundaries of the AOI not implemented at thsi time')
+            print('Assuming the user entered values in the config_dict for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
 
     # ----------- create output rasters -----------------
@@ -68,7 +87,7 @@ class RasterManager:
         """
         This function creates geotiff files from the model output arrays.
         """
-        if self.config.path_mode == 'local':
+        if self.config_dict['path_mode'] == 'local':
             outpath = os.path.join(outdir, outname)
             print('the outpath for file {} is {}'.format(outname, outpath))
 
@@ -77,23 +96,23 @@ class RasterManager:
                                count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
                 wrast.write(band1, indexes=1)
 
-        elif self.config.path_mode == 'aws':
+        elif self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
-            local_outpath = os.path.join(self.config.temp_folder, outname)
+            local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
 
             band1 = arr
-            # wrte to a temp folder
+            # write to a temp folder
             with rasterio.open(local_outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
                                count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
                 wrast.write(band1, indexes=1)
 
             # Buckets are not directories but you can treat them like they are
-            bucketname = os.path.split(outdir)[0]
-            bucketdir = os.path.split(outdir)[-1]
-            bfilepath = os.path.join(bucketdir, outname)
+            bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
+            bucket_prefix = os.path.split(self.config_dict['out_root'])[-1]  # tile_modelrun1
+            bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath
-            self.s3_delete_local(local_file=local_outpath, bucket=bucketname, bucket_filepath=bfilepath)
+            self.s3_delete_local(local_file=local_outpath, bucket=bucket_name, bucket_filepath=bucket_filepath)
 
 
     def set_model_std_grid(self, feat=0):
@@ -101,7 +120,7 @@ class RasterManager:
         :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
         # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
         """
-        print(self.shapefile)
+        # print(self.shapefile)
         with fiona.open(self.shapefile, 'r') as shapefile:
             # todo - set up an error if user has shapefile with more than one feature.
             # shape = shapefile[0]['geometry']
@@ -123,6 +142,7 @@ class RasterManager:
                          "transform": out_transform})
 
         self.crs = out_meta['crs']
+        # TODO - Set Blocksize for sample raster and other useful optimization thingys
         self.transform = out_meta['transform']
         self.left = self.transform[2]
         self.top = self .transform[5]
@@ -185,7 +205,11 @@ class RasterManager:
 
         s3 = boto3.client('s3')
         with open(local_file, "rb") as f:
+            if 'vsis3' in bucket:
+                bucket = bucket.split('/')[-1]
+                print(bucket, bucket_filepath)
             s3.upload_fileobj(f, bucket, bucket_filepath)
         os.remove(local_file)
+
 
 
