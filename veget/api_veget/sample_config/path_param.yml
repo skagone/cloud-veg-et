@@ -3,63 +3,61 @@
 # input location
 # in_root: dev-et-data
 # output_location
-out_root: /vsis3/dev-et-data/tile_modelrun1
+out_root: dev-et-data/tile_modelrun1
 # temporary folder for rasterio vrt -> npy conversion
-#temp_folder: dev-et-data/temp_data
-
-temp_folder: /vsis3/dev-et-data/tony
-
+temp_folder: dev-et-data/temp_data
 # Dataset info
 
 precip_settings:
   name_fmt: prec_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Precipitation_withHawaiiPuertoRico
+  dir_loc: dev-et-data/NA_data_for_cloud/Precipitation_withHawaiiPuertoRico
   climatology: False
+  na_vals: []
 
 ndvi_settings:
   name_fmt: med{}.250_m_NDVI.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NDVI_filled/med2003_2017
+  dir_loc: dev-et-data/NDVI_filled/med2003_2017
   climatology: True
 
 pet_settings:
   name_fmt: pet{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/ETo_mosaic/
+  dir_loc: dev-et-data/NA_data_for_cloud/ETo_mosaic/
   climatology: True
 
 tmin_settings:
   name_fmt: tmin_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
+  dir_loc: dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
   climatology: True
 
 tavg_settings:
   name_fmt: tavg_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
+  dir_loc: dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
   climatology: True
 
 tmax_settings:
   name_fmt: tmax_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
+  dir_loc: dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
   climatology: True
 
 
 # === Static raster data settings ====
 watermask_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/global_water_mask_inland.tif
+  file_loc: dev-et-data/NA_data_for_cloud/global_water_mask_inland.tif
 whc_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/available_water_capacity_US_final.tif
+  file_loc: dev-et-data/NA_data_for_cloud/Soil/available_water_capacity_US_final.tif
   # file_loc: NA_data_for_cloud/Soil/whc.tif
 saturation_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/porosity_US_final.tif
+  file_loc: dev-et-data/NA_data_for_cloud/Soil/porosity_US_final.tif
   # file_loc: NA_data_for_cloud/Soil/sat.tif
 field_capacity_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
+  file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
   # file_loc: NA_data_for_cloud/Soil/fdc.tif
 interception_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
+  file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
   # file_loc: NA_data_for_cloud/Soil/inp.tif
