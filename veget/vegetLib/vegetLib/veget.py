@@ -449,6 +449,7 @@ class VegET:
         # package as a list
         static_inputs = [self.interception, self.whc, self.field_capacity, self.saturation, self.watermask]
         # normalizing.
+        self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(statis_inputs))
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
             = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs,resamplemethod='nearest')
 
