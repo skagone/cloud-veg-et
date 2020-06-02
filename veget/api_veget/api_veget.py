@@ -34,7 +34,8 @@ def command_line_runner():
     log.error('or logging agents and logging backends ... docker deployments')
 
     # RUN the class Veget
-    myveg = VegET(config_directory)
+    myveg = VegET(config_directory, tile)
+    myveg.run_veg_et()
 
 if __name__ == '__main__':
     log = log_make_logger('CLOUD_VEGET')
