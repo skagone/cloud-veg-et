@@ -3,7 +3,7 @@
 # input location
 # in_root: dev-et-data
 # output_location
-out_root: C:\WaterSmart\Projects\CloudVegET\local_testing\v3_drb_testout1
+out_root: dev-et-data/tile_modelrun1
 # temporary folder for rasterio vrt -> npy conversion
 temp_folder: ./40N-80E
 # Dataset info
@@ -11,38 +11,38 @@ temp_folder: ./40N-80E
 precip_settings:
   name_fmt: prec_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\PPT
+  dir_loc: Z:\Data\Precipitation\USA\PPT\Gridmet_daily\2012-16
   climatology: False
   na_vals: []
 
 ndvi_settings:
   name_fmt: med{}.250_m_NDVI.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NDVI_filled/med2003_2017
+  dir_loc: Z:\Projects\Veg_ET\USA_data\NDVI_daily\NDVI_filled\med2003_2017
   climatology: True
 
 pet_settings:
-  name_fmt: pet{}.tif
+  name_fmt: medianETo{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/ETo_mosaic/
+  dir_loc: Z:\Data\ReferenceET\USA\Gridmet\Daily\ETo\Median_1984_2017
   climatology: True
 
 tmin_settings:
   name_fmt: tmin_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
+  dir_loc: Z:\Projects\Veg_ET\USA_data\tmin_Cdaily
   climatology: True
 
 tavg_settings:
   name_fmt: tavg_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
+  dir_loc: Z:\Projects\Veg_ET\USA_data\tavg_Cdaily
   climatology: True
 
 tmax_settings:
   name_fmt: tmax_{}.tif
   dt_fmt: doy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
+  dir_loc: Z:\Projects\Veg_ET\USA_data\tmax_Cdaily
   climatology: True
 
 
