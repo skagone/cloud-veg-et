@@ -11,7 +11,7 @@ temp_folder: ./40N-80E
 precip_settings:
   name_fmt: prec_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Precipitation_withHawaiiPuertoRico
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\PPT
   climatology: False
   na_vals: []
 
