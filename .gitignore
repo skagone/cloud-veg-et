@@ -1,8 +1,4 @@
 model_outputs
 geo_sample.tif
 *.tif
-/veget/api_veget/sample_config/
-/veget/api_veget/sample_config/model_param.yml
-/veget/api_veget/sample_config/path_param.yml
-/veget/api_veget/sample_config/run_param.yml
 .idea/workspace.xml
