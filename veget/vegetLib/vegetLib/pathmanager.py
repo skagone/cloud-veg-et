@@ -42,10 +42,12 @@ class PathManager:
         print('settings', settings)
 
         # TODO - make this flexibel enough so the non-climatological data doesnt have to organized in year folders
-
+        # final_path = None
         if self.config_dict['path_mode'] == 'local':
+            # print('local is happening')
             # todo - what is the boto3 bucket equivalent of this?
             if settings[clim_key]:
+                'clim is happening'
                 # for climatology then we expect a DOY format
                 if settings[dt_key] == 'doy':
                     dynamic_key = '{:03d}'.format(doy)
@@ -57,12 +59,17 @@ class PathManager:
                     sys.exit(0)
 
             elif settings[dt_key] == 'YYYYdoy':
+                'non clim is happening'
                 dynamic_key = '{}{:03d}'.format(today.year, doy)
                 # Do a walk in case there are subdirectories with each file in there.
                 walk_obj = os.walk(settings[loc_key])
                 for path, subdir, files in walk_obj:
+                    print('nonclim path \n', path)
                     for file in files:
+                        # todo - better error handling logging here please
+                        # print('nonclim file name', file)
                         if file == settings[name_key].format(dynamic_key):
+                            # print('nonclim final \n', path)
                             final_path = path
             else:
                 print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
@@ -94,6 +101,8 @@ class PathManager:
             print('google cloud bucket is not implemented. Please use *aws* or *local* input args to run the model!!!')
             sys.exit(0)
 
+        # print(self.config_dict['path_mode'])
+        # print(settings[name_key].format(dynamic_key))
         fpath = os.path.join(final_path, settings[name_key].format(dynamic_key))
         return fpath
 

@@ -3,13 +3,13 @@
 # input location
 # in_root: dev-et-data
 # output_location
-out_root: dev-et-data/tile_modelrun1
+out_root: Z:\Projects\Cloud_Veg_ET\model_outputs\v2_DRB
 # temporary folder for rasterio vrt -> npy conversion
 temp_folder: ./40N-80E
 # Dataset info
 
 precip_settings:
-  name_fmt: prec_{}.tif
+  name_fmt: ppt{}.tif
   dt_fmt: YYYYdoy
   dir_loc: Z:\Data\Precipitation\USA\PPT\Gridmet_daily\2012-16
   climatology: False
@@ -48,16 +48,16 @@ tmax_settings:
 
 # === Static raster data settings ====
 watermask_settings:
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/global_water_mask_inland.tif
+  file_loc: Z:\Projects\Cloud_Veg_ET\Data\SOILS\SOILS_USA\global_water_mask_inland.tif
 whc_settings:
-  #file_loc: dev-et-data/NA_data_for_cloud/Soil/available_water_capacity_US_final.tif
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/whc.tif
+  file_loc: Z:\Projects\Cloud_Veg_ET\Data\SOILS\SOILS_USA\available_water_capacity_US_final.tif
+#  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/whc.tif
 saturation_settings:
-  #file_loc: dev-et-data/NA_data_for_cloud/Soil/porosity_US_final.tif
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/sat.tif
+  file_loc: Z:\Projects\Cloud_Veg_ET\Data\SOILS\SOILS_USA\porosity_US_final.tif
+#  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/sat.tif
 field_capacity_settings:
-  #file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/fdc.tif
+  file_loc: Z:\Projects\Cloud_Veg_ET\Data\SOILS\SOILS_USA\field_capacity_US_final.tif
+#  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/fdc.tif
 interception_settings:
-  #file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
-  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/inp.tif
+  file_loc: Z:\Projects\Cloud_Veg_ET\Data\SOILS\Intercept_global3.tif
+#  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/inp.tif
