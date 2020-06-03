@@ -3,7 +3,7 @@
 # input location
 # in_root: dev-et-data
 # output_location
-out_root: dev-et-data/tile_modelrun1
+out_root: C:\WaterSmart\Projects\CloudVegET\local_testing\v3_drb_testout1
 # temporary folder for rasterio vrt -> npy conversion
 temp_folder: ./40N-80E
 # Dataset info

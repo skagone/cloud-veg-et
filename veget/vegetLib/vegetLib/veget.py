@@ -287,6 +287,7 @@ class VegET:
         :return:  eta, SWf
         """
 
+        netet = np.zeros(ndvi.shape)
         etasw1 = np.zeros(ndvi.shape)
         etasw3 = np.zeros(ndvi.shape)
         etasw4 = np.zeros(ndvi.shape)
@@ -296,6 +297,7 @@ class VegET:
 
         etasw1A = (k_factor * ndvi + ndvi_factor) * (pet * bias_corr)
         etasw1B = (k_factor * ndvi) * (pet * bias_corr)
+
 
         # etasw1 = if ndvi > 0.4, make it etasw1A, else etasw1B
         ndvi_boolean = (ndvi > 0.4)
@@ -332,8 +334,15 @@ class VegET:
         etasw[etawater_boolean] = pet[etawater_boolean] * water_var
         print(etasw.shape)
 
-        SWf1 = SWi - etasw
+        # NET ET
+        etc = etasw1A
+        eta = etasw
+        netet1 = etc - eta
+        netet_boolean = netet1 > 0
+        netet[netet_boolean] = netet[netet_boolean]
 
+        # final soil moisture
+        SWf1 = SWi - etasw
         # SWf = if SWi > WHC, make it (WHC - etasw), else (if SWf1 < 0.0, make it 0.0, else SWf1)
         SWf_boolean = (SWi > self.whc)
         SWf_boolean2 = (SWf1 < 0.0)
@@ -342,7 +351,7 @@ class VegET:
         SWf[SWf_boolean2] = 0
         SWf[~SWf_boolean2] = SWf1[~SWf_boolean2]
 
-        return etasw, SWf, etasw5
+        return etasw, SWf, etasw5, etc, netet
 
     def _run_water_bal(self, i, today, interception, whc, field_capacity, saturation,
                        rf_coeff, k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask, outdir,
@@ -365,10 +374,11 @@ class VegET:
 
         # All the variables are now Numpy Arrays!
         self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
-            self.rmanager.normalize_to_std_grid(inputs=dynamic_inpts, resamplemethod='nearest')
+            self.rmanager.normalize_to_std_grid_fast(inputs=dynamic_inpts, resamplemethod='nearest')
 
         # ====== Call the functions ======
         # output SWi and SNWpk
+        #         RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
         SWi, SNWpk, RAIN, SWE, snow_melt = self._soil_water(i, self.ppt, interception, self.tmin, self.tmax, self.tavg,
                                                             self.melt_factor, self.rf_high_thresh_temp, self.rf_low_thresh_temp,
                                                             yest_swf, yest_snwpck)
@@ -398,17 +408,22 @@ class VegET:
             self.rmanager.output_rasters(SRf, self.outdir, outname=SRfout)
 
         # output eta and SWf
-        etasw, SWf, etasw5 = self._veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
+        etasw, SWf, etasw5, etc, netet = self._veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
                                           self.pet, self.ndvi, SWi)
         etaswout = f'etasw_{year}{DOY}.tif'
         SWfout = f'swf_{year}{DOY}.tif'
         etasw5out = f'etasw5_{year}{DOY}.tif'
+        etcout = f'etc_{year}{DOY}.tif'
+        netetout = f'netet_{year}{DOY}.tif'
+
         if daily_mode:
             self.rmanager.output_rasters(etasw, outdir, outname=etaswout)
             self.rmanager.output_rasters(SWf, outdir, outname=SWfout)
             self.rmanager.output_rasters(etasw5, outdir, outname=etasw5out)
+            self.rmanager.output_rasters(etc, self.outdir, outname=etcout)
+            self.rmanager.output_rasters(netet, self.outdir, outname=netetout)
 
-        return SWf, SNWpk, etasw, DDrain, SRf
+        return RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
 
     def run_veg_et(self):
         print(
@@ -453,7 +468,6 @@ class VegET:
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
             = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs,resamplemethod='nearest')
 
-
         # set monthly and yearly cumulative arrays (use one of the numpys from the
         # static array that has been normalized):
         model_arr_shape = self.interception.shape
@@ -462,10 +476,16 @@ class VegET:
         et_month_cum_arr = np.zeros(model_arr_shape)
         dd_month_cum_arr = np.zeros(model_arr_shape)
         srf_month_cum_arr = np.zeros(model_arr_shape)
+        etc_month_cum_arr = np.zeros(model_arr_shape)
+        netet_month_cum_arr = np.zeros(model_arr_shape)
         # yearly
+        rain_yearly_cum_arr = np.zeros(model_arr_shape)
+        swe_yearly_cum_arr = np.zeros(model_arr_shape)
         et_yearly_cum_arr = np.zeros(model_arr_shape)
         dd_yearly_cum_arr = np.zeros(model_arr_shape)
         srf_yearly_cum_arr = np.zeros(model_arr_shape)
+        etc_yearly_cum_arr = np.zeros(model_arr_shape)
+        netet_yearly_cum_arr = np.zeros(model_arr_shape)
 
         # the soil water fraction and snowpack are none to start out.
         changing_swf = None
@@ -474,8 +494,7 @@ class VegET:
             # so what day is it
             today = start_dt + timedelta(days=i)
             if i == 0:
-
-                swf, snwpck, etasw, DDrain, SRf = self._run_water_bal(i, today, self.interception, self.whc, self.field_capacity,
+                rain, swf, snwpck, swe, DDrain, SRf, etc, etasw, netet = self._run_water_bal(i, today, self.interception, self.whc, self.field_capacity,
                                                                       self.saturation, self.rf_coeff, self.k_factor,
                                                                       self.ndvi_factor, self.water_factor, self.bias_corr,
                                                                       self.alfa_factor, self.watermask,
@@ -508,7 +527,7 @@ class VegET:
 
                 print('output monthly is {} and output yearly is {}'.format(output_monthly_arr, output_yearly_arr))
 
-                swf, snwpck, etasw, DDrain, SRf = self._run_water_bal(i, today, self.interception, self.whc,
+                rain, swf, snwpck, swe, DDrain, SRf, etc, etasw, netet = self._run_water_bal(i, today, self.interception, self.whc,
                                                                       self.field_capacity, self.saturation,
                                                                       self.rf_coeff, self.k_factor, self.ndvi_factor,
                                                                       self.water_factor, self.bias_corr, self.alfa_factor,
@@ -520,10 +539,16 @@ class VegET:
                 et_month_cum_arr += etasw
                 dd_month_cum_arr += DDrain
                 srf_month_cum_arr += SRf
+                etc_month_cum_arr += etc
+                netet_month_cum_arr += netet
                 # yearly
+                rain_yearly_cum_arr += rain
+                swe_yearly_cum_arr += swe
                 et_yearly_cum_arr += etasw
                 dd_yearly_cum_arr += DDrain
                 srf_yearly_cum_arr += SRf
+                etc_yearly_cum_arr += etc
+                netet_yearly_cum_arr += netet
 
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
@@ -533,11 +558,17 @@ class VegET:
                                    'dd_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
                                    'srf_{}{:02d}.tif'.format(today.year, today.month))
+                    self.rmanager.output_rasters(etc_month_cum_arr, self.outdir,
+                                   'etc_{}{:02d}.tif'.format(today.year, today.month))
+                    self.rmanager.output_rasters(netet_month_cum_arr, self.outdir,
+                                   'netet_{}{:02d}.tif'.format(today.year, today.month))
 
                     # zero-out arrays to start the next month over.
-                    et_month_cum_arr = np.zeros(model_arr_shape)
                     dd_month_cum_arr = np.zeros(model_arr_shape)
                     srf_month_cum_arr = np.zeros(model_arr_shape)
+                    et_month_cum_arr = np.zeros(model_arr_shape)
+                    etc_month_cum_arr = np.zeros(model_arr_shape)
+                    netet_month_cum_arr = np.zeros(model_arr_shape)
                     output_monthly_arr = False
 
                 if output_yearly_arr:
@@ -545,11 +576,20 @@ class VegET:
                     self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'etasw_{}.tif'.format(today.year))
                     self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'dd_{}.tif'.format(today.year))
                     self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'srf_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(etc_yearly_cum_arr, self.outdir, 'etc_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(netet_yearly_cum_arr, self.outdir, 'netet_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(rain_yearly_cum_arr, self.outdir, 'rain_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(swe_yearly_cum_arr, self.outdir, 'swe_{}.tif'.format(today.year))
 
                     # zero-out arrays to start the next year over.
-                    et_yearly_cum_arr = np.zeros(model_arr_shape)
+                    rain_yearly_cum_arr = np.zeros(model_arr_shape)
+                    swe_yearly_cum_arr = np.zeros(model_arr_shape)
                     dd_yearly_cum_arr = np.zeros(model_arr_shape)
                     srf_yearly_cum_arr = np.zeros(model_arr_shape)
+                    et_yearly_cum_arr = np.zeros(model_arr_shape)
+                    etc_yearly_cum_arr = np.zeros(model_arr_shape)
+                    netet_yearly_cum_arr = np.zeros(model_arr_shape)
+
                     output_yearly_arr = False
 
                 changing_swf = swf

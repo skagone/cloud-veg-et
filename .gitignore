@@ -1,3 +1,4 @@
 model_outputs
 geo_sample.tif
 *.tif
+/veget/api_veget/sample_config/

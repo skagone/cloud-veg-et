@@ -152,48 +152,6 @@ class RasterManager:
         self.yres = self.transform[4]
         # return out_meta
 
-    def normalize_to_std_grid_fast(self, inputs, resamplemethod = 'nearest'):
-        """
-        Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
-        :param inputs: a list of (daily) raster input files for the water balance.
-        :param outloc: output locations 'temp' for the virtual files
-        :return: list of numpy arrays
-        """
-        outputs = []
-        npy_outputs = []
-        if resamplemethod == 'nearest':
-            rs = Resampling.nearest
-        else:
-            print('only nearest neighbor resampling is supported at this time')
-            sys.exit(0)
-
-        for i, warpfile in enumerate(inputs):
-            print('warpfile', warpfile)
-            with rasterio.open(warpfile) as src:
-                # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
-                with WarpedVRT(src, resampling=rs,
-                               crs=self.crs,
-                               transform=self.transform,
-                               height=self.rows,
-                               width=self.cols) as vrt:
-                    data = vrt.read()
-                    print(type(vrt))
-                    print("data shape =", data.shape)
-                    # save the file as an enumerated tiff. reopen outside this loop with the outputs list
-                    outwarp = os.path.join(self.temp_folder, 'temp_{}.tif'.format(i))
-                    rio_shutil.copy(vrt, outwarp, driver='GTiff')
-                    outputs.append(outwarp)
-
-        # output each virtual file as a temporary .tif file in a temp folder somewhere in the outputs directory.
-        # for each file in the temp directory read in the raster as a numpy array and return the list of numpy arrays
-        # from this method for us in the rest of the code.
-        for ow in outputs:
-            with rasterio.open(ow, 'r') as src:
-                arr = src.read(1)
-                npy_outputs.append(arr)
-
-        return npy_outputs
-
     def normalize_to_std_grid(self, inputs, resamplemethod = 'nearest'):
         """
         Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
@@ -234,6 +192,52 @@ class RasterManager:
                 npy_outputs.append(arr)
 
         return npy_outputs
+
+    def _warp_one(self, warpfile, rs):
+        with rasterio.open(warpfile) as src:
+            # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+            with WarpedVRT(src, resampling=rs,
+                           crs=self.crs,
+                           transform=self.transform,
+                           height=self.rows,
+                           width=self.cols) as vrt:
+                data = vrt.read(1)
+                print(type(vrt))
+                print("data shape =", data.shape)
+                self.log.info("_warp_oneicompleted {}".format(warpfile))
+            return data
+
+    def _warp_inputs(self, inputs, resamplemethod):
+
+        self.log.info("_warp_inputs")
+        outputs = []
+        npy_outputs = []
+        if resamplemethod == 'nearest':
+            rs = Resampling.nearest
+        else:
+            print('only nearest neighbor resampling is supported at this time')
+            sys.exit(0)
+
+        for i, warpfile in enumerate(inputs):
+            print('warpfile', warpfile)
+            data = self._warp_one(warpfile, rs)
+            npy_outputs.append(data)
+        self.log.error("ouputs no longer needed")
+        return npy_outputs
+
+    def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
+        """
+        Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
+        :param inputs: a list of (daily) raster input files for the water balance.
+        :param outloc: output locations 'temp' for the virtual files
+        :return: list of numpy arrays
+        """
+
+        npy_outputs = self._warp_inputs(inputs, resamplemethod)
+
+        return npy_outputs
+
+
 
     def s3_delete_local(self, local_file, bucket, bucket_filepath):
         """
