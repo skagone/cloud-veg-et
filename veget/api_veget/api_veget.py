@@ -9,6 +9,8 @@ def get_parser():
     parser.add_argument('tile', metavar='TILE', type=str, nargs='*',
             help='the tile to process - example: 40N-80E')
     parser.add_argument('-c', '--configdir', help='specify and alternate config_dict dir example: -c sample_config ', default='./sample_config', type=str)
+    parser.add_argument('-j', '--json', help='specify AOI geojson file ', default='./aoi.json', type=str)
+    parser.add_argument('-s', '--shp', help='specify AOI shp file ', default='./aoi.shp', type=str)
     return parser
 
 
