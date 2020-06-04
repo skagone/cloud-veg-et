@@ -339,7 +339,7 @@ class VegET:
         eta = etasw
         netet1 = etc - eta
         netet_boolean = netet1 > 0
-        netet[netet_boolean] = netet[netet_boolean]
+        netet[netet_boolean] = netet1[netet_boolean]
 
         # final soil moisture
         SWf1 = SWi - etasw
