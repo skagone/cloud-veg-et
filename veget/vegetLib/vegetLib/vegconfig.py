@@ -5,13 +5,13 @@ import yaml
 def return_veget_params(config_directory):
         
     # this allows for the config_dict to be created from a preexisting file
-    config_run_file_path = os.path.join(config_directory,'run_param.yml')
+    config_run_file_path = os.path.join(config_directory, 'run_param.yml')
     if os.path.exists(config_run_file_path):
         with open(config_run_file_path, 'r') as cfgpath:
             run_config_dict = yaml.safe_load(cfgpath)
             # print(run_config_dict)
     else:
-        print('the path does not exist, check the path you gave VegET()')
+        print('the path does not exist, check the path you gave VegET() {}'.format(config_directory))
         sys.exit(1)
 
     config_model_file_path = os.path.join(config_directory, 'model_param.yml')
