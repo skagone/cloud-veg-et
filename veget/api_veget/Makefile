@@ -4,7 +4,7 @@ run:
 	python3 api_veget.py 40N-100E
     
 delaware:
-    python3 api_veget.py -c delaware_config -s abc.shp
+	python3 api_veget.py -c delaware_config -s abc.shp
 
 help:
 	python3 api_veget.py --help
