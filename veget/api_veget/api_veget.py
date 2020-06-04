@@ -24,7 +24,12 @@ def command_line_runner():
     if args['tile']:
         print("tile", args['tile'])
 
+    if args['shp']:
+        print("shp", args['shp'])
+
     tile = args['tile'][0]
+
+    shp = args['shp']
 
     config_directory = args['configdir']
 
@@ -36,7 +41,7 @@ def command_line_runner():
     log.error('or logging agents and logging backends ... docker deployments')
 
     # RUN the class Veget
-    myveg = VegET(config_directory, tile)
+    myveg = VegET(config_directory, tile, shp)
     myveg.run_veg_et()
 
 if __name__ == '__main__':
