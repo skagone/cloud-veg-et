@@ -182,7 +182,7 @@ class VegET:
         snow_melt_fac = np.zeros(ppt.shape)
         # where avg temp <= high_threshold_temp set to 0, else it is equal to the melt factor rate
         # (tavg <= rf_high_tresh_temp, 0, melt_rate)
-        snow_melt_fac[tavg <= rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
+        snow_melt_fac[tavg <=sp rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
         snow_melt_fac[tavg > rf_high_thresh_temp] = 0
 
         if i == 0:  # first day of model run to initalize and establish the soil water balance
@@ -307,19 +307,19 @@ class VegET:
         etasw2 = (SWi / (0.5 * self.whc)) * etasw1
 
         # etasw3 = if SWi > (0.5 * WHC), make it etasw1, else etasw2
-        etasw3_boolean = (etasw3 > SWi)
+        etasw3_boolean = SWi > (0.5 * self.whc)
         etasw3[etasw3_boolean] = etasw1[etasw3_boolean]
-        etasw3[~etasw3_boolean] = etasw1[~etasw3_boolean]
+        etasw3[~etasw3_boolean] = etasw2[~etasw3_boolean]
 
         # etasw4 = if etasw3 > SWi, make it SWi, else etasw3
         etasw4_boolean = (etasw3 > SWi)
         etasw4[etasw4_boolean] = SWi[etasw4_boolean]
         etasw4[~etasw4_boolean] = etasw3[~etasw4_boolean]
 
-        # etasw = if etasw4 > WHC, make it WHC, else etasw4
-        etasw_boolean = (etasw4 > self.whc)
-        etasw5[etasw_boolean] = self.whc[etasw_boolean]
-        etasw5[~etasw_boolean] = etasw4[~etasw_boolean]
+        # etasw5 = if etasw4 > WHC, make it WHC, else etasw4
+        etasw5_boolean = (etasw4 > self.whc)
+        etasw5[etasw5_boolean] = self.whc[etasw5_boolean]
+        etasw5[~etasw5_boolean] = etasw4[~etasw5_boolean]
 
         # ETa of water bodies = 0.70 * (1.25*0.85*ETo)
         water_var = water_factor * bias_corr * alfa_factor
@@ -464,7 +464,7 @@ class VegET:
         # package as a list
         static_inputs = [self.interception, self.whc, self.field_capacity, self.saturation, self.watermask]
         # normalizing.
-        self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(statis_inputs))
+        self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(static_inputs))
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
             = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs,resamplemethod='nearest')
 
