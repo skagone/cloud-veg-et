@@ -348,8 +348,8 @@ class VegET:
         SWf_boolean2 = (SWf1 < 0.0)
 
         SWf[SWf_boolean] = self.whc[SWf_boolean] - etasw[SWf_boolean]
-        SWf[SWf_boolean2] = 0
-        SWf[~SWf_boolean2] = SWf1[~SWf_boolean2]
+        SWf[(~SWf_boolean) & (SWf_boolean2)] = 0
+        SWf[(~SWf_boolean) & (~SWf_boolean2)] = SWf1[(~SWf_boolean) & (~SWf_boolean2)]
 
         return etasw, SWf, etasw5, etc, netet
 
