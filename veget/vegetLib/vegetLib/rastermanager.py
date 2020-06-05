@@ -54,7 +54,7 @@ class RasterManager:
     temp_folder = None
 
 
-    def __init__(self, config_dict):
+    def __init__(self, config_dict, shp=None):
         self.log = log_make_logger('COOL RASTERMANAGER')
 
         self.config_dict = config_dict
@@ -74,7 +74,11 @@ class RasterManager:
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        self.shapefile =  box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
+        # if the user does not include a shapefile in VegET, a box based on the tile name will be created.
+        if shp == None:
+            self.shapefile = box_create_ugly_proprietary_shapefile_plus_json_from_tile(self.temp_folder, tile)
+        else:
+            self.shapefile = shp
 
         self.geoproperties_file = config_dict['geoproperties_file']
 
@@ -122,7 +126,7 @@ class RasterManager:
         """
         # print(self.shapefile)
         with fiona.open(self.shapefile, 'r') as shapefile:
-            # todo - set up an error if user has shapefile with more than one feature.
+            # todo - set up an error if user has shapefile with more than one feature. GELP n STEFFI
             # shape = shapefile[0]['geometry']
             shapes = [feature["geometry"] for feature in shapefile]
 

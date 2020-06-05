@@ -51,7 +51,7 @@ class VegET:
     tavg_settings = None
     tmax_settings = None
 
-    def __init__(self, veget_config_path, tile):
+    def __init__(self, veget_config_path, tile, shp=None):
 
             self.log = log_make_logger('VegET_CLASS')
             self.log.info(tile)
@@ -80,7 +80,7 @@ class VegET:
             self.config_dict['tile'] = tile
 
             # initialize the classes that manage Raster data and input/output paths to the data
-            self.rmanager = RasterManager(config_dict=self.config_dict)
+            self.rmanager = RasterManager(config_dict=self.config_dict, shp=shp)
             self.pmanager = PathManager(config_dict=self.config_dict)
 
             # based on the geoproperties tiff and shapefile the raster manager sets its own attributes to define the aoi
@@ -339,7 +339,7 @@ class VegET:
         eta = etasw
         netet1 = etc - eta
         netet_boolean = netet1 > 0
-        netet[netet_boolean] = netet[netet_boolean]
+        netet[netet_boolean] = netet1[netet_boolean]
 
         # final soil moisture
         SWf1 = SWi - etasw
@@ -466,7 +466,7 @@ class VegET:
         # normalizing.
         self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(static_inputs))
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
-            = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs,resamplemethod='nearest')
+            = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs, resamplemethod='nearest')
 
         # set monthly and yearly cumulative arrays (use one of the numpys from the
         # static array that has been normalized):

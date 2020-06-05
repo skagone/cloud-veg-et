@@ -55,9 +55,12 @@ def box_w_shape(geojson_filename):
     os.system(cmd)
 
 
-def box_create_ugly_proprietary_shapefile_plus_json_from_tile(temp_dir, tile):
+def box_create_ugly_proprietary_shapefile_plus_json_from_tile(temp_dir, tile, inc=None):
     LOG.info('temp dir here is {}'.format(temp_dir))
-    my_tile_coords = box_make_poly(tile_name=tile, increment=10)
+    if inc != None:
+        my_tile_coords = box_make_poly(tile_name=tile, increment=inc)
+    else:
+        my_tile_coords = box_make_poly(tile_name=tile, increment=10)
     print(my_tile_coords)
     tile_geojson_file_name = os.path.join(temp_dir, '{}.json'.format(tile))
     box_w_geojson(tile_geojson_file_name, my_tile_coords)

@@ -18,31 +18,31 @@ precip_settings:
 ndvi_settings:
   name_fmt: med{}.250_m_NDVI.tif
   dt_fmt: doy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\NDVI_med
+  dir_loc: /vsis3/dev-et-data/NDVI_filled/med2003_2017
   climatology: True
 
 pet_settings:
   name_fmt: pet{}.tif
   dt_fmt: doy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\ETO
+  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/ETo_mosaic/
   climatology: True
 
 tmin_settings:
   name_fmt: tmin_{}.tif
   dt_fmt: doy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\TEMP\TMIN
+  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
   climatology: True
 
 tavg_settings:
   name_fmt: tavg_{}.tif
   dt_fmt: doy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\TEMP\TAVG
+  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
   climatology: True
 
 tmax_settings:
   name_fmt: tmax_{}.tif
   dt_fmt: doy
-  dir_loc: C:\WaterSmart\Projects\CloudVegET\DATA\TEMP\TMAX
+  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
   climatology: True
 
 
