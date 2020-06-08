@@ -192,8 +192,8 @@ class VegET:
             rain_frac = np.zeros(ppt.shape)
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
-            temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            temp_diff_boolean = (tavg < rf_high_thresh_temp) & (tavg > rf_low_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * tavg[temp_diff_boolean]
 
             RAIN = rain_frac * effppt
             SWE = np.zeros(ppt.shape)  # inital snowpack raster with only 0 values
@@ -208,11 +208,11 @@ class VegET:
             rain_frac = np.zeros(ppt.shape)  # initialize the rain fraction array
             # Creates a fraction value based on average temperature that determines
             # if the incoming precipitation is falling as rain, sleet, or snow.
-            # if tavg <= 0, make it 0, else if tavg >= 6, make it 1, else (0.167*(tavg-6))
+            # if tavg <= 0, make it 0, else if tavg >= 6, make it 1, else (0.167*tavg)
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
-            temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            temp_diff_boolean = (tavg < rf_high_thresh_temp) & (tavg > rf_low_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * tavg[temp_diff_boolean]
 
             RAIN = rain_frac * effppt
             SWE = (1 - rain_frac) * effppt
