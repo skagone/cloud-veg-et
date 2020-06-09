@@ -182,7 +182,7 @@ class VegET:
         snow_melt_fac = np.zeros(ppt.shape)
         # where avg temp <= high_threshold_temp set to 0, else it is equal to the melt factor rate
         # (tavg <= rf_high_tresh_temp, 0, melt_rate)
-        snow_melt_fac[tavg <=sp rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
+        snow_melt_fac[tavg <= rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
         snow_melt_fac[tavg > rf_high_thresh_temp] = 0
 
         if i == 0:  # first day of model run to initalize and establish the soil water balance
@@ -325,13 +325,21 @@ class VegET:
         water_var = water_factor * bias_corr * alfa_factor
         print(watermask.shape)
 
+        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI
+        # if NDVI < 0 make it water ET value (water_var)
+
         print(pet.shape)
         etawater_boolean = (watermask == 1)
         print(etawater_boolean.shape)
-        # put the final etasw values for no-water regions in the final array
+        # negative NDVI
+        ## neg_ndvi_boolean = ndvi < 0
+
+        # put the final etasw values for where there is land (no water)
         etasw[~etawater_boolean] = etasw5[~etawater_boolean]
-        # if it is a water-region, etasw = (calculated ET of water bodies)
+
+        # else make it ETo*water_var
         etasw[etawater_boolean] = pet[etawater_boolean] * water_var
+        ## etasw[neg_ndvi_boolean] = pet[etawater_boolean] * water_var
         print(etasw.shape)
 
         # NET ET
