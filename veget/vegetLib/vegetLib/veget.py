@@ -332,13 +332,13 @@ class VegET:
         etawater_boolean = (watermask == 1)
         print(etawater_boolean.shape)
         # negative NDVI
-        ## neg_ndvi_boolean = ndvi < 0
+        neg_ndvi_boolean = ndvi < 0
 
         # put the final etasw values for where there is land (no water)
-        etasw[~etawater_boolean] = etasw5[~etawater_boolean]
+        etasw[~etawater_boolean] = etasw5[~etawater_boolean ]
 
         # else make it ETo*water_var
-        etasw[etawater_boolean] = pet[etawater_boolean] * water_var
+        etasw[etawater_boolean | neg_ndvi_boolean] = pet[etawater_boolean | neg_ndvi_boolean] * water_var
         ## etasw[neg_ndvi_boolean] = pet[etawater_boolean] * water_var
         print(etasw.shape)
 
