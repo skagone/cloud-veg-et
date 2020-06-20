@@ -1,10 +1,11 @@
+current:	delaware
 hi:
 	echo git reset HEAD~2   the last two commits
 run:
 	python3 api_veget.py 40N-100E
     
 delaware:
-	python3 api_veget.py -c delaware_config -s DRB.shp DELA_TMP
+	python3 api_veget.py -c delaware_config -s DRB.shp lilDRB_temp
 
 help:
 	python3 api_veget.py --help
