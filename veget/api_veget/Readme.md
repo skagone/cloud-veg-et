@@ -25,3 +25,11 @@ upyter-kagone@ip-10-12-68-72:~$ aws s3 ls dev-et-data/NA_data_for_cloud/ETo_mosa
 ### Workaround
 
 - adjust run param to be day 364 - ask Steffi about pet366?
+
+
+### Git Stash Tutorial
+
+https://www.youtube.com/watch?v=KLEDKgMmbBI
+
+- git stash list
+- git stash pop
