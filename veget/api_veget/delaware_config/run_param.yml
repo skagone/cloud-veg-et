@@ -2,8 +2,8 @@
 # === Minimalist Beta Version Params ====
 start_year: 2012
 end_year: 2014
-start_day: 305
-end_day: 365
+start_day: 335
+end_day: 360
 
 path_mode: aws # aws, google, local
 accumulate_mode: [daily, monthly, yearly]

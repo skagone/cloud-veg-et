@@ -10,10 +10,11 @@ delaware:
 
 ## TODO
 
-1. Cleanup debug messages
-2. add timings to input warp warp_one function
-3. run and capture logs
-4. ananlyze timings for average warp per file type
+1. XX Cleanup debug messages
+2. XX add timings to input warp warp_one function
+3. run in docker container and capture logs
+4. analyze timings for average warp per file type
+5. fix ETo pet366 problem
 
 ## Optimizations
 
