@@ -10,7 +10,7 @@ delaware:
 
 ## TODO
 
-1. Cleanup debug messaged
+1. Cleanup debug messages
 2. add timings to input warp warp_one function
 3. run and capture logs
 4. ananlyze timings for average warp per file type
