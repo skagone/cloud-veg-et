@@ -1,3 +1,4 @@
+# VERSION 1.0
 import os
 import yaml
 import sys
