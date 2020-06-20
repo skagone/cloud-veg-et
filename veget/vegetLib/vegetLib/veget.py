@@ -192,8 +192,8 @@ class VegET:
             rain_frac = np.zeros(ppt.shape)
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
-            temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            temp_diff_boolean = (tavg < rf_high_thresh_temp) & (tavg > rf_low_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * tavg[temp_diff_boolean]
 
             RAIN = rain_frac * effppt
             SWE = np.zeros(ppt.shape)  # inital snowpack raster with only 0 values
@@ -208,11 +208,11 @@ class VegET:
             rain_frac = np.zeros(ppt.shape)  # initialize the rain fraction array
             # Creates a fraction value based on average temperature that determines
             # if the incoming precipitation is falling as rain, sleet, or snow.
-            # if tavg <= 0, make it 0, else if tavg >= 6, make it 1, else (0.167*(tavg-6))
+            # if tavg <= 0, make it 0, else if tavg >= 6, make it 1, else (0.167*tavg)
             rain_frac[tavg <= rf_low_thresh_temp] = 0
             rain_frac[tavg >= rf_high_thresh_temp] = 1
-            temp_diff_boolean = (tavg < rf_high_thresh_temp) | (tavg > rf_low_thresh_temp)
-            rain_frac[temp_diff_boolean] = self.rf_value * (tavg[temp_diff_boolean] - rf_high_thresh_temp)
+            temp_diff_boolean = (tavg < rf_high_thresh_temp) & (tavg > rf_low_thresh_temp)
+            rain_frac[temp_diff_boolean] = self.rf_value * tavg[temp_diff_boolean]
 
             RAIN = rain_frac * effppt
             SWE = (1 - rain_frac) * effppt
@@ -307,31 +307,39 @@ class VegET:
         etasw2 = (SWi / (0.5 * self.whc)) * etasw1
 
         # etasw3 = if SWi > (0.5 * WHC), make it etasw1, else etasw2
-        etasw3_boolean = (etasw3 > SWi)
+        etasw3_boolean = SWi > (0.5 * self.whc)
         etasw3[etasw3_boolean] = etasw1[etasw3_boolean]
-        etasw3[~etasw3_boolean] = etasw1[~etasw3_boolean]
+        etasw3[~etasw3_boolean] = etasw2[~etasw3_boolean]
 
         # etasw4 = if etasw3 > SWi, make it SWi, else etasw3
         etasw4_boolean = (etasw3 > SWi)
         etasw4[etasw4_boolean] = SWi[etasw4_boolean]
         etasw4[~etasw4_boolean] = etasw3[~etasw4_boolean]
 
-        # etasw = if etasw4 > WHC, make it WHC, else etasw4
-        etasw_boolean = (etasw4 > self.whc)
-        etasw5[etasw_boolean] = self.whc[etasw_boolean]
-        etasw5[~etasw_boolean] = etasw4[~etasw_boolean]
+        # etasw5 = if etasw4 > WHC, make it WHC, else etasw4
+        etasw5_boolean = (etasw4 > self.whc)
+        etasw5[etasw5_boolean] = self.whc[etasw5_boolean]
+        etasw5[~etasw5_boolean] = etasw4[~etasw5_boolean]
 
         # ETa of water bodies = 0.70 * (1.25*0.85*ETo)
         water_var = water_factor * bias_corr * alfa_factor
         print(watermask.shape)
 
+        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI
+        # if NDVI < 0 make it water ET value (water_var)
+
         print(pet.shape)
         etawater_boolean = (watermask == 1)
         print(etawater_boolean.shape)
-        # put the final etasw values for no-water regions in the final array
+        # negative NDVI
+        ## neg_ndvi_boolean = ndvi < 0
+
+        # put the final etasw values for where there is land (no water)
         etasw[~etawater_boolean] = etasw5[~etawater_boolean]
-        # if it is a water-region, etasw = (calculated ET of water bodies)
+
+        # else make it ETo*water_var
         etasw[etawater_boolean] = pet[etawater_boolean] * water_var
+        ## etasw[neg_ndvi_boolean] = pet[etawater_boolean] * water_var
         print(etasw.shape)
 
         # NET ET
@@ -348,8 +356,8 @@ class VegET:
         SWf_boolean2 = (SWf1 < 0.0)
 
         SWf[SWf_boolean] = self.whc[SWf_boolean] - etasw[SWf_boolean]
-        SWf[SWf_boolean2] = 0
-        SWf[~SWf_boolean2] = SWf1[~SWf_boolean2]
+        SWf[(~SWf_boolean) & (SWf_boolean2)] = 0
+        SWf[(~SWf_boolean) & (~SWf_boolean2)] = SWf1[(~SWf_boolean) & (~SWf_boolean2)]
 
         return etasw, SWf, etasw5, etc, netet
 
