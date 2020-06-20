@@ -7,6 +7,18 @@
 
 delaware:
 	python3 api_veget.py -c delaware_config -s DRB.shp lilDRB_temp
+
+## TODO
+
+1. Cleanup debug messaged
+2. add timings to input warp warp_one function
+3. run and capture logs
+4. ananlyze timings for average warp per file type
+
+## Optimizations
+
+1. use fsspec to write directly the outputs and time the difference between the local and s3copy and direct s3 writes
+2. use zarray and zarr on the outputs
     
 
 ## Errors
