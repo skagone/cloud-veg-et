@@ -3,6 +3,8 @@ from s3fs.core import S3FileSystem as s3
 import boto3
 import sys
 
+from .log_logger import log_make_logger
+
 class PathManager:
     """
     This class creates the input paths for the dynamic and static data needed in the model.
@@ -23,6 +25,7 @@ class PathManager:
 
     def __init__(self, config_dict):
             self.config_dict = config_dict
+            self.log = log_make_logger('PATHMANAGER')
 
 
     def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
@@ -39,7 +42,7 @@ class PathManager:
         clim_key = 'climatology'
         doy = today.timetuple().tm_yday
 
-        print('settings', settings)
+        # print('settings', settings)
 
         # TODO - make this flexibel enough so the non-climatological data doesnt have to organized in year folders
         # final_path = None
@@ -77,6 +80,7 @@ class PathManager:
                 sys.exit(0)
 
         elif self.config_dict['path_mode'] == 'aws':
+            self.log.debug('PATH MODE is AWS - tony will be happy')
             # account for subdirs, called prefix in the cloud, if data is not climatology
             if settings[clim_key]:
                 # for climatology then we expect a DOY format, and we assume no prefixes

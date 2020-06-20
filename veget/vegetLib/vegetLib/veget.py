@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import calendar
 from datetime import datetime, timedelta, date
+from timeit import default_timer as t_now
 from .vegconfig import return_veget_params
 from .rastermanager import RasterManager
 from .pathmanager import PathManager
@@ -54,7 +55,8 @@ class VegET:
     def __init__(self, veget_config_path, tile, shp=None):
 
             self.log = log_make_logger('VegET_CLASS')
-            self.log.info(tile)
+            self.log.info('TILE is {}'.format(tile))
+            self.log.info('Important Config path is {}'.format(veget_config_path))
         
             # create an instance of the VegET model using the configurations from the file.
             self.config_dict = return_veget_params(veget_config_path)
@@ -72,6 +74,7 @@ class VegET:
             self.accumulate_mode = self.config_dict['accumulate_mode']
             # path modes
             self.path_mode = self.config_dict['path_mode']
+            self.log.info('Important path mode is {}'.format(self.path_mode))
 
             # print(self.start_day, self.end_day, self.start_year, self.end_year)
             # print (self.accumulate_mode)
@@ -122,6 +125,7 @@ class VegET:
         print(year, today.month, today.day)
         DOY = '{:03d}'.format(today.timetuple().tm_yday)
         print(f'today is {DOY}')
+        self.log.info(f'today is {DOY}')
 
         return DOY, year
 
@@ -155,16 +159,16 @@ class VegET:
         """
 
         # Check for no data value handling
-        print('ppt min', np.min(ppt))
-        print('ppt max', np.min(ppt))
+        #print('ppt min', np.min(ppt))
+        #print('ppt max', np.min(ppt))
         ppt[ppt <= -1] = np.nan
         ppt[ppt == 32767] = np.nan
-        print('ppt min', np.min(ppt))
-        print('ppt max', np.max(ppt))
+        #print('ppt min', np.min(ppt))
+        #print('ppt max', np.max(ppt))
 
-        print('tavg min', np.min(tavg))
+        #print('tavg min', np.min(tavg))
         tavg[tavg <= -100] = np.nan
-        print('tavg min', np.min(tavg))
+        #print('tavg min', np.min(tavg))
         tmax[tmax <= -100] = np.nan
         tmin[tmin <= -100] = np.nan
 
@@ -172,7 +176,7 @@ class VegET:
         effppt = ppt * (1 - (interception / 100.0))
         # Intercepted precipitation
         interception = ppt * (interception / 100.0)
-        print('interception min', np.min(interception))
+        #print('interception min', np.min(interception))
 
         # Snow pack
         # Usage: Creates a melt rate value based on the relationship between
@@ -500,6 +504,7 @@ class VegET:
         changing_snwpck = None
         for i in range(num_days + 1):
             # so what day is it
+            t0 = t_now()
             today = start_dt + timedelta(days=i)
             if i == 0:
                 rain, swf, snwpck, swe, DDrain, SRf, etc, etasw, netet = self._run_water_bal(i, today, self.interception, self.whc, self.field_capacity,
@@ -603,5 +608,7 @@ class VegET:
                 changing_swf = swf
                 changing_snwpck = snwpck
 
+            t_total = t_now() - t0
+            self.log.info("DAY - TIME - {} - {}".format(t_total, today))
             print('-------------------------------')
 

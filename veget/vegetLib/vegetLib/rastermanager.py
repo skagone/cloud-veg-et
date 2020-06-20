@@ -14,6 +14,7 @@ from rasterio.crs import CRS
 from rasterio.enums import Resampling
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
+from timeit import default_timer as t_now
 
 from .pathmanager import PathManager
 
@@ -103,6 +104,9 @@ class RasterManager:
         elif self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
             local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
+            self.log.debug('local_outpath {}'.format(local_outpath))
+
+            t0 = t_now()
 
             band1 = arr
             # write to a temp folder
@@ -117,6 +121,8 @@ class RasterManager:
 
             # uploads to aws bucket with filepath
             self.s3_delete_local(local_file=local_outpath, bucket=bucket_name, bucket_filepath=bucket_filepath)
+            t_total = t_now() - t0
+            self.log.info("OUTPUT - TIME - {} - {}".format(t_total, bucket_filepath))
 
 
     def set_model_std_grid(self, feat=0):
@@ -172,7 +178,7 @@ class RasterManager:
             sys.exit(0)
 
         for i, warpfile in enumerate(inputs):
-            print('warpfile', warpfile)
+            # print('warpfile', warpfile)
             with rasterio.open(warpfile) as src:
                 # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
                 with WarpedVRT(src, resampling=rs,
@@ -181,7 +187,7 @@ class RasterManager:
                                height=self.rows,
                                width=self.cols) as vrt:
                     data = vrt.read()
-                    print(type(vrt))
+                    # print(type(vrt))
                     # save the file as an enumerated tiff. reopen outside this loop with the outputs list
                     outwarp = os.path.join(self.temp_folder, 'temp_{}.tif'.format(i))
                     rio_shutil.copy(vrt, outwarp, driver='GTiff')
@@ -198,6 +204,7 @@ class RasterManager:
         return npy_outputs
 
     def _warp_one(self, warpfile, rs):
+        t0 = t_now()
         with rasterio.open(warpfile) as src:
             # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
             with WarpedVRT(src, resampling=rs,
@@ -206,9 +213,11 @@ class RasterManager:
                            height=self.rows,
                            width=self.cols) as vrt:
                 data = vrt.read(1)
-                print(type(vrt))
+                # print(type(vrt))
                 print("data shape =", data.shape)
-                self.log.info("_warp_oneicompleted {}".format(warpfile))
+                self.log.info("_warp_one Completed {}".format(warpfile))
+                t_total = t_now() - t0
+                self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
             return data
 
     def _warp_inputs(self, inputs, resamplemethod):
@@ -223,10 +232,9 @@ class RasterManager:
             sys.exit(0)
 
         for i, warpfile in enumerate(inputs):
-            print('warpfile', warpfile)
+            # print('warpfile', warpfile)
             data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
-        self.log.error("ouputs no longer needed")
         return npy_outputs
 
     def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
