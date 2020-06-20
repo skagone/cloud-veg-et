@@ -40,6 +40,31 @@ upyter-kagone@ip-10-12-68-72:~$ aws s3 ls dev-et-data/NA_data_for_cloud/ETo_mosa
 - adjust run param to be day 364 - ask Steffi about pet366?
 
 
+### Error 102
+
+```
+ start_dt = datetime.strptime("{}-{:03d}".format(self.start_year, self.start_day), '%Y-%j')
+        print(start_dt)
+        end_dt = datetime.strptime("{}-{:03d}".format(self.end_year, self.end_day), '%Y-%j')
+        print(end_dt)
+        time_interval = end_dt - start_dt
+        num_days = time_interval.days
+        print(num_days)
+
+```
+
+The above code only handles consecutive days
+
+```
+start_year: 2012
+end_year: 2014
+start_day: 335
+end_day: 360
+```
+
+therefore the above does not work as advertised
+
+
 ### Git Stash Tutorial
 
 https://www.youtube.com/watch?v=KLEDKgMmbBI
