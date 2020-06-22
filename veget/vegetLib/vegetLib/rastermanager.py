@@ -232,7 +232,7 @@ class RasterManager:
             sys.exit(0)
 
         for i, warpfile in enumerate(inputs):
-            # print('warpfile', warpfile)
+            print('warpfile', warpfile)
             data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
         return npy_outputs
