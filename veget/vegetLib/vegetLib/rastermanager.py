@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import yaml
 import calendar
 from datetime import datetime, timedelta, date
@@ -205,20 +206,28 @@ class RasterManager:
 
     def _warp_one(self, warpfile, rs):
         t0 = t_now()
-        with rasterio.open(warpfile) as src:
-            # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
-            with WarpedVRT(src, resampling=rs,
+        cnt=10
+        while(cnt>0):
+            try:
+                with rasterio.open(warpfile) as src:
+                    # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+                    with WarpedVRT(src, resampling=rs,
                            crs=self.crs,
                            transform=self.transform,
                            height=self.rows,
                            width=self.cols) as vrt:
-                data = vrt.read(1)
-                # print(type(vrt))
-                print("data shape =", data.shape)
-                self.log.info("_warp_one Completed {}".format(warpfile))
-                t_total = t_now() - t0
-                self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
-            return data
+                        data = vrt.read(1)
+                        # print(type(vrt))
+                        print("data shape =", data.shape)
+                        self.log.info("_warp_one Completed {}".format(warpfile))
+                        t_total = t_now() - t0
+                        self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
+                    return data
+            except rasterio.errors.RasterioIOError:
+                    print("Unexpected error:", sys.exc_info()[0])
+                    print('oops',cnt)
+                    cnt = cnt - 1
+                    time.sleep(4)
 
     def _warp_inputs(self, inputs, resamplemethod):
 
