@@ -120,7 +120,7 @@ class VegET:
             # # set the output dir and make it if it doens't exist (only for local)
             self.outdir = self.config_dict['out_root']
             self.pmanager.make_folder(folder_path=self.outdir)
-            self.log.info('OUTPUT Directory is: {}'.format(self.outdir)
+            self.log.info('OUTPUT Directory is: {}'.format(self.outdir))
 
     def _day_of_year(self, today):
         year = today.year
