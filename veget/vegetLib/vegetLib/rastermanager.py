@@ -104,7 +104,8 @@ class RasterManager:
 
         elif self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
-            local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
+            # local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
+            local_outpath = os.path.join(self.temp_folder, outname)
             self.log.debug('local_outpath {}'.format(local_outpath))
 
             t0 = t_now()
