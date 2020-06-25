@@ -117,8 +117,10 @@ class RasterManager:
                 wrast.write(band1, indexes=1)
 
             # Buckets are not directories but you can treat them like they are
-            bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
-            bucket_prefix = os.path.split(self.config_dict['out_root'])[1:-1]  # tile_modelrun1
+            # bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
+            # bucket_prefix = os.path.split(self.config_dict['out_root'])[-1]  # tile_modelrun1
+            bucket_name = self.config_dict['out_root'].split('/')[0]
+            bucket_prefix = self.config_dict['out_root'].split('/')[1:]
             bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath
