@@ -64,6 +64,11 @@ class RasterManager:
         tile = self.config_dict['tile']
 
         self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
+        
+        if 'tile' in tile:
+            self.log.info("using scalable tile names {}".format(tile))
+            bucket_name = self.config_dict['out_root'].split('/')[0]
+            self.config_dict['out_root'] = bucket_name + '/' + tile
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile
