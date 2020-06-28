@@ -21,6 +21,7 @@ from .pathmanager import PathManager
 
 from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
 from .log_logger import log_make_logger
+from .optimeister import OptiMeister
 
 
 class RasterManager:
@@ -69,6 +70,8 @@ class RasterManager:
             self.log.info("using scalable tile names {}".format(tile))
             bucket_name = self.config_dict['out_root'].split('/')[0]
             self.config_dict['out_root'] = bucket_name + '/tiles/' + tile
+            self.optimize = True
+            self.opti=OptiMeister(config_dict,shp)
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile
@@ -253,7 +256,10 @@ class RasterManager:
 
         for i, warpfile in enumerate(inputs):
             print('warpfile', warpfile)
-            data = self._warp_one(warpfile, rs)
+            if (self.optimize):
+                data = self.opti.o_warp_one(warpfile, rs, self.crs, self.transform, self.rows, self.cols)
+            else:
+                data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
         return npy_outputs
 
