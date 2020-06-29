@@ -81,6 +81,9 @@ class VegET:
             # print (self.accumulate_mode)
             # print (self.path_mode)
 
+            self.optimize = optimize
+            self.config_dict['optimize'] = optimize
+
             self.config_dict['tile'] = tile
 
             # initialize the classes that manage Raster data and input/output paths to the data
@@ -122,8 +125,6 @@ class VegET:
             self.pmanager.make_folder(folder_path=self.outdir)
             self.log.info('OUTPUT Directory is: {}'.format(self.outdir))
 
-            self.optimize = optimize
-            self.config_dict['optimize'] = optimize
 
     def _day_of_year(self, today):
         year = today.year
