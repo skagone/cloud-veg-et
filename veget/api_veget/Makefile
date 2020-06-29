@@ -7,6 +7,9 @@ run:
 delaware:
 	python3 api_veget.py -c delaware_config -s DRB.shp lilDRB_temp
 
+test_cache:
+	time python3 api_veget.py -c grid_config -s ./AOI/tile40N-110E_chip40N-102E.shp  tile40N-110E_chip40N-102E  2>&1 | tee  ./log/tile40N-110E_chip40N-102E.log&
+
 help:
 	python3 api_veget.py --help
 
