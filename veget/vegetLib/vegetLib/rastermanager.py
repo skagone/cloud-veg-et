@@ -70,8 +70,9 @@ class RasterManager:
             self.log.info("using scalable tile names {}".format(tile))
             bucket_name = self.config_dict['out_root'].split('/')[0]
             self.config_dict['out_root'] = bucket_name + '/tiles/' + tile
-            self.optimize = True
-            self.opti=OptiMeister(config_dict,shp)
+            if self.config_dict['optimize']:
+                self.optimize = True
+                self.opti=OptiMeister(config_dict,shp)
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile

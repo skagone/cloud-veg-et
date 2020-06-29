@@ -53,7 +53,7 @@ class VegET:
     tavg_settings = None
     tmax_settings = None
 
-    def __init__(self, veget_config_path, tile, shp=None):
+    def __init__(self, veget_config_path, tile, shp=None, optimize=False):
 
             self.log = log_make_logger('VegET_CLASS')
             self.log.info('TILE is {}'.format(tile))
@@ -121,6 +121,9 @@ class VegET:
             self.outdir = self.config_dict['out_root']
             self.pmanager.make_folder(folder_path=self.outdir)
             self.log.info('OUTPUT Directory is: {}'.format(self.outdir))
+
+            self.optimize = optimize
+            self.config_dict['optimize'] = optimize
 
     def _day_of_year(self, today):
         year = today.year
