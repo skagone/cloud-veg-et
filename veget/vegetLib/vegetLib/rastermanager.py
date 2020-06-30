@@ -58,6 +58,7 @@ class RasterManager:
 
 
     def __init__(self, config_dict, shp=None):
+        self.optimize = False
         self.log = log_make_logger('COOL RASTERMANAGER')
 
         self.config_dict = config_dict
