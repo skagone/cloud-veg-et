@@ -32,6 +32,7 @@ def command_line_runner():
 
     shp = args['shp']
 
+    optimize = False
     opt = args['optimize']
     if 'yes' in opt:
         optimize = True
