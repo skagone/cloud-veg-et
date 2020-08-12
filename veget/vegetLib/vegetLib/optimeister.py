@@ -52,7 +52,7 @@ class OptiMeister:
         
     
     def _cache_npy(self, warpfile, ary):
-        self.log.info('Cache this file {}'.format(warpfile))
+        self.log.info('Research Cache this file {}'.format(warpfile))
         cache_name = _make_npy_cache_name(warpfile, self.tile)
         _np_save_cloud(cache_name, ary)
         self.cache[warpfile]=cache_name
@@ -69,7 +69,7 @@ class OptiMeister:
         t0 = t_now()
         
         if self._is_in_cache(warpfile):
-            self.log.info('RETRIEVING NPY CACHE ITEM'.format(warpfile))
+            self.log.info('RESEARCH RETRIEVING NPY CACHE ITEM'.format(warpfile))
             data = self._return_cache_data(warpfile)
             return data
         else:    
@@ -89,10 +89,11 @@ class OptiMeister:
                             self.log.info("o_warp_one Completed {}".format(warpfile))
                             t_total = t_now() - t0
                             self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
-                            t0 = t_now()
-                            self._cache_npy(warpfile,data)
-                            t_total = t_now() - t0
-                            self.log.info("Cache_Store - TIME - {} - {}".format(t_total, warpfile))
+                            if 'NDVI' in warpfile:
+                                t0 = t_now()
+                                self._cache_npy(warpfile,data)
+                                t_total = t_now() - t0
+                                self.log.info("Cache_Store - TIME - {} - {}".format(t_total, warpfile))
                         return data
                 except rasterio.errors.RasterioIOError:
                         print("Unexpected error:", sys.exc_info()[0])
