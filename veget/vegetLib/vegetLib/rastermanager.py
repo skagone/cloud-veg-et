@@ -69,15 +69,13 @@ class RasterManager:
         
         if 'tile' in tile:
             self.log.info("using scalable tile names {}".format(tile))
-            bucket_name = self.config_dict['out_root'].split('/')[0]
 
-            today = date.today()
+            #bucket_name = self.config_dict['out_root'].split('/')[0]
+            #today = date.today()
+            #print("Current date =", today)
+            #date_str=today.strftime("%m_%d_%Y")
+            #self.config_dict['out_root'] = bucket_name + '/out/DelawareRiverBasin/Run' + date_str + '/' + tile
 
-            print("Current date =", today)
-
-            date_str=today.strftime("%m_%d_%Y")
-
-            self.config_dict['out_root'] = bucket_name + '/out/DelawareRiverBasin/Run' + date_str + '/' + tile
             if self.config_dict['optimize']:
                 self.optimize = True
                 self.opti=OptiMeister(config_dict,shp)

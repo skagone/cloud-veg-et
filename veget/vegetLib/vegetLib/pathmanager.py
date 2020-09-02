@@ -2,6 +2,7 @@ import os
 from s3fs.core import S3FileSystem as s3
 import boto3
 import sys
+from datetime import date
 
 from .log_logger import log_make_logger
 
@@ -129,6 +130,16 @@ class PathManager:
             print('google cloud bucket is not implemented. Returning as if the path were for a local')
             pass
         return fpath
+
+    def make_s3_output_path(self):
+        print(self.config_dict['out_root_prefix'])
+        print(self.config_dict['region'])
+        region = self.config_dict['region']
+        today = date.today()
+        print("Current date =", today)
+        date_str=today.strftime("%m_%d_%Y")
+        s3_output_path = self.config_dict['out_root_prefix'] + '/' + region + '/Run' + date_str + '/' + self.config_dict['tile']
+        return(s3_output_path)
 
 
     def make_folder(self, folder_path):

@@ -3,7 +3,8 @@
 # input location
 # in_root: dev-et-data
 # output_location
-out_root: dev-et-data/tiles/t40N-80E/c40N-78E
+out_root_prefix: dev-et-data/out
+region: DelawareRiverBasin
 # temporary folder for rasterio vrt -> npy conversion
 temp_folder: ./bogus_temp
 # Dataset info

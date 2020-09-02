@@ -10,6 +10,11 @@ def log_make_logger(nameV):
     myStreamTypicallySTDOUT = logging.StreamHandler()
     myStreamTypicallySTDOUT.setFormatter(formatter)
     LOGGER.addHandler(myStreamTypicallySTDOUT)
+
+    fh = logging.FileHandler('./log/run.log')
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(formatter)
+    LOGGER.addHandler(fh)
     
     LOGGER.info("Logging Begins")
     return LOGGER
