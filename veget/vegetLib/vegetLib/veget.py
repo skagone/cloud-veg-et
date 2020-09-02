@@ -444,7 +444,7 @@ class VegET:
         return RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
 
     def save_log_file(self):
-        self.log.info("Saving Log File!")
+        self.log.info("Saving Log File! {}".format(self.outdir))
 
     def save_param_files(self):
         self.log.info("Saving Param Files!")
