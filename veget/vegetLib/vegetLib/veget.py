@@ -443,6 +443,13 @@ class VegET:
 
         return RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
 
+    def save_log_file(self):
+        self.log.info("Saving Log File!")
+
+    def save_param_files(self):
+        self.log.info("Saving Param Files!")
+
+
     def run_veg_et(self):
         print(
             '''             _ _            ___  ___  _  _ 
