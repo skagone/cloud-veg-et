@@ -7,9 +7,11 @@ import calendar
 from datetime import datetime, timedelta, date
 from timeit import default_timer as t_now
 from .vegconfig import return_veget_params
+from .vegconfig import s3_save_config_files
 from .rastermanager import RasterManager
 from .pathmanager import PathManager
 from .log_logger import log_make_logger
+from .log_logger import s3_save_log_file
 
 class VegET:
     """
@@ -61,6 +63,7 @@ class VegET:
         
             # create an instance of the VegET model using the configurations from the file.
             self.config_dict = return_veget_params(veget_config_path)
+            self.config_dict['veget_config_path'] = veget_config_path
             print('---'*30)
             # print(self.config_dict['start_day'])
             
@@ -446,12 +449,6 @@ class VegET:
 
         return RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
 
-    def save_log_file(self):
-        self.log.info("Saving Log File! {}".format(self.outdir))
-
-    def save_param_files(self):
-        self.log.info("Saving Param Files!")
-
 
     def run_veg_et(self):
         print(
@@ -628,3 +625,9 @@ class VegET:
             self.log.info("DAY - TIME - {} - {}".format(t_total, today))
             print('-------------------------------')
 
+        print('THE END')
+        s3_output_path = self.outdir
+        print('SAVE LOG')
+        s3_save_log_file(s3_output_path)
+        veget_config_path = self.config_dict['veget_config_path']
+        s3_save_config_files(veget_config_path, s3_output_path)

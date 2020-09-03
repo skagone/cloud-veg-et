@@ -1,4 +1,5 @@
 import logging
+import boto3
 
 def log_make_logger(nameV):
    
@@ -25,3 +26,14 @@ def log_get_line_number():
     cf = currentframe()
     return cf.f_back.f_lineno
 
+
+def s3_save_log_file(s3_output_path):
+
+        s3 = boto3.client('s3')
+        local_file = './log/run.log'
+        with open(local_file, "rb") as f:
+            bucket = s3_output_path.split('/')[0]
+            prefix = '/'.join(s3_output_path.split('/')[1:])
+            bucket_filepath = prefix + '/aaalog/run.log'
+            print(bucket, bucket_filepath)
+            s3.upload_fileobj(f, bucket, bucket_filepath)
