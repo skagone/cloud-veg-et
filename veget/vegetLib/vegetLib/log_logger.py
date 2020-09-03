@@ -12,7 +12,7 @@ def log_make_logger(nameV):
     myStreamTypicallySTDOUT.setFormatter(formatter)
     LOGGER.addHandler(myStreamTypicallySTDOUT)
 
-    fh = logging.FileHandler('./log/run.log')
+    fh = logging.FileHandler('./log/run.log', mode='w')
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     LOGGER.addHandler(fh)
