@@ -408,12 +408,12 @@ class VegET:
                                                             yest_swf, yest_snwpck)
         DOY, year = self._day_of_year(today=today)
 
-        SWiout =  f'swi_{year}{DOY}.tif'
+        SWiout =  f'{year}/swi_{year}{DOY}.tif'
         print('swout', SWiout)
-        SNWpkout = f'snwpk_{year}{DOY}.tif'
-        RAINout =  f'rain_{year}{DOY}.tif'
-        SWEout = f'swe_{year}{DOY}.tif'
-        snow_meltout =  f'snowmelt_{year}{DOY}.tif'
+        SNWpkout = f'{year}/snwpk_{year}{DOY}.tif'
+        RAINout =  f'{year}/rain_{year}{DOY}.tif'
+        SWEout = f'{year}/swe_{year}{DOY}.tif'
+        snow_meltout =  f'{year}/snowmelt_{year}{DOY}.tif'
 
         if daily_mode:
             self.rmanager.output_rasters(SWi, self.outdir, outname=SWiout)
@@ -425,8 +425,8 @@ class VegET:
         # output DDRAIN and SRf
         DDrain, SRf = self._surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity,
                                            whc=self.whc, rf_coeff=self.rf_coeff)
-        DDrainout = f'dd_{year}{DOY}.tif'
-        SRfout = f'srf_{year}{DOY}.tif'
+        DDrainout = f'{year}/dd_{year}{DOY}.tif'
+        SRfout = f'{year}/srf_{year}{DOY}.tif'
         if daily_mode:
             self.rmanager.output_rasters(DDrain, self.outdir, outname=DDrainout)
             self.rmanager.output_rasters(SRf, self.outdir, outname=SRfout)
@@ -434,11 +434,11 @@ class VegET:
         # output eta and SWf
         etasw, SWf, etasw5, etc, netet = self._veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
                                           self.pet, self.ndvi, SWi)
-        etaswout = f'etasw_{year}{DOY}.tif'
-        SWfout = f'swf_{year}{DOY}.tif'
-        etasw5out = f'etasw5_{year}{DOY}.tif'
-        etcout = f'etc_{year}{DOY}.tif'
-        netetout = f'netet_{year}{DOY}.tif'
+        etaswout = f'{year}/etasw_{year}{DOY}.tif'
+        SWfout = f'{year}/swf_{year}{DOY}.tif'
+        etasw5out = f'{year}/etasw5_{year}{DOY}.tif'
+        etcout = f'{year}/etc_{year}{DOY}.tif'
+        netetout = f'{year}/netet_{year}{DOY}.tif'
 
         if daily_mode:
             self.rmanager.output_rasters(etasw, outdir, outname=etaswout)
@@ -579,15 +579,15 @@ class VegET:
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
                     self.rmanager.output_rasters(et_month_cum_arr, self.outdir,
-                                   'etasw_{}{:02d}.tif'.format(today.year, today.month))
+                                   '{}/etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(dd_month_cum_arr, self.outdir,
-                                   'dd_{}{:02d}.tif'.format(today.year, today.month))
+                                   '{}/dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
-                                   'srf_{}{:02d}.tif'.format(today.year, today.month))
+                                   '{}/srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(etc_month_cum_arr, self.outdir,
-                                   'etc_{}{:02d}.tif'.format(today.year, today.month))
+                                   '{}/etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(netet_month_cum_arr, self.outdir,
-                                   'netet_{}{:02d}.tif'.format(today.year, today.month))
+                                   '{}/netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
 
                     # zero-out arrays to start the next month over.
                     dd_month_cum_arr = np.zeros(model_arr_shape)
