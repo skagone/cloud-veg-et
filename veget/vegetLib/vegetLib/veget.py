@@ -599,14 +599,13 @@ class VegET:
 
                 if output_yearly_arr:
                     # function to create yearly output rasters for each variables
-                    annual_outdir = 'self.outdir + Annual'
-                    self.rmanager.output_rasters(et_yearly_cum_arr, annual_outdir, 'etasw_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(dd_yearly_cum_arr, annual_outdir, 'dd_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(srf_yearly_cum_arr, annual_outdir, 'srf_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(etc_yearly_cum_arr, annual_outdir, 'etc_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(netet_yearly_cum_arr, annual_outdir, 'netet_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(rain_yearly_cum_arr, annual_outdir, 'rain_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(swe_yearly_cum_arr, annual_outdir, 'swe_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'Annual/etasw_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'Annual/dd_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'Annual/srf_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(etc_yearly_cum_arr, self.outdir, 'Annual/etc_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(netet_yearly_cum_arr, self.outdir, 'Annual/netet_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(rain_yearly_cum_arr, self.outdir, 'Annual/rain_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(swe_yearly_cum_arr, self.outdir, 'Annual/swe_{}.tif'.format(today.year))
 
                     # zero-out arrays to start the next year over.
                     rain_yearly_cum_arr = np.zeros(model_arr_shape)
