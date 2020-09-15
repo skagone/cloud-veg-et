@@ -334,13 +334,21 @@ class VegET:
         water_var = water_factor * bias_corr * alfa_factor
         print(watermask.shape)
 
+        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI
+        # if NDVI < 0 make it water ET value (water_var)
+
         print(pet.shape)
         etawater_boolean = (watermask == 1)
         print(etawater_boolean.shape)
-        # put the final etasw values for no-water regions in the final array
-        etasw[~etawater_boolean] = etasw5[~etawater_boolean]
-        # if it is a water-region, etasw = (calculated ET of water bodies)
-        etasw[etawater_boolean] = pet[etawater_boolean] * water_var
+        # negative NDVI
+        neg_ndvi_boolean = ndvi < 0
+
+        # put the final etasw values for where there is land (no water)
+        etasw[~etawater_boolean] = etasw5[~etawater_boolean ]
+
+        # else make it ETo*water_var
+        etasw[etawater_boolean | neg_ndvi_boolean] = pet[etawater_boolean | neg_ndvi_boolean] * water_var
+        ## etasw[neg_ndvi_boolean] = pet[etawater_boolean] * water_var
         print(etasw.shape)
 
         # NET ET
