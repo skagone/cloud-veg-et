@@ -3,7 +3,7 @@ import os
 
 """
 This runner was made on 9/1/2020 from Oct 2014-Dec 2016. This run is being done locally but more runs
- (for the Danube, Ganges-Bramaputra etc) will be run in the cloud if possible.
+ (for the Danube, Ganges-Bramaputra etc) will be run in the cloud if possible...
 """
 
 config_root = r'Z:\Projects\VegET_NileBasin\Nile2016'
