@@ -4,10 +4,14 @@ import sys
 import numpy as np
 import calendar
 from datetime import datetime, timedelta, date
-from .vegconfig import return_veget_params
-from .rastermanager import RasterManager
-from .pathmanager import PathManager
-from .log_logger import log_make_logger
+# from .vegconfig import return_veget_params
+# from .rastermanager import RasterManager
+# from .pathmanager import PathManager
+# from .log_logger import log_make_logger
+from veget.vegetLib.vegetLib.vegconfig import return_veget_params
+from veget.vegetLib.vegetLib.rastermanager import RasterManager
+from veget.vegetLib.vegetLib.pathmanager import PathManager
+from veget.vegetLib.vegetLib.log_logger import log_make_logger
 
 class VegET:
     """
@@ -182,7 +186,7 @@ class VegET:
         snow_melt_fac = np.zeros(ppt.shape)
         # where avg temp <= high_threshold_temp set to 0, else it is equal to the melt factor rate
         # (tavg <= rf_high_tresh_temp, 0, melt_rate)
-        snow_melt_fac[tavg <=sp rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
+        snow_melt_fac[tavg <=rf_high_thresh_temp] = melt_rate[tavg <= rf_high_thresh_temp]
         snow_melt_fac[tavg > rf_high_thresh_temp] = 0
 
         if i == 0:  # first day of model run to initalize and establish the soil water balance
@@ -248,8 +252,11 @@ class VegET:
         :return: deep drainage and surface runoff
         """
 
+        saturation = saturation * 1.0
         saturation[saturation < 0] = np.nan
+        field_capacity = field_capacity * 1.0
         field_capacity[field_capacity < 0] = np.nan
+        whc = whc * 1.0
         whc[whc < 0] = np.nan
 
         # total runoff based on water left in soil after SAT-FC
@@ -295,9 +302,11 @@ class VegET:
         etasw = np.zeros(ndvi.shape)
         SWf = np.zeros(ndvi.shape)
 
+        # TODO - for testing, pleaze remove GELP 9/3/2020
+        ndvi = ndvi / 10000
+
         etasw1A = (k_factor * ndvi + ndvi_factor) * (pet * bias_corr)
         etasw1B = (k_factor * ndvi) * (pet * bias_corr)
-
 
         # etasw1 = if ndvi > 0.4, make it etasw1A, else etasw1B
         ndvi_boolean = (ndvi > 0.4)

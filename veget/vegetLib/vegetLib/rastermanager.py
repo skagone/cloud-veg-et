@@ -1,8 +1,6 @@
 import os
 import sys
-import yaml
-import calendar
-from datetime import datetime, timedelta, date
+import numpy as np
 
 from s3fs.core import S3FileSystem
 import boto3
@@ -19,7 +17,6 @@ from .pathmanager import PathManager
 
 from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
 from .log_logger import log_make_logger
-
 
 class RasterManager:
     """
@@ -55,13 +52,13 @@ class RasterManager:
 
 
     def __init__(self, config_dict, shp=None):
-        self.log = log_make_logger('COOL RASTERMANAGER')
+        self.log = log_make_logger('RASTER MANAGER LOG')
 
         self.config_dict = config_dict
 
         tile = self.config_dict['tile']
 
-        self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
+        self.log.info('tile name is - {}'.format(tile))
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile
@@ -199,16 +196,24 @@ class RasterManager:
 
     def _warp_one(self, warpfile, rs):
         with rasterio.open(warpfile) as src:
-            # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
-            with WarpedVRT(src, resampling=rs,
-                           crs=self.crs,
-                           transform=self.transform,
-                           height=self.rows,
-                           width=self.cols) as vrt:
-                data = vrt.read(1)
-                print(type(vrt))
-                print("data shape =", data.shape)
-                self.log.info("_warp_oneicompleted {}".format(warpfile))
+            try:
+                # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+                with WarpedVRT(src, resampling=rs,
+                               crs=self.crs,
+                               transform=self.transform,
+                               height=self.rows,
+                               width=self.cols) as vrt:
+                    data = vrt.read(1)
+                    print(type(vrt))
+                    print("data shape =", data.shape)
+                    self.log.info("_warp_oneicompleted {}".format(warpfile))
+            except rasterio.errors.CRSError:
+                print(f'a crs Error occured with file {warpfile}. \n It may be that the crs is not supported or\n '
+                      f'that the geotiff does not have a crs set.')
+                # TODO
+                # 'the geotiff should be rewritten to a temporary file with a defined CRS\n '
+                #       'and then virtually warped again'
+                sys.exit(0)
             return data
 
     def _warp_inputs(self, inputs, resamplemethod):
@@ -226,7 +231,7 @@ class RasterManager:
             print('warpfile', warpfile)
             data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
-        self.log.error("ouputs no longer needed")
+        # self.log.info("outputs no longer needed")
         return npy_outputs
 
     def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
