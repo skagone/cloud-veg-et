@@ -1,0 +1,20 @@
+# === Parameters set by Gabriel Senay ====
+# defining low and high temperature values (in C°) to determine what is snow, sleet, rain
+rf_low_thresh_temp: 0
+rf_high_thresh_temp: 6
+rf_value: 0.167
+melt_factor: 0.06
+
+# drainage coefficient = 1 - runoff coefficient
+dc_coeff: 0.65
+# 1 - dc_coeff
+rf_coeff: 0.35
+
+# constant values to adjust NDVI in the ET calculation
+k_factor: 1.25
+ndvi_factor: 0.2
+# water adjustment
+water_factor: 0.7
+# reference ET bias correction
+bias_corr: 0.85
+alfa_factor: 1.25

@@ -1,0 +1,13 @@
+# ================ ACTIVE config_dict SECTION ==============================
+# === Minimalist Beta Version Params ====
+start_year: 2015
+end_year: 2015
+start_day: 001
+end_day: 003
+
+accumulate_mode: [daily] #[yearly, monthly, daily]
+
+geojson_file: a.json
+shapefile: C:\WaterSmart\Projects\CloudVegET\shapefiles\out_box.shp
+# sample tiff could/should be derived from the geojson clip of the ndvi - or maybe not needed - tbd
+sample_tiff: C:\WaterSmart\Projects\CloudVegET\local_testing\ndvi\med001.250_m_NDVI.tif

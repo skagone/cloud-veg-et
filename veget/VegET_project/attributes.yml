@@ -1,0 +1,341 @@
+# ================ ACTIVE config_dict SECTION ==============================
+# === Minimalist Beta Version Params ====
+start_year: 2015
+end_year: 2015
+start_day: 001
+end_day: 003
+
+accumulate_mode: [daily] #[yearly, monthly, daily]
+
+# defining low and high temperature values (in C°) to determine what is snow, sleet, rain
+rf_low_thresh_temp: 0
+rf_high_thresh_temp: 6
+rf_value: 0.167
+melt_factor: 0.06
+
+# drainage coefficient = 1 - runoff coefficient
+dc_coeff: 0.65
+# 1 - dc_coeff
+rf_coeff: 0.35
+
+# constant values to adjust NDVI in the ET calculation
+k_factor: 1.25
+ndvi_factor: 0.2
+# water adjustment
+water_factor: 0.7
+# reference ET bias correction
+bias_corr: 0.85
+alfa_factor: 1.25
+
+
+
+
+
+# if the shapefile and/or sample tiff is none, the user will have to set the std_geo_info his/herself.
+# otherwise, leave crs-top as none, and they will be set by the program
+shapefile: C:\WaterSmart\Projects\CloudVegET\shapefiles\out_box.shp
+sample_tiff: C:\WaterSmart\Projects\CloudVegET\local_testing\ndvi\med001.250_m_NDVI.tif
+
+# std_geo_info
+crs: None
+cols: None
+rows: None
+xres: None
+yres: None
+left: None
+top: None
+
+# input location
+in_root: C:\WaterSmart\Projects\CloudVegET\local_testing
+# output_location
+out_root: C:\WaterSmart\Projects\CloudVegET\local_testing\zztestout
+# temporary folder for rasterio vrt -> npy conversion
+temp_folder: temp
+# Dataset info
+precip_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: prec_{}.tif
+  dt_fmt: YYYYdoy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\ppt  #ga-et-data/Cloud_Veg_ET/Data/PPT/
+  climatology: False
+  na_vals: []
+ndvi_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: med{}.250_m_NDVI.tif
+  dt_fmt: doy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\ndvi
+  climatology: True
+pet_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: medianETo{}.tif
+  dt_fmt: doy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\eto
+  climatology: True
+tmin_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: tmin_{}.tif
+  dt_fmt: doy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\tmin
+  climatology: True
+tavg_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: tavg_{}.tif
+  dt_fmt: doy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\tavg
+  climatology: True
+tmax_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  name_fmt: tmax_{}.tif
+  dt_fmt: doy
+  dir_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\tmax
+  climatology: True
+
+
+# === Static raster data settings ====
+watermask_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  file_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\global_water_mask_inland.tif
+whc_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  file_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\soil\available_water_capacity_US_final.tif
+saturation_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  file_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\soil\porosity_US_final.tif
+field_capacity_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  file_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\soil\field_capacity_US_final.tif
+interception_settings:
+  crs: None
+  cols: None
+  rows: None
+  xres: None
+  yres: None
+  left: None
+  top: None
+  file_loc: C:\WaterSmart\Projects\CloudVegET\local_testing\soil\Intercept_global3.tif
+
+#
+#
+#
+#
+## ================ Proposed config_dict SECTION ==============================
+#
+#
+#
+#
+## ==== Version 2.0 params ====
+## --- Data set up ----
+#bucket_inroot : ga-et-data
+#bucket_infolder : Cloud_Veg_ET/Data
+#
+#bucket_outroot : dev-et-data
+#bucket_outfolder : v1DRB_outputs/model_outputs
+#
+#npy_fmt : .npy
+#tif_fmt : .tif
+#
+## ----- ONe way ---------
+#ndvi_fmt : MODIS # assume the naming convention used by our group
+#ndvi_fmt : Landsat # assume another naming convention
+#ndvi_sname : NDVI
+#ndvi_fmt : MODIS
+#Y
+#
+##-----------------------------------------
+#
+#filename1 = Model_Time_units.extension
+#filename2 = Model-Time_version.extension
+#
+## only accepts Geotiffs
+#NDVI_raw = directory
+#Basename
+#timestamp
+#
+#user_provided_ ndvi_name_fmt = SSEBopversion1MattSchaure{}.tif
+#ndvi_date_fmt = YYYdoy
+#xft = YYmm or YYYYmm
+#
+#  {ndvi_YYYYmmdd : ModisMattSchaure{n}.tif, ndvi_YYYYmmdd+1: ModisMattSchaure{n+1}.tif }
+#
+#os.rename
+#
+#
+##-----------------------------------------
+#
+#
+#ndvi_end : .250_m_NDVI_gw
+#ndvi_dir : NDVI
+#ndvi_dir : 'can that be build in here? or do in the function'
+#
+#ppt_sname : PPT
+#ppt_fmt : GRIDMET
+#ppt_dir :
+#
+#pet_sname : ETO
+#pet_fmt : GRIDMET
+#pet_dir :
+#
+#
+#tavg_sname : TAVG
+#tavg_fmt : GRIDMET
+#tavg_dir :
+#
+#tmin_sname : TMIN
+#tmin_fmt : GRIDMET
+#tmin_dir :
+#
+#tmax_sname : TMAX
+#tmax_fmt : GRIDMET
+#tmax_dir :
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+## === Raster Specs ===
+## These could be populated by giving a sample file
+## geoproperties_file
+#espg: 4326
+#extent: (3124,1938)
+#resolution: 250 # AKA pixel height witdth
+#
+## --- Input Scalers ----
+#rf_low_thresh_temp : 0
+#rf_high_thresh_temp : 6
+#rf_value : 0.167
+#melt_factor : 0.06
+## drainage coefficient = 1 - runoff coefficient
+#dc_coeff : 0.65
+#rf_coeff : (1 - dc_coeff)
+## constant values to adjust NDVI in the ET calculation
+#k_factor : 1.25
+#ndvi_factor : 0.2
+## water adjustment
+#water_factor : 0.70
+## reference ET bias correction
+#bias_corr : 0.85
+#alfa_factor : 1.25
+#
+#non_standard_inputs : True
+## TODO - make enough configurable options to be able to run Veg ET for a group of rasters,
+#
+#
+#
+#
+#
+#
+#
+#proj_root: Z:Users\Gabe\URGB_proj_II
+#input_folder: inputs
+## = ETa =
+#eta_inputs: ETa
+#eta_units: mm # options:
+## = precipitation =
+#precip_inputs: precip
+#precip_units: mm # options:
+## = Discharge =
+#discharge_inputs: discharge
+#discharge_files: files
+## = Reservoirs =
+#reservoir_inputs: reservoirs
+## = Wells =
+#well_inputs: wells
+## = Sources =
+#source_inputs: sources
+## = Sinks =
+#sink_inputs: sinks
+## = Runoff *Not Implemented* =
+## === DYNAMIC intputs format ===
+#et_timestep: monthly # options: daily, monthly, yearly
+#et_name: MonthlyETa
+#et_end: _trimmed.tif
+#precip_timestep: monthly
+#precip_name: prism
+#precip_end: _warped.tif
+## don't handle discharge yet, wait till you create the watershed
+##discharge_timestep: daily
+##discharge_names: [rg_caballo_ibwc_08362500, rg_ElPaso_ibwc_08364000]
+## discharge_format: ibwc # options: USGS, IBWC
+#
+#
+## === Raster Specs ===
+## These could be populated by giving a sample file
+#espg: 4326
+#extent: ()
+#resolution: 30 # AKA pixel height witdth
+## === Shapefiles ===
+## = Basins =
+#basin_inputs: basin_boundaries
+##point_inputs: # not sure what i'd do at this time.
+## empty list of watershed names to be added later
+#watersheds: []
+## === Hydrology ===
+#water_year: 09 # water year begins at the end of this month.

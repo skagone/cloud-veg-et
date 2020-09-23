@@ -1,0 +1,7 @@
+model_outputs
+geo_sample.tif
+*.tif
+.idea/workspace.xml
+cloud_path.yaml
+local_gabe_path.yaml
+local_stef_path.yaml
