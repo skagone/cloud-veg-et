@@ -1,8 +1,8 @@
 # ================ ACTIVE config_dict SECTION ==============================
 # === Minimalist Beta Version Params ====
-start_year: 2012
+start_year: 1999
 end_year: 2016
-start_day: 275
+start_day: 274
 end_day: 366
 
 path_mode: aws # aws, google, local

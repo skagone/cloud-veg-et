@@ -11,7 +11,6 @@ class PathManager:
     This class creates the input paths for the dynamic and static data needed in the model.
     """
 
-
     # configuration non_std_inputs = True, accept parameters such as ndvi_fmt = userndvi_{}_vers1.tif
     # where {} is the date and date_fmt YYYYmmdd or YYYYdd etc for a filepath. A dictionary can relate user-input
     # name formatting to model std formats. Right now, non_std_inputs must be false and only 1 type of naming
@@ -45,16 +44,20 @@ class PathManager:
 
         # print('settings', settings)
 
-        # TODO - make this flexibel enough so the non-climatological data doesnt have to organized in year folders
+        # the date finding tool is flexible enough so the non-climatological
+        # data doesnt have to be organized in year folders. It CAN be though.
         # final_path = None
         if self.config_dict['path_mode'] == 'local':
             # print('local is happening')
-            # todo - what is the boto3 bucket equivalent of this?
             if settings[clim_key]:
                 'clim is happening'
                 # for climatology then we expect a DOY format
                 if settings[dt_key] == 'doy':
                     dynamic_key = '{:03d}'.format(doy)
+                    # we assume that there are no subdirectories so the final path is the same as the loc key
+                    final_path = settings[loc_key]
+                elif settings[dt_key] == 'mmdd':
+                    dynamic_key = '{:02d}{:02d}'.format(today.month, today.day)
                     # we assume that there are no subdirectories so the final path is the same as the loc key
                     final_path = settings[loc_key]
                 else:
@@ -68,15 +71,34 @@ class PathManager:
                 # Do a walk in case there are subdirectories with each file in there.
                 walk_obj = os.walk(settings[loc_key])
                 for path, subdir, files in walk_obj:
-                    print('nonclim path \n', path)
+                    # print('nonclim path \n', path)
                     for file in files:
-                        # todo - better error handling logging here please
+                        # todo - REALLY REALLY someday better error handling logging here please
                         # print('nonclim file name', file)
                         if file == settings[name_key].format(dynamic_key):
                             # print('nonclim final \n', path)
                             final_path = path
+            elif settings[dt_key] == 'YYmmdd':
+                # get the last two digits of year
+                yr = str(today.year)
+                yr_2dig = yr[-2:]
+                dynamic_key = '{}{:02d}{:02d}'.format(yr_2dig, today.month, today.day)
+                # Do a walk in case there are subdirectories with each file in there.
+                walk_obj = os.walk(settings[loc_key])
+                for path, subdir, files in walk_obj:
+                    # print('nonclim path \n', path)
+                    durectory = os.path.split(path)[1]
+                    if durectory == settings[name_key].format(dynamic_key):
+                        final_path = os.path.split(path)[0]
+                    else:
+                        pass
+                        for file in files:
+                            # print('nonclim file name', file)
+                            if file == settings[name_key].format(dynamic_key):
+                                # print('nonclim final \n', path)
+                                final_path = path
             else:
-                print('Hey user, the format of the dt_fmt configuration you gave: {} is not supported at '
+                print('Hey user, the format of the dt_fmt configuration you gave: {}, is not supported at '
                       'this time'.format(settings[dt_key]))
                 sys.exit(0)
 

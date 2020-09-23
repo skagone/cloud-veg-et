@@ -1,14 +1,15 @@
 import os
 import sys
+
+import numpy as np
+
 import time
 import yaml
 import calendar
 from datetime import datetime, timedelta, date
-
 from s3fs.core import S3FileSystem
 import boto3
 import fiona
-
 import pandas as pd
 import rasterio.mask
 from rasterio.crs import CRS
@@ -22,7 +23,6 @@ from .pathmanager import PathManager
 from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
 from .log_logger import log_make_logger
 from .optimeister import OptiMeister
-
 
 class RasterManager:
     """
@@ -58,14 +58,14 @@ class RasterManager:
 
 
     def __init__(self, config_dict, shp=None):
-        self.optimize = False
-        self.log = log_make_logger('COOL_RASTERMANAGER')
 
+        self.log = log_make_logger('RASTER MANAGER LOG')
+        self.optimize = False
         self.config_dict = config_dict
 
         tile = self.config_dict['tile']
 
-        self.log.info('Tony-s stupid - tile name is - {}'.format(tile))
+        self.log.info('tile name is - {}'.format(tile))
         
         if 'tile' in tile:
             self.log.info("using scalable tile names {}".format(tile))
@@ -79,6 +79,7 @@ class RasterManager:
             if self.config_dict['optimize']:
                 self.optimize = True
                 self.opti=OptiMeister(config_dict,shp)
+
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile
@@ -269,6 +270,7 @@ class RasterManager:
             else:
                 data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
+
         return npy_outputs
 
     def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
