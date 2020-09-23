@@ -208,8 +208,8 @@ class RasterManager:
                     print("data shape =", data.shape)
                     self.log.info("_warp_oneicompleted {}".format(warpfile))
             except rasterio.errors.CRSError:
-                print(f'a crs Error occured with file {warpfile}. \n It may be that the crs is not supported or\n '
-                      f'that the geotiff does not have a crs set.')
+                print(f'a crs Error occured with file {warpfile}. \n It may be that the crs is not supported '
+                      f'or\nthat the geotiff does not have a crs set.')
                 # TODO
                 # 'the geotiff should be rewritten to a temporary file with a defined CRS\n '
                 #       'and then virtually warped again'

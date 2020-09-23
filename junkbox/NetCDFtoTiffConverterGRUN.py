@@ -10,43 +10,6 @@ import rasterio
 from rasterio.crs import CRS
 from rasterio.windows import Window
 print('hello world')
-def write_raster(array, geotransform, output_path, output_filename, dimensions, projection, flip_arr=False):
-    """
-    Write raster outputs a Geotiff to a specified location.
-    :param array: an array to be printed as a raster
-    :param geotransform: a list of intergers containing information about the size and resolution of the raster
-    :param output_path: path where you want to output the raster.
-    :param output_filename:
-    :param dimensions: x and y dimensions of the raster as a tuple
-    :param projection: geographic projection string
-    :param datatype: NA
-    :return: NA
-    """
-    print('writing the raster')
-    filename = os.path.join(output_path, output_filename)
-    print('writing to location {}'.format(filename))
-    driver = gdal.GetDriverByName('GTiff')
-    # path, cols, rows, bandnumber, data type (if not specified, as below, the default is GDT_Byte)
-    output_dataset = driver.Create(filename, dimensions[0], dimensions[1], 1, GDT_Float32)
-    # we write TO the output band
-    output_band = output_dataset.GetRasterBand(1)
-    if flip_arr:
-        array = np.flipud(array)
-        print('shape of transpose', array.shape)
-    # we don't need to do an offset
-    output_band.WriteArray(array, 0, 0)
-    print('done writing.')
-    # set the geotransform in order to georefference the image
-    output_dataset.SetGeoTransform(geotransform)
-    # set the projection
-    output_dataset.SetProjection(projection)
-def write_big_raster(array, geotransform, output_path, output_filename, dimensions, projection, flip_arr=False):
-    filename = os.path.join(output_path, output_filename)
-    print('writing to location {}'.format(filename))
-    if flip_arr:
-        array = np.flipud(array)
-        print('shape of transpose', array.shape)
-    # with rasterio.open('w', )
 
 def process_netcdf(path, output_path, projection, name_string, main_var='qav', global_dat=True, hugefile=True, chunkparam=None):
     """
@@ -127,11 +90,8 @@ def process_netcdf(path, output_path, projection, name_string, main_var='qav', g
     # print('main variable\n', mainvar)
     # print(f'====\n main var dims: {mainvar_dim} \n')
     if not hugefile:
-        for ind, tup in enumerate(year_month):
-            array = mainvar[ind, :, :]
-            outputfilename = "{}{}_{}.tif".format(name_string, tup[0], tup[1])
-            print('size of the array', array.shape)
-            write_raster(array, transform, output_path, outputfilename, dimensions, projection, flip_arr=True)
+        print('Not implemented')
+        sys.exit()
     else:
         for ind, tup in enumerate(year_month):
             chunk_gcd = 32
@@ -187,7 +147,7 @@ def run():
     projection = 'EPSG:4326'
     output_path = r'Z:\Data\Runoff\Global\Flow1K\FLO1K_ts_1960_2015_qav_gtiff'
     # what the output geotiffs start with
-    name_string = 'Flo1K_m3s'
+    name_string = 'GRUN_m3s'
     process_netcdf(path, output_path, projection, name_string)
 
 if __name__ == "__main__":
