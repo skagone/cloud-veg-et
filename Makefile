@@ -7,4 +7,5 @@ publish:
 	git config --global push.default simple
 	git add .
 	git commit -m "automatic git update from Makefile"
+	#python3 ./pkg/ask_commit.py
 	git push
