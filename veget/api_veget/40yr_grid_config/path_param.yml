@@ -1,0 +1,80 @@
+# Can we take the crs
+
+# input location
+# in_root: dev-et-data
+# output_location
+out_root_prefix: dev-et-data/out
+region: DelawareRiverBasin
+# temporary folder for rasterio vrt -> npy conversion
+temp_folder: ./bogus_temp
+# Dataset info
+
+precip_settings:
+  name_fmt: prec_{}.tif
+  dt_fmt: YYYYdoy
+#  dir_loc: /vsis3/dev-et-data/in/north_america_data/precipitation
+  dir_loc: /vsis3/dev-et-data/in/USA_data/precip_gridmet_tiffs/
+  climatology: False
+  na_vals: []
+
+ndvi_settings:
+  name_fmt: med{}.250_m_NDVI.tif
+  dt_fmt: doy
+  dir_loc: /vsis3/dev-et-data/in/USA_data/NDVI_med2003_2017
+  climatology: True
+
+pet_settings:
+  name_fmt: pet{}.tif
+  dt_fmt: doy
+  dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/ETo_mosaic/
+  climatology: True
+
+tmin_settings:
+  name_fmt: tmin_{}.tif
+  dt_fmt: YYYYdoy
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tmin
+  climatology: False
+  #climatology: True
+
+tavg_settings:
+  name_fmt: tavg_{}.tif
+  dt_fmt: YYYYdoy
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tavg
+  climatology: False
+  #climatology: True
+
+tmax_settings:
+  name_fmt: tmax_{}.tif
+  #dt_fmt: doy
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
+  dt_fmt: YYYYdoy
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tmax
+  climatology: False
+  #climatology: True
+
+
+
+# === Static raster data settings ====
+watermask_settings:
+  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/global_water_mask_inland.tif
+whc_settings:
+  #file_loc: dev-et-data/NA_data_for_cloud/Soil/available_water_capacity_US_final.tif
+  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/whc.tif
+saturation_settings:
+  #file_loc: dev-et-data/NA_data_for_cloud/Soil/porosity_US_final.tif
+  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/sat.tif
+field_capacity_settings:
+  #file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
+  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/fdc.tif
+interception_settings:
+  #file_loc: dev-et-data/NA_data_for_cloud/Soil/field_capacity_US_final.tif
+  file_loc: /vsis3/dev-et-data/NA_data_for_cloud/Soil/global/inp.tif
+
+
+
+
+
+
+

@@ -1,22 +1,28 @@
 import os
 import sys
+
 import numpy as np
 
+import time
+import yaml
+import calendar
+from datetime import datetime, timedelta, date
 from s3fs.core import S3FileSystem
 import boto3
 import fiona
-
 import pandas as pd
 import rasterio.mask
 from rasterio.crs import CRS
 from rasterio.enums import Resampling
 from rasterio import shutil as rio_shutil
 from rasterio.vrt import WarpedVRT
+from timeit import default_timer as t_now
 
 from .pathmanager import PathManager
 
 from .box_poly import box_create_ugly_proprietary_shapefile_plus_json_from_tile
 from .log_logger import log_make_logger
+from .optimeister import OptiMeister
 
 class RasterManager:
     """
@@ -52,13 +58,28 @@ class RasterManager:
 
 
     def __init__(self, config_dict, shp=None):
-        self.log = log_make_logger('RASTER MANAGER LOG')
 
+        self.log = log_make_logger('RASTER MANAGER LOG')
+        self.optimize = False
         self.config_dict = config_dict
 
         tile = self.config_dict['tile']
 
         self.log.info('tile name is - {}'.format(tile))
+        
+        if 'tile' in tile:
+            self.log.info("using scalable tile names {}".format(tile))
+
+            #bucket_name = self.config_dict['out_root'].split('/')[0]
+            #today = date.today()
+            #print("Current date =", today)
+            #date_str=today.strftime("%m_%d_%Y")
+            #self.config_dict['out_root'] = bucket_name + '/out/DelawareRiverBasin/Run' + date_str + '/' + tile
+
+            if self.config_dict['optimize']:
+                self.optimize = True
+                self.opti=OptiMeister(config_dict,shp)
+
 
         # self.geoproperties_file = config_dict.geoproperties_file
         # self.shapefile = config_dict.shapefile
@@ -99,7 +120,12 @@ class RasterManager:
 
         elif self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
-            local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
+            # local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
+            local_outname = outname.split('/')[-1]
+            local_outpath = os.path.join(self.temp_folder, local_outname)
+            self.log.debug('local_outpath {}'.format(local_outpath))
+
+            t0 = t_now()
 
             band1 = arr
             # write to a temp folder
@@ -108,12 +134,19 @@ class RasterManager:
                 wrast.write(band1, indexes=1)
 
             # Buckets are not directories but you can treat them like they are
-            bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
-            bucket_prefix = os.path.split(self.config_dict['out_root'])[-1]  # tile_modelrun1
+            # bucket_name = os.path.split(self.config_dict['out_root'])[0]     # dev-et-data
+            # bucket_prefix = os.path.split(self.config_dict['out_root'])[-1]  # tile_modelrun1
+            bucket_name = self.config_dict['out_root'].split('/')[0]
+            bucket_prefix_list = self.config_dict['out_root'].split('/')[1:]
+            print(bucket_prefix_list)
+            bucket_prefix = '/'.join(bucket_prefix_list)
+            print("bucket prefix =", bucket_prefix)
             bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath
             self.s3_delete_local(local_file=local_outpath, bucket=bucket_name, bucket_filepath=bucket_filepath)
+            t_total = t_now() - t0
+            self.log.info("OUTPUT - TIME - {} - {}".format(t_total, bucket_filepath))
 
 
     def set_model_std_grid(self, feat=0):
@@ -169,7 +202,7 @@ class RasterManager:
             sys.exit(0)
 
         for i, warpfile in enumerate(inputs):
-            print('warpfile', warpfile)
+            # print('warpfile', warpfile)
             with rasterio.open(warpfile) as src:
                 # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
                 with WarpedVRT(src, resampling=rs,
@@ -178,7 +211,7 @@ class RasterManager:
                                height=self.rows,
                                width=self.cols) as vrt:
                     data = vrt.read()
-                    print(type(vrt))
+                    # print(type(vrt))
                     # save the file as an enumerated tiff. reopen outside this loop with the outputs list
                     outwarp = os.path.join(self.temp_folder, 'temp_{}.tif'.format(i))
                     rio_shutil.copy(vrt, outwarp, driver='GTiff')
@@ -195,26 +228,29 @@ class RasterManager:
         return npy_outputs
 
     def _warp_one(self, warpfile, rs):
-        with rasterio.open(warpfile) as src:
+        t0 = t_now()
+        cnt=10
+        while(cnt>0):
             try:
-                # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
-                with WarpedVRT(src, resampling=rs,
-                               crs=self.crs,
-                               transform=self.transform,
-                               height=self.rows,
-                               width=self.cols) as vrt:
-                    data = vrt.read(1)
-                    print(type(vrt))
-                    print("data shape =", data.shape)
-                    self.log.info("_warp_oneicompleted {}".format(warpfile))
-            except rasterio.errors.CRSError:
-                print(f'a crs Error occured with file {warpfile}. \n It may be that the crs is not supported '
-                      f'or\nthat the geotiff does not have a crs set.')
-                # TODO
-                # 'the geotiff should be rewritten to a temporary file with a defined CRS\n '
-                #       'and then virtually warped again'
-                sys.exit(0)
-            return data
+                with rasterio.open(warpfile) as src:
+                    # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+                    with WarpedVRT(src, resampling=rs,
+                           crs=self.crs,
+                           transform=self.transform,
+                           height=self.rows,
+                           width=self.cols) as vrt:
+                        data = vrt.read(1)
+                        # print(type(vrt))
+                        print("data shape =", data.shape)
+                        self.log.info("_warp_one Completed {}".format(warpfile))
+                        t_total = t_now() - t0
+                        self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
+                    return data
+            except rasterio.errors.RasterioIOError:
+                    print("Unexpected error:", sys.exc_info()[0])
+                    print('oops',cnt)
+                    cnt = cnt - 1
+                    time.sleep(4)
 
     def _warp_inputs(self, inputs, resamplemethod):
 
@@ -229,9 +265,12 @@ class RasterManager:
 
         for i, warpfile in enumerate(inputs):
             print('warpfile', warpfile)
-            data = self._warp_one(warpfile, rs)
+            if (self.optimize):
+                data = self.opti.o_warp_one(warpfile, rs, self.crs, self.transform, self.rows, self.cols)
+            else:
+                data = self._warp_one(warpfile, rs)
             npy_outputs.append(data)
-        # self.log.info("outputs no longer needed")
+
         return npy_outputs
 
     def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):

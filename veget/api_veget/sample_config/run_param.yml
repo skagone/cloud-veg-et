@@ -5,7 +5,7 @@ end_year: 2016
 start_day: 274
 end_day: 366
 
-path_mode: local # aws, google, local
+path_mode: aws # aws, google, local
 accumulate_mode: [daily, monthly, yearly]
 
 geojson_file: a.json

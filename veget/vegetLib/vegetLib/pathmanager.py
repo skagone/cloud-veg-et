@@ -2,6 +2,9 @@ import os
 from s3fs.core import S3FileSystem as s3
 import boto3
 import sys
+from datetime import date
+
+from .log_logger import log_make_logger
 
 class PathManager:
     """
@@ -22,6 +25,7 @@ class PathManager:
 
     def __init__(self, config_dict):
             self.config_dict = config_dict
+            self.log = log_make_logger('PATHMANAGER')
 
 
     def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
@@ -38,7 +42,7 @@ class PathManager:
         clim_key = 'climatology'
         doy = today.timetuple().tm_yday
 
-        print('settings', settings)
+        # print('settings', settings)
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
@@ -99,6 +103,7 @@ class PathManager:
                 sys.exit(0)
 
         elif self.config_dict['path_mode'] == 'aws':
+            self.log.debug('PATH MODE is AWS - tony will be happy')
             # account for subdirs, called prefix in the cloud, if data is not climatology
             if settings[clim_key]:
                 # for climatology then we expect a DOY format, and we assume no prefixes
@@ -147,6 +152,16 @@ class PathManager:
             print('google cloud bucket is not implemented. Returning as if the path were for a local')
             pass
         return fpath
+
+    def make_s3_output_path(self):
+        print(self.config_dict['out_root_prefix'])
+        print(self.config_dict['region'])
+        region = self.config_dict['region']
+        today = date.today()
+        print("Current date =", today)
+        date_str=today.strftime("%m_%d_%Y")
+        s3_output_path = self.config_dict['out_root_prefix'] + '/' + region + '/Run' + date_str + '/' + self.config_dict['tile']
+        return(s3_output_path)
 
 
     def make_folder(self, folder_path):

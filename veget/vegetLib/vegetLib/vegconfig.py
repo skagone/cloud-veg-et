@@ -1,6 +1,7 @@
 import os
 import sys
 import yaml
+import boto3
 
 def return_veget_params(config_directory):
         
@@ -36,3 +37,18 @@ def return_veget_params(config_directory):
     # print(config_dict)
 
     return config_dict
+
+def s3_save_config_files(config_directory, s3_output_path):
+    s3 = boto3.client('s3')
+    file_list = ['model_param.yml',  'path_param.yml',  'run_param.yml']
+    for file in file_list:
+        local_file = config_directory + '/' + file
+        with open(local_file, "rb") as f:
+            bucket = s3_output_path.split('/')[0]
+            prefix = '/'.join(s3_output_path.split('/')[1:])
+            bucket_filepath = prefix + '/aaalog/' + file
+            print(bucket, bucket_filepath)
+            s3.upload_fileobj(f, bucket, bucket_filepath)
+        f.close()
+
+
