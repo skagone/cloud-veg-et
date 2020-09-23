@@ -5,6 +5,6 @@ comment = input()
 
 print(comment)
 
-cmd = "git commit -m " + comment
+cmd = "git commit -m " + '\"'  + comment  + '\"'
 
 os.system(cmd) 
