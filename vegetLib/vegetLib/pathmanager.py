@@ -1,8 +1,9 @@
 import os
 from s3fs.core import S3FileSystem as s3
 import boto3
+import yaml
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from .log_logger import log_make_logger
 
@@ -27,6 +28,44 @@ class PathManager:
             self.config_dict = config_dict
             self.log = log_make_logger('PATHMANAGER')
 
+    def get_dynamic_settings(self, today, settings):
+        """"""
+
+        # ===
+        file = 'dynamic_file'
+        interval_key = 'interval_list'
+        dynamic_key = 'dynamic_keys'
+        # ===
+
+        dynamic_keys = settings[dynamic_key]
+        interval_lst = settings[interval_key]
+
+        # check to make sure the intervals and dynamic keys are the same len
+        if not len(dynamic_keys) == len(interval_lst):
+            print(f'there should me the same number of'
+                  f' {interval_key} as {dynamic_key} in the config')
+            sys.exit(0)
+
+        # TODO - enable date ranges that are more precise than annual...
+        for i in range(len(interval_lst)):
+            year_tuple = interval_lst[i]
+            dk = dynamic_keys[i]
+
+            dt_early = datetime(year=int(year_tuple[0]), month=1, day=1)
+            dt_late = datetime(year=int(year_tuple[1]), month=1, day=1)
+
+            # if today is between the start and end date of the period, use it to get the settings
+            # from the yaml file.
+            if dt_early <= today < dt_late:
+                dynamic_settings_dict = yaml.safe_load(settings[file])
+                new_settings = dynamic_settings_dict[dk]
+                return new_settings
+            # go on down the list to find a day that is within the interval
+            else:
+                pass
+
+
+
 
     def get_dynamic_data(self, today, settings): # DOY=None, year_doy=None
         """
@@ -36,6 +75,16 @@ class PathManager:
         :return:
         """
 
+        # Dynamic settings are where the settings and data-sets change based on the day or year.
+        # Useful for including fore-casting or back-casting data with historical
+        # satellite (observational) data-sets within a single veg-et run.
+        try:
+            dynamic_settings = settings['dynamic_settings']
+            if dynamic_settings == None:
+                dynamic_settings = False
+        except KeyError:
+            dynamic_settings = False
+
         name_key = 'name_fmt'
         loc_key = 'dir_loc'
         dt_key = 'dt_fmt'
@@ -43,6 +92,10 @@ class PathManager:
         doy = today.timetuple().tm_yday
 
         # print('settings', settings)
+
+        if dynamic_settings:
+            # the settings for the dynamic data are modified based on the date.
+            settings = self.get_dynamic_settings(today=today, settings=settings)
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
@@ -65,38 +118,39 @@ class PathManager:
                                                                                               settings[dt_key]))
                     sys.exit(0)
 
-            elif settings[dt_key] == 'YYYYdoy':
-                'non clim is happening'
-                dynamic_key = '{}{:03d}'.format(today.year, doy)
-                # Do a walk in case there are subdirectories with each file in there.
-                walk_obj = os.walk(settings[loc_key])
-                for path, subdir, files in walk_obj:
-                    # print('nonclim path \n', path)
-                    for file in files:
-                        # todo - REALLY REALLY someday better error handling logging here please
-                        # print('nonclim file name', file)
-                        if file == settings[name_key].format(dynamic_key):
-                            # print('nonclim final \n', path)
-                            final_path = path
-            elif settings[dt_key] == 'YYmmdd':
-                # get the last two digits of year
-                yr = str(today.year)
-                yr_2dig = yr[-2:]
-                dynamic_key = '{}{:02d}{:02d}'.format(yr_2dig, today.month, today.day)
-                # Do a walk in case there are subdirectories with each file in there.
-                walk_obj = os.walk(settings[loc_key])
-                for path, subdir, files in walk_obj:
-                    # print('nonclim path \n', path)
-                    durectory = os.path.split(path)[1]
-                    if durectory == settings[name_key].format(dynamic_key):
-                        final_path = os.path.split(path)[0]
-                    else:
-                        pass
+            elif not settings[clim_key]:
+                print('non clim is happening')
+                if settings[dt_key] == 'YYYYdoy':
+                    dynamic_key = '{}{:03d}'.format(today.year, doy)
+                    # Do a walk in case there are subdirectories with each file in there.
+                    walk_obj = os.walk(settings[loc_key])
+                    for path, subdir, files in walk_obj:
+                        # print('nonclim path \n', path)
                         for file in files:
+                            # todo - REALLY REALLY someday better error handling logging here please
                             # print('nonclim file name', file)
                             if file == settings[name_key].format(dynamic_key):
                                 # print('nonclim final \n', path)
                                 final_path = path
+                elif settings[dt_key] == 'YYmmdd':
+                    # get the last two digits of year
+                    yr = str(today.year)
+                    yr_2dig = yr[-2:]
+                    dynamic_key = '{}{:02d}{:02d}'.format(yr_2dig, today.month, today.day)
+                    # Do a walk in case there are subdirectories with each file in there.
+                    walk_obj = os.walk(settings[loc_key])
+                    for path, subdir, files in walk_obj:
+                        # print('nonclim path \n', path)
+                        durectory = os.path.split(path)[1]
+                        if durectory == settings[name_key].format(dynamic_key):
+                            final_path = os.path.split(path)[0]
+                        else:
+                            pass
+                            for file in files:
+                                # print('nonclim file name', file)
+                                if file == settings[name_key].format(dynamic_key):
+                                    # print('nonclim final \n', path)
+                                    final_path = path
             else:
                 print('Hey user, the format of the dt_fmt configuration you gave: {}, is not supported at '
                       'this time'.format(settings[dt_key]))
