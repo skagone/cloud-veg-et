@@ -1,4 +1,4 @@
-# This is just the code for the VegET Model
+# This is the code for the VegET Model
 
 
 ## History 
