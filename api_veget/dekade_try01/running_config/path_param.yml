@@ -19,7 +19,6 @@ precip_settings:
 
 ndvi_settings:
   dynamic_settings: True
-  #dynamic_file: D:\Users\gparrish\Desktop\test2.yml
   dynamic_file: ./running_config/dynamic_config.yml
   interval_list:
      - (1950, 1960)
@@ -56,7 +55,6 @@ ndvi_settings:
 
 pet_settings:
   dynamic_settings: True
-  #dynamic_file: D:\Users\gparrish\Desktop\test2.yml
   dynamic_file: ./running_config/dynamic_config.yml
   interval_list:
      - (1950, 1960)

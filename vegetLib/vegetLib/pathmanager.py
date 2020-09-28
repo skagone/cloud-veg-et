@@ -3,6 +3,7 @@ from s3fs.core import S3FileSystem as s3
 import boto3
 import yaml
 import sys
+import ast
 from datetime import date, datetime, timedelta
 
 from .log_logger import log_make_logger
@@ -48,7 +49,7 @@ class PathManager:
 
         # TODO - enable date ranges that are more precise than annual...
         for i in range(len(interval_lst)):
-            year_tuple = interval_lst[i]
+            year_tuple = ast.literal_eval(interval_lst[i])
             dk = dynamic_keys[i]
 
             dt_early = datetime(year=int(year_tuple[0]), month=1, day=1)
@@ -57,7 +58,11 @@ class PathManager:
             # if today is between the start and end date of the period, use it to get the settings
             # from the yaml file.
             if dt_early <= today < dt_late:
-                dynamic_settings_dict = yaml.safe_load(settings[file])
+                
+                with open(settings[file], 'r') as rfile:
+                    dynamic_settings_dict = yaml.safe_load(rfile)
+#                 print('dynamic settings dictionary \n', dynamic_settings_dict)
+#                 print('of type: ', type(dynamic_settings_dict))
                 new_settings = dynamic_settings_dict[dk]
                 return new_settings
             # go on down the list to find a day that is within the interval

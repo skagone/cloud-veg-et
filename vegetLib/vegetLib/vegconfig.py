@@ -10,7 +10,7 @@ def return_veget_params(config_directory):
     if os.path.exists(config_run_file_path):
         with open(config_run_file_path, 'r') as cfgpath:
             run_config_dict = yaml.safe_load(cfgpath)
-            # print(run_config_dict)
+#             print(run_config_dict)
     else:
         print('the path does not exist, check the path you gave VegET() {}'.format(config_directory))
         sys.exit(1)
@@ -19,7 +19,7 @@ def return_veget_params(config_directory):
     if os.path.exists(config_model_file_path):
         with open(config_model_file_path, 'r') as cfgpath:
             model_config_dict = yaml.safe_load(cfgpath)
-            # print(model_config_dict)
+#             print(model_config_dict)
     else:
         print('the path does not exist, check the path you gave VegET()')
         sys.exit(1)
@@ -28,7 +28,8 @@ def return_veget_params(config_directory):
     if os.path.exists(config_path_file_path):
         with open(config_path_file_path, 'r') as cfgpath:
             path_config_dict = yaml.safe_load(cfgpath)
-            # print(path_config_dict)
+            print('xyx', cfgpath)
+            print(path_config_dict)
     else:
         print('the path does not exist, check the path you gave VegET()')
         sys.exit(1)
