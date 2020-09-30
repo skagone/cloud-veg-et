@@ -114,7 +114,7 @@ class GridMeister:
         # ===================================================================
         if not self.xchip_increment==None:
             lat = starting_lat
-            while lat > ending_lat: #-self.ychip_increment
+            while lat > ending_lat + 0.00000005: #-self.ychip_increment
                 # print(lat)
                 lon = starting_lon
                 while lon < ending_lon:
@@ -189,19 +189,21 @@ if __name__ == "__main__":
     print('TESTING ZE GRIDMEISTER')
     print('======================')
 
-    chip_output = r'D:\Users\gparrish\Desktop\gridmeistertest'
+    chip_output = r'D:\Users\gparrish\Desktop\gridmeistertest_Darin'
     # (left(lon), bottom(lat) : right(lon), top(lat) lon=x, lat=y
     exp_extent = (-76.7937822733839965, 38.0837012906591070,
                   -73.7104960956225455, 43.0419587927349596)
+    darin_extent = (-77.4226093565661415, 38.3565890497327118, -73.2480170973858122, 42.7829967799980722)
     # (left, bottom: right, top)
     # tony_extent = (-78, 36, -72, 44)
-    gm = GridMeister(tile_name='testtile', raster_extent=exp_extent,
-                     x_raster_res=0.002081004500000000184, y_raster_res=0.002081004500000000184)
+    gm = GridMeister(tile_name='testtile', raster_extent=darin_extent,
+                     x_raster_res=0.002310233679679207525, y_raster_res=0.002310233679679207525)
     # gm = GridMeister(tile_name='testtile', raster_extent=exp_extent,
     #                  x_raster_res=0.04166602942920882846, y_raster_res=0.04166602942920882846)
     #0.04166602942920882846
     lst = gm.chip_list()
     print('resulting chip list \n', lst)
+    gm.create_chip_shp(ul_lat=None, ul_lon=None, out_location=chip_output, unit_chip=True)
 
     if lst == None:
         gm.create_chip_shp(ul_lat=None, ul_lon=None, out_location=chip_output, unit_chip=True)
