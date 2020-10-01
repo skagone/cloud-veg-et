@@ -137,8 +137,13 @@ class VegET:
 
             # # set the output dir and make it if it doens't exist (only for local)
 
-            #self.outdir = self.config_dict['out_root']
-            self.outdir = self.pmanager.make_s3_output_path()
+            if self.config_dict['path_mode'] == 'local':
+                self.outdir = self.config_dict['out_root']
+            elif self.config_dict['path_mode'] == 'aws':
+                self.outdir = self.pmanager.make_s3_output_path()
+            else:
+                print('path mode must be local or aws at this time')
+                sys.exit(0)
             self.config_dict['out_root'] = self.outdir
             #self.pmanager.make_folder(folder_path=self.outdir)
             self.log.info('OUTPUT Directory is: {}'.format(self.outdir))
@@ -185,8 +190,10 @@ class VegET:
         # Check for no data value handling
         #print('ppt min', np.min(ppt))
         #print('ppt max', np.min(ppt))
-        ppt[ppt <= -1] = np.nan
-        ppt[ppt == 32767] = np.nan
+
+        # todo - GELP 10-1-2020
+        # ppt[ppt <= -1] = np.nan
+        # ppt[ppt == 32767] = np.nan
         #print('ppt min', np.min(ppt))
         #print('ppt max', np.max(ppt))
 
@@ -598,16 +605,17 @@ class VegET:
 
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
+                    # todo Steffi - year paths are not universally handled.
                     self.rmanager.output_rasters(et_month_cum_arr, self.outdir,
-                                   '{}/etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                   'etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(dd_month_cum_arr, self.outdir,
-                                   '{}/dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                   'dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
-                                   '{}/srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                   'srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(etc_month_cum_arr, self.outdir,
-                                   '{}/etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                   'etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     self.rmanager.output_rasters(netet_month_cum_arr, self.outdir,
-                                   '{}/netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                   'netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
 
                     # zero-out arrays to start the next month over.
                     dd_month_cum_arr = np.zeros(model_arr_shape)

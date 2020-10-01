@@ -104,9 +104,9 @@ class PathManager:
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
-        # final_path = None
+        final_path = None
         if self.config_dict['path_mode'] == 'local':
-            # print('local is happening')
+            print('local is happening')
             if settings[clim_key]:
                 'clim is happening'
                 # for climatology then we expect a DOY format
@@ -189,6 +189,12 @@ class PathManager:
 
         # print(self.config_dict['path_mode'])
         # print(settings[name_key].format(dynamic_key))
+
+        if final_path == None:
+            print('check the file paths and settings in yaml file bc the final path could not get made. \n'
+                  ' see the settings dictionary:\n{}'.format(settings))
+            sys.exit()
+
         fpath = os.path.join(final_path, settings[name_key].format(dynamic_key))
         return fpath
 

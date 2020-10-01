@@ -13,7 +13,11 @@ def log_make_logger(nameV):
     myStreamTypicallySTDOUT.setFormatter(formatter)
     LOGGER.addHandler(myStreamTypicallySTDOUT)
 
-    log_file_name = './log/' + nameV + '.log'
+    logpath = os.path.join('.', 'log')
+    if not os.path.exists(logpath):
+        os.makedirs(logpath)
+
+    log_file_name = os.path.join(logpath, f'{nameV}.log')
 
     fh = logging.FileHandler(log_file_name, mode='w')
     fh.setLevel(logging.INFO)
