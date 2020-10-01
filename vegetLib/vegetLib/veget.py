@@ -416,6 +416,9 @@ class VegET:
         self.tavg = self.pmanager.get_dynamic_data(today, self.tavg_settings)
         self.tmin = self.pmanager.get_dynamic_data(today, self.tmin_settings)
         self.tmax = self.pmanager.get_dynamic_data(today, self.tmax_settings)
+
+        if daily_mode:
+            self.daypath = os.path.join(self.outdir, 'Daily', f'{today.year}')
         
         print('the status of all the dynamic inputs \n : ',
               self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax)
@@ -435,44 +438,44 @@ class VegET:
                                                             yest_swf, yest_snwpck)
         DOY, year = self._day_of_year(today=today)
 
-        SWiout =  f'{year}/swi_{year}{DOY}.tif'
+        SWiout = f'swi_{year}{DOY}.tif'
         print('swout', SWiout)
-        SNWpkout = f'{year}/snwpk_{year}{DOY}.tif'
-        RAINout =  f'{year}/rain_{year}{DOY}.tif'
-        SWEout = f'{year}/swe_{year}{DOY}.tif'
-        snow_meltout =  f'{year}/snowmelt_{year}{DOY}.tif'
+        SNWpkout = f'snwpk_{year}{DOY}.tif'
+        RAINout = f'rain_{year}{DOY}.tif'
+        SWEout = f'swe_{year}{DOY}.tif'
+        snow_meltout = f'snowmelt_{year}{DOY}.tif'
 
         if daily_mode:
-            self.rmanager.output_rasters(SWi, self.outdir, outname=SWiout)
-            self.rmanager.output_rasters(SNWpk, self.outdir, outname=SNWpkout)
-            self.rmanager.output_rasters(RAIN, self.outdir, outname=RAINout)
-            self.rmanager.output_rasters(SWE, self.outdir, outname=SWEout)
-            self.rmanager.output_rasters(snow_melt, self.outdir, outname=snow_meltout)
+            self.rmanager.output_rasters(SWi, self.daypath, outname=SWiout)
+            self.rmanager.output_rasters(SNWpk, self.daypath, outname=SNWpkout)
+            self.rmanager.output_rasters(RAIN, self.daypath, outname=RAINout)
+            self.rmanager.output_rasters(SWE, self.daypath, outname=SWEout)
+            self.rmanager.output_rasters(snow_melt, self.daypath, outname=snow_meltout)
 
         # output DDRAIN and SRf
         DDrain, SRf = self._surface_runoff(SWi, saturation=self.saturation, field_capacity=self.field_capacity,
                                            whc=self.whc, rf_coeff=self.rf_coeff)
-        DDrainout = f'{year}/dd_{year}{DOY}.tif'
-        SRfout = f'{year}/srf_{year}{DOY}.tif'
+        DDrainout = f'dd_{year}{DOY}.tif'
+        SRfout = f'srf_{year}{DOY}.tif'
         if daily_mode:
-            self.rmanager.output_rasters(DDrain, self.outdir, outname=DDrainout)
-            self.rmanager.output_rasters(SRf, self.outdir, outname=SRfout)
+            self.rmanager.output_rasters(DDrain, self.daypath, outname=DDrainout)
+            self.rmanager.output_rasters(SRf, self.daypath, outname=SRfout)
 
         # output eta and SWf
         etasw, SWf, etasw5, etc, netet = self._veg_et(k_factor, ndvi_factor, water_factor, bias_corr, alfa_factor, watermask,
                                           self.pet, self.ndvi, SWi)
-        etaswout = f'{year}/etasw_{year}{DOY}.tif'
-        SWfout = f'{year}/swf_{year}{DOY}.tif'
-        etasw5out = f'{year}/etasw5_{year}{DOY}.tif'
-        etcout = f'{year}/etc_{year}{DOY}.tif'
-        netetout = f'{year}/netet_{year}{DOY}.tif'
+        etaswout = f'etasw_{year}{DOY}.tif'
+        SWfout = f'swf_{year}{DOY}.tif'
+        etasw5out = f'etasw5_{year}{DOY}.tif'
+        etcout = f'etc_{year}{DOY}.tif'
+        netetout = f'netet_{year}{DOY}.tif'
 
         if daily_mode:
-            self.rmanager.output_rasters(etasw, outdir, outname=etaswout)
-            self.rmanager.output_rasters(SWf, outdir, outname=SWfout)
-            self.rmanager.output_rasters(etasw5, outdir, outname=etasw5out)
-            self.rmanager.output_rasters(etc, self.outdir, outname=etcout)
-            self.rmanager.output_rasters(netet, self.outdir, outname=netetout)
+            self.rmanager.output_rasters(etasw, self.daypath, outname=etaswout)
+            self.rmanager.output_rasters(SWf, self.daypath, outname=SWfout)
+            self.rmanager.output_rasters(etasw5, self.daypath, outname=etasw5out)
+            self.rmanager.output_rasters(etc, self.daypath, outname=etcout)
+            self.rmanager.output_rasters(netet, self.daypath, outname=netetout)
 
         return RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
 
@@ -605,17 +608,17 @@ class VegET:
 
                 if output_monthly_arr:
                     # function to create monthly output rasters for each variable
-                    # todo Steffi - year paths are not universally handled.
+                    mo_outdir = os.path.join(self.outdir, 'Monthly', f'{today.year}')
                     self.rmanager.output_rasters(et_month_cum_arr, self.outdir,
-                                   'etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                                 'etasw_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(dd_month_cum_arr, self.outdir,
-                                   'dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                                 'dd_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(srf_month_cum_arr, self.outdir,
-                                   'srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                                 'srf_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(etc_month_cum_arr, self.outdir,
-                                   'etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                                 'etc_{}{:02d}.tif'.format(today.year, today.month))
                     self.rmanager.output_rasters(netet_month_cum_arr, self.outdir,
-                                   'netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                                                 'netet_{}{:02d}.tif'.format(today.year, today.month))
 
                     # zero-out arrays to start the next month over.
                     dd_month_cum_arr = np.zeros(model_arr_shape)
@@ -627,13 +630,14 @@ class VegET:
 
                 if output_yearly_arr:
                     # function to create yearly output rasters for each variables
-                    self.rmanager.output_rasters(et_yearly_cum_arr, self.outdir, 'Annual/etasw_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(dd_yearly_cum_arr, self.outdir, 'Annual/dd_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(srf_yearly_cum_arr, self.outdir, 'Annual/srf_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(etc_yearly_cum_arr, self.outdir, 'Annual/etc_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(netet_yearly_cum_arr, self.outdir, 'Annual/netet_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(rain_yearly_cum_arr, self.outdir, 'Annual/rain_{}.tif'.format(today.year))
-                    self.rmanager.output_rasters(swe_yearly_cum_arr, self.outdir, 'Annual/swe_{}.tif'.format(today.year))
+                    ann_outdir = os.path.join(self.outdir, 'Yearly')
+                    self.rmanager.output_rasters(et_yearly_cum_arr, ann_outdir, 'etasw_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(dd_yearly_cum_arr, ann_outdir, 'dd_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(srf_yearly_cum_arr, ann_outdir, 'srf_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(etc_yearly_cum_arr, ann_outdir, 'etc_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(netet_yearly_cum_arr, ann_outdir, 'netet_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(rain_yearly_cum_arr, ann_outdir, 'rain_{}.tif'.format(today.year))
+                    self.rmanager.output_rasters(swe_yearly_cum_arr, ann_outdir, 'swe_{}.tif'.format(today.year))
 
                     # zero-out arrays to start the next year over.
                     rain_yearly_cum_arr = np.zeros(model_arr_shape)

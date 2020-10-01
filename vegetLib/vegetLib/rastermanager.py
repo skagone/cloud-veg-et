@@ -109,6 +109,11 @@ class RasterManager:
         """
         This function creates geotiff files from the model output arrays.
         """
+
+        # make the subdirectories if we need 'em
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
         if self.config_dict['path_mode'] == 'local':
             outpath = os.path.join(outdir, outname)
             print('the outpath for file {} is {}'.format(outname, outpath))
