@@ -6,6 +6,7 @@ vegetLib/log_logger.py
 vegetLib/optimeister.py
 vegetLib/pathmanager.py
 vegetLib/rastermanager.py
+vegetLib/s3_stuff.py
 vegetLib/vegconfig.py
 vegetLib/veget.py
 vegetLib.egg-info/PKG-INFO

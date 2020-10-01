@@ -205,8 +205,8 @@ class RasterManager:
             # print('warpfile', warpfile)
             with rasterio.open(warpfile) as src:
                 # TODO - make the default configurable.
-                if src.crs == None:
-                    src.crs = CRS.from_epsg(4326)
+#                 if src.crs == None:
+#                     src.crs = CRS.from_epsg(4326)
                 # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
                 with WarpedVRT(src, resampling=rs,
                                crs=self.crs,
@@ -236,8 +236,8 @@ class RasterManager:
         while(cnt>0):
             try:
                 with rasterio.open(warpfile) as src:
-                    if src.crs == None:
-                        src.crs = CRS.from_epsg(4326)
+#                     if src.crs == None:
+#                         src.crs = CRS.from_epsg(4326)
                     # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
                     with WarpedVRT(src, resampling=rs,
                            crs=self.crs,
