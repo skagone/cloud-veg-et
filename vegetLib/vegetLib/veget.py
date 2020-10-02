@@ -539,7 +539,7 @@ class VegET:
         # normalizing.
         self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(static_inputs))
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
-            = self.rmanager.normalize_to_std_grid(inputs=static_inputs, resamplemethod='nearest')
+            = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs, resamplemethod='nearest')
 
         # set monthly and yearly cumulative arrays (use one of the numpys from the
         # static array that has been normalized):
