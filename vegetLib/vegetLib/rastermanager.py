@@ -103,7 +103,7 @@ class RasterManager:
         if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config_dict for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
-    def output_rasters_cloud(self, arr, outdir, outname):
+    def output_rasters_cloud(self, arr, outname):
         """
         This function creates geotiff files from the model output arrays.
         """
