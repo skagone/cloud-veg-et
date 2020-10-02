@@ -103,27 +103,12 @@ class RasterManager:
         if self.geoproperties_file == None or self.shapefile==None:
             print('Assuming the user entered values in the config_dict for boundaries of the AOI not implemented at thsi time')
             sys.exit(0)
-
-    # ----------- create output rasters -----------------
-    def output_rasters(self, arr, outdir, outname):
+    def output_rasters_cloud(self, arr, outdir, outname):
         """
         This function creates geotiff files from the model output arrays.
         """
 
-        # make the subdirectories if we need 'em
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
-
-        if self.config_dict['path_mode'] == 'local':
-            outpath = os.path.join(outdir, outname)
-            print('the outpath for file {} is {}'.format(outname, outpath))
-
-            band1 = arr
-            with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
-                               count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
-                wrast.write(band1, indexes=1)
-
-        elif self.config_dict['path_mode'] == 'aws':
+        if self.config_dict['path_mode'] == 'aws':
             # later on deleted by s3_delete_local()
             # local_outpath = os.path.join(self.config_dict['temp_folder'], outname)
             local_outname = outname.split('/')[-1]
@@ -146,12 +131,44 @@ class RasterManager:
             print(bucket_prefix_list)
             bucket_prefix = '/'.join(bucket_prefix_list)
             print("bucket prefix =", bucket_prefix)
-            bucket_filepath = os.path.join(bucket_prefix, outname)   # os.path.join(dev-et-data/tile_modelrun1, outname)
+            bucket_filepath = os.path.join(bucket_prefix, outname)  # os.path.join(dev-et-data/tile_modelrun1, outname)
 
             # uploads to aws bucket with filepath
             self.s3_delete_local(local_file=local_outpath, bucket=bucket_name, bucket_filepath=bucket_filepath)
             t_total = t_now() - t0
             self.log.info("OUTPUT - TIME - {} - {}".format(t_total, bucket_filepath))
+
+        elif self.config_dict['path_mode'] == 'google':
+            print('google path mode not yet implemented')
+            sys.exit(0)
+
+        else:
+            print('PATH MODE in config is not set properly for the cloud implementation of output_Rasters')
+            sys.exit(0)
+
+
+    # ----------- create output rasters -----------------
+    def output_rasters(self, arr, outdir, outname):
+        """
+        This function creates geotiff files from the model output arrays.
+        """
+
+        # make the subdirectories if we need 'em
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
+        if self.config_dict['path_mode'] == 'local':
+            outpath = os.path.join(outdir, outname)
+            print('the outpath for file {} is {}'.format(outname, outpath))
+
+            band1 = arr
+            with rasterio.open(outpath, 'w', driver='GTiff', height=self.rows, width=self.cols,
+                               count=1, dtype='float64', crs=self.crs, transform=self.transform) as wrast:
+                wrast.write(band1, indexes=1)
+
+        else:
+            print('PATH MODE in config is not set properly for the local implementation of output_Rasters')
+            sys.exit(0)
 
 
     def set_model_std_grid(self, feat=0):

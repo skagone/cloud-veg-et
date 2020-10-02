@@ -147,7 +147,6 @@ class GridMeister:
 
     def build_docker_run_bash(self, chip_list, optimize):
         print(chip_list)
-
         vols = '-v `pwd`/AOI:/home/veget/cloud-veg-et/api_veget/AOI'
         mycwd = os.getcwd()
         image_custom = mycwd.split('/')[-1]
