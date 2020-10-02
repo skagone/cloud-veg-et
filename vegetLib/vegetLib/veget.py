@@ -626,16 +626,16 @@ class VegET:
 
                 if output_monthly_arr:
                     if self.config_dict['path_mode'] == 'aws' or self.config_dict['path_mode'] == 'google':
-                        self.rmanager.output_rasters_cloud(et_month_cum_arr, self.outdir,
-                                   '{}/etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
-                        self.rmanager.output_rasters_cloud(dd_month_cum_arr, self.outdir,
-                                   '{}/dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
-                        self.rmanager.output_rasters_cloud(srf_month_cum_arr, self.outdir,
-                                   '{}/srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
-                        self.rmanager.output_rasters_cloud(etc_month_cum_arr, self.outdir,
-                                   '{}/etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
-                        self.rmanager.output_rasters_cloud(netet_month_cum_arr, self.outdir,
-                                   '{}/netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                        self.rmanager.output_rasters_cloud(et_month_cum_arr,
+                                                           '{}/etasw_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                        self.rmanager.output_rasters_cloud(dd_month_cum_arr,
+                                                           '{}/dd_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                        self.rmanager.output_rasters_cloud(srf_month_cum_arr,
+                                                           '{}/srf_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                        self.rmanager.output_rasters_cloud(etc_month_cum_arr,
+                                                           '{}/etc_{}{:02d}.tif'.format(today.year, today.year, today.month))
+                        self.rmanager.output_rasters_cloud(netet_month_cum_arr,
+                                                           '{}/netet_{}{:02d}.tif'.format(today.year, today.year, today.month))
                     else:
                         # function to create monthly output rasters for each variable
                         mo_outdir = os.path.join(self.outdir, 'Monthly', f'{today.year}')
