@@ -132,7 +132,7 @@ class GridMeister:
         if not unit_chip:
             coord_list = _make_chip_poly(ul_lat, ul_lon, self.xchip_increment, self.ychip_increment)
             print(coord_list)
-            chip_name = 'chip' + str(round(ul_lat, 2)) + 'N' + str(round(ul_lon,2)) + 'E'
+            chip_name = 'chip' + str(round(ul_lat, 2)) + 'N' + str(round(ul_lon, 2)) + 'E'
             filename = '{}.json'.format(chip_name)
             print(filename)
         else:

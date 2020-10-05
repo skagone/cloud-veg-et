@@ -711,8 +711,11 @@ class VegET:
             print('-------------------------------')
 
         print('THE END')
-        s3_output_path = self.outdir
-        print('SAVE LOG')
-        s3_save_log_file(s3_output_path)
-        veget_config_path = self.config_dict['veget_config_path']
-        s3_save_config_files(veget_config_path, s3_output_path)
+
+        if self.path_mode == 'aws' or self.path_mode == 'google':
+            s3_output_path = self.outdir
+            print('SAVE LOG')
+            s3_save_log_file(s3_output_path)
+        else:
+            # todo save file locally someday
+            print('discarding log file records')
