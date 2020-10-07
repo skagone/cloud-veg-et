@@ -411,6 +411,10 @@ class VegET:
 
         #dynamic inputs to the model
         self.ndvi = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
+        if self.ndvi == None:
+            print('ndvi is note')
+            print('these settings are problematic:')
+            print(self.ndvi_settings)
         self.pet = self.pmanager.get_dynamic_data(today, self.pet_settings)
         self.ppt = self.pmanager.get_dynamic_data(today, self.precip_settings)
         self.tavg = self.pmanager.get_dynamic_data(today, self.tavg_settings)
@@ -717,5 +721,5 @@ class VegET:
             print('SAVE LOG')
             s3_save_log_file(s3_output_path)
         else:
-            # todo save file locally someday
+            # todo - save file locally someday
             print('discarding log file records')
