@@ -80,7 +80,7 @@ class GridMeister:
         self.ychip_increment = None
 
 
-    def chip_list(self, max_pixels=500000):
+    def chip_list(self, max_pixels=250000):
         CHIP_LIST = []
         # box={'left': -78, 'bottom':36 , 'right': -72, 'top': 44}
         box = {'left': self.extent[0], 'bottom': self.extent[1],
