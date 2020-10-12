@@ -113,7 +113,26 @@ def hunt_tile(dir, var, freq, year=None, month=None, doy=None):
 
     return tiles_lst
 
+def tilestats(var, freq, year, tiles, stat_dict=None, iteration=0):
+    print('tiles \n', tiles)
 
+
+
+    ds, trans = xr_build_mosaic_ds(tifs=tiles)
+
+    print(type(ds))
+    print(trans)
+
+    xr_write_geotiff_from_ds(ds=ds, out_path=tempdir)
+
+    if i==0:
+        sample_data = zonal_stats(shape_path=sample_shape, raster_path=tempfile,
+                                  parameter=var, year=year, raster_dim=1000)
+    else:
+        sample_data = zonal_stats(shape_path=sample_shape, raster_path=tempfile,
+                                  parameter=var, year=year, dict=stat_dict, raster_dim=1000)
+
+    return sample_data
 
 
 if __name__ == "__main__":
@@ -126,24 +145,20 @@ if __name__ == "__main__":
     freq = 'yearly'
     year = 2004
 
-    # todo - commented out for testing tiles = hunt_tile(dir=output_root, var=var, freq=freq, year=year)
-    tiles = ['Z:\\Projects\\VegET_Basins\\Murray\\A1\\Yearly\\etasw_2004.tif',
-             'Z:\\Projects\\VegET_Basins\\Murray\\A2\\Yearly\\etasw_2004.tif',
-             'Z:\\Projects\\VegET_Basins\\Murray\\A3\\Yearly\\etasw_2004.tif',
-             'Z:\\Projects\\VegET_Basins\\Murray\\A4\\Yearly\\etasw_2004.tif',
-             'Z:\\Projects\\VegET_Basins\\Murray\\A5\\Yearly\\etasw_2004.tif']
+    yrs_list = [2004, 2005, 2006]
 
-    print('tiles \n', tiles)
+    for i, yr in enumerate(yrs_list):
 
-    ds, trans = xr_build_mosaic_ds(tifs=tiles)
+        tiles = hunt_tile(dir=output_root, var=var, freq=freq, year=yr)
+        # tiles = ['Z:\\Projects\\VegET_Basins\\Murray\\A1\\Yearly\\etasw_2004.tif',
+        #          'Z:\\Projects\\VegET_Basins\\Murray\\A2\\Yearly\\etasw_2004.tif',
+        #          'Z:\\Projects\\VegET_Basins\\Murray\\A3\\Yearly\\etasw_2004.tif',
+        #          'Z:\\Projects\\VegET_Basins\\Murray\\A4\\Yearly\\etasw_2004.tif',
+        #          'Z:\\Projects\\VegET_Basins\\Murray\\A5\\Yearly\\etasw_2004.tif']
 
-    print(type(ds))
-    print(trans)
+        if i == 0:
+            stats_dict = tilestats(var=var, freq=freq, year=year, tiles=tiles)
+        else:
+            stats_dict = tilestats(var=var, freq=freq, year=year, tiles=tiles, stat_dict=stats_dict, iteration=i)
 
-    xr_write_geotiff_from_ds(ds=ds, out_path=tempdir)
-
-    sample_data = zonal_stats(shape_path=sample_shape, raster_path=tempfile,
-                              parameter=var, year=year, raster_dim=1000)
-
-    print(sample_data)
-    # todo - sample mm fluxes based on
+    print('stats dict\n', stats_dict)
