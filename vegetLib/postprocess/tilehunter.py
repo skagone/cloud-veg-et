@@ -9,13 +9,17 @@ import numpy as np
 import rioxarray
 import xarray as xr
 from time import time
+import pandas as pd
 
 
 def cum_mm_to_m3(raster_dim_meters, arr):
+    # scrap too large datasets
+    arr[arr>=3000] = np.nan
     # convert mm to mm* m^2
     arr *= raster_dim_meters ** 2
     # mm to m conversion
     arr /= 1000
+
     # return m3
     return arr
 
@@ -83,6 +87,7 @@ def zonal_stats(shape_path, raster_path, parameter,
                 dict['DOY'].append(ws_doy)
                 dict['cubic_m'].append(basin_ro)
                 dict['parameter'].append(parameter)
+                dict['id'].append(None)
     return dict
 
 def hunt_tile(dir, var, freq, year=None, month=None, doy=None):
@@ -125,7 +130,7 @@ def tilestats(var, freq, year, tiles, stat_dict=None, iteration=0):
 
     xr_write_geotiff_from_ds(ds=ds, out_path=tempdir)
 
-    if i==0:
+    if i == 0:
         sample_data = zonal_stats(shape_path=sample_shape, raster_path=tempfile,
                                   parameter=var, year=year, raster_dim=1000)
     else:
@@ -136,29 +141,40 @@ def tilestats(var, freq, year, tiles, stat_dict=None, iteration=0):
 
 
 if __name__ == "__main__":
+    basin = 'MurrayDarling'
     output_root = r'Z:\Projects\VegET_Basins\Murray'
     sample_shape = r'Z:\Projects\VegET_Basins\Murray\shapefiles\Murray_Darling.shp'
     tempdir = os.path.join(output_root, 'temp')
     tempfile = os.path.join(tempdir, 'temp.tif')
 
-    var = 'etasw'
+    var = 'srf'
     freq = 'yearly'
-    year = 2004
-
-    yrs_list = [2004, 2005, 2006]
+    yrs_list = [2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010,
+                2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019]
 
     for i, yr in enumerate(yrs_list):
-
         tiles = hunt_tile(dir=output_root, var=var, freq=freq, year=yr)
-        # tiles = ['Z:\\Projects\\VegET_Basins\\Murray\\A1\\Yearly\\etasw_2004.tif',
-        #          'Z:\\Projects\\VegET_Basins\\Murray\\A2\\Yearly\\etasw_2004.tif',
-        #          'Z:\\Projects\\VegET_Basins\\Murray\\A3\\Yearly\\etasw_2004.tif',
-        #          'Z:\\Projects\\VegET_Basins\\Murray\\A4\\Yearly\\etasw_2004.tif',
-        #          'Z:\\Projects\\VegET_Basins\\Murray\\A5\\Yearly\\etasw_2004.tif']
 
         if i == 0:
-            stats_dict = tilestats(var=var, freq=freq, year=year, tiles=tiles)
+            stats_dict = tilestats(var=var, freq=freq, year=yr, tiles=tiles)
         else:
-            stats_dict = tilestats(var=var, freq=freq, year=year, tiles=tiles, stat_dict=stats_dict, iteration=i)
+            stats_dict = tilestats(var=var, freq=freq, year=yr, tiles=tiles, stat_dict=stats_dict, iteration=i)
 
     print('stats dict\n', stats_dict)
+    for k, v in stats_dict.items():
+        print(k)
+        print(len(v))
+
+    # output the dictionary
+    cols = list(stats_dict.keys())
+    # lalala
+    nice_dataframe = pd.DataFrame(stats_dict, columns=cols)
+
+    data_out = os.path.join(output_root, 'sampled_files')
+    if not os.path.exists(data_out):
+        os.mkdir(data_out)
+
+    nice_dataframe.to_csv(path_or_buf=os.path.join(data_out,
+                                                   '{}_sampled_{}_{}_{}.csv'.format(basin, var,
+                                                                                 stats_dict['Year'][0],
+                                                                                 stats_dict['Year'][-1])))
