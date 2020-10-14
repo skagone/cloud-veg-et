@@ -10,14 +10,16 @@ temp_folder: ./bogus_temp
 # Dataset info
 
 precip_settings:
-  name_fmt: PPT_{}.tif
+  name_fmt: prec_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: /vsis3/dev-et-data/in/DelawareRiverBasin/PPT/
+#  dir_loc: /vsis3/dev-et-data/in/north_america_data/precipitation
+  dir_loc: /vsis3/dev-et-data/in/USA_data/precip_gridmet_tiffs/
   climatology: False
   na_vals: []
 
 ndvi_settings:
   dynamic_settings: True
+  #dynamic_file: D:\Users\gparrish\Desktop\test2.yml
   dynamic_file: ./running_config/dynamic_config.yml
   interval_list:
      - (1950, 1960)
@@ -25,7 +27,8 @@ ndvi_settings:
      - (1970, 1980)
      - (1980, 1990)
      - (1990, 2000)
-     - (2000, 2020)
+     - (2000, 2010)
+     - (2010, 2020)
      - (2020, 2030)
      - (2030, 2040)
      - (2040, 2050)
@@ -49,7 +52,7 @@ ndvi_settings:
      - ndvi11
      - ndvi12
      - ndvi13
-
+     - ndvi14
 
 pet_settings:
   dynamic_settings: True
@@ -61,7 +64,8 @@ pet_settings:
      - (1970, 1980)
      - (1980, 1990)
      - (1990, 2000)
-     - (2000, 2020)
+     - (2000, 2010)
+     - (2010, 2020)
      - (2020, 2030)
      - (2030, 2040)
      - (2040, 2050)
@@ -85,29 +89,33 @@ pet_settings:
      - eto11
      - eto12
      - eto13
-
+     - eto14
 
 tmin_settings:
-  name_fmt: Tasmin_{}.tif
+  name_fmt: tmin_{}.tif
   dt_fmt: YYYYdoy
-  #dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tmin
-  dir_loc: /vsis3/dev-et-data/in/DelawareRiverBasin/Temp/Tasmin/
-  climatology: False
-  #climatology: True
-
-tmax_settings:
-  name_fmt: Tasmax_{}.tif
-  dt_fmt: YYYYdoy
-  dir_loc: /vsis3/dev-et-data/in/DelawareRiverBasin/Temp/Tasmax/
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmin_C_daily
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tmin
   climatology: False
   #climatology: True
 
 tavg_settings:
-  name_fmt: Tasavg_{}.tif
+  name_fmt: tavg_{}.tif
   dt_fmt: YYYYdoy
-  dir_loc: /vsis3/dev-et-data/in/DelawareRiverBasin/Temp/Tasavg/
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tavg_C_daily
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tavg
   climatology: False
   #climatology: True
+
+tmax_settings:
+  name_fmt: tmax_{}.tif
+  #dt_fmt: doy
+  #dir_loc: /vsis3/dev-et-data/NA_data_for_cloud/Temperature/tmax_C_daily
+  dt_fmt: YYYYdoy
+  dir_loc: /vsis3/dev-et-data/in/NorthAmerica/Temp/daily/tmax
+  climatology: False
+  #climatology: True
+
 
 
 # === Static raster data settings ====

@@ -1,3 +1,0 @@
-export out=s3://dev-et-data/out/DelawareRiverBasin/Run09_18_2020/run_veget_docker_gold_image_c_chip44N-78E_o
-
-alias als='aws s3 ls'
