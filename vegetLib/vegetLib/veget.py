@@ -411,6 +411,10 @@ class VegET:
 
         #dynamic inputs to the model
         self.ndvi = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
+        if self.ndvi == None:
+            print('ndvi is note')
+            print('these settings are problematic:')
+            print(self.ndvi_settings)
         self.pet = self.pmanager.get_dynamic_data(today, self.pet_settings)
         self.ppt = self.pmanager.get_dynamic_data(today, self.precip_settings)
         self.tavg = self.pmanager.get_dynamic_data(today, self.tavg_settings)
@@ -539,7 +543,7 @@ class VegET:
         # normalizing.
         self.log.info("self.rmanager.normalize_to_std_grid_fast {}".format(static_inputs))
         self.interception, self.whc, self.field_capacity, self.saturation, self.watermask \
-            = self.rmanager.normalize_to_std_grid(inputs=static_inputs, resamplemethod='nearest')
+            = self.rmanager.normalize_to_std_grid_fast(inputs=static_inputs, resamplemethod='nearest')
 
         # set monthly and yearly cumulative arrays (use one of the numpys from the
         # static array that has been normalized):
@@ -711,8 +715,11 @@ class VegET:
             print('-------------------------------')
 
         print('THE END')
-        s3_output_path = self.outdir
-        print('SAVE LOG')
-        s3_save_log_file(s3_output_path)
-        veget_config_path = self.config_dict['veget_config_path']
-        s3_save_config_files(veget_config_path, s3_output_path)
+
+        if self.path_mode == 'aws' or self.path_mode == 'google':
+            s3_output_path = self.outdir
+            print('SAVE LOG')
+            s3_save_log_file(s3_output_path)
+        else:
+            # todo - save file locally someday
+            print('discarding log file records')

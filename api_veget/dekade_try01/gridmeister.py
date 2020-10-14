@@ -80,7 +80,7 @@ class GridMeister:
         self.ychip_increment = None
 
 
-    def chip_list(self, max_pixels=500000):
+    def chip_list(self, max_pixels=250000):
         CHIP_LIST = []
         # box={'left': -78, 'bottom':36 , 'right': -72, 'top': 44}
         box = {'left': self.extent[0], 'bottom': self.extent[1],
@@ -132,7 +132,7 @@ class GridMeister:
         if not unit_chip:
             coord_list = _make_chip_poly(ul_lat, ul_lon, self.xchip_increment, self.ychip_increment)
             print(coord_list)
-            chip_name = 'chip' + str(ul_lat) + 'N' + str(ul_lon) + 'E'
+            chip_name = 'chip' + str(round(ul_lat, 2)) + 'N' + str(round(ul_lon, 2)) + 'E'
             filename = '{}.json'.format(chip_name)
             print(filename)
         else:
