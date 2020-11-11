@@ -36,6 +36,9 @@ class PathManager:
         file = 'dynamic_file'
         interval_key = 'interval_list'
         dynamic_key = 'dynamic_keys'
+        # TODO - if a scaling factor is present for a dynamic file, then apply it, otherwide the scaling factor should be 1
+        # TODO #2 - if a parameter is not nynamic, still set up how to set a scaling factor.
+        scaling_key = 'scaling_factor'
         # ===
 
         dynamic_keys = settings[dynamic_key]

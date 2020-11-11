@@ -333,9 +333,6 @@ class VegET:
         etasw = np.zeros(ndvi.shape)
         SWf = np.zeros(ndvi.shape)
 
-        # TODO - for testing, pleaze remove GELP 9/3/2020
-        ndvi = ndvi / 10000
-
         etasw1A = (k_factor * ndvi + ndvi_factor) * (pet * bias_corr)
         etasw1B = (k_factor * ndvi) * (pet * bias_corr)
 
