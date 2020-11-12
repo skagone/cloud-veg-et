@@ -407,16 +407,16 @@ class VegET:
         """
 
         #dynamic inputs to the model
-        self.ndvi = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
+        self.ndvi, self.ndvi_scale = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
         if self.ndvi == None:
-            print('ndvi is note')
+            print('ndvi is none')
             print('these settings are problematic:')
             print(self.ndvi_settings)
-        self.pet = self.pmanager.get_dynamic_data(today, self.pet_settings)
-        self.ppt = self.pmanager.get_dynamic_data(today, self.precip_settings)
-        self.tavg = self.pmanager.get_dynamic_data(today, self.tavg_settings)
-        self.tmin = self.pmanager.get_dynamic_data(today, self.tmin_settings)
-        self.tmax = self.pmanager.get_dynamic_data(today, self.tmax_settings)
+        self.pet, self.pet_scale = self.pmanager.get_dynamic_data(today, self.pet_settings)
+        self.ppt, self.ppt_scale = self.pmanager.get_dynamic_data(today, self.precip_settings)
+        self.tavg, self.tavg_scale = self.pmanager.get_dynamic_data(today, self.tavg_settings)
+        self.tmin, self.tmin_scale = self.pmanager.get_dynamic_data(today, self.tmin_settings)
+        self.tmax, self.tmax_scale = self.pmanager.get_dynamic_data(today, self.tmax_settings)
 
         if daily_mode:
             self.daypath = os.path.join(self.outdir, 'Daily', f'{today.year}')
@@ -430,6 +430,13 @@ class VegET:
         # All the variables are now Numpy Arrays!
         self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
             self.rmanager.normalize_to_std_grid_fast(inputs=dynamic_inpts, resamplemethod='nearest')
+
+        npys = [self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax]
+        scales = [self.ndvi_scale, self.pet_scale, self.ppt_scale, self.tavg_scale, self.tmin_scale, self.tmax_scale]
+
+        # All the variables are now scaled!
+        self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
+            self.rmanager.scale_rasters(numpys=npys, scalefactors=scales)
 
         # ====== Call the functions ======
         # output SWi and SNWpk

@@ -300,6 +300,16 @@ class RasterManager:
 
         return npy_outputs
 
+    def scale_rasters(self, numpys, scalefactors):
+
+        vals = []
+        for arr, sc in zip(numpys, scalefactors):
+
+            arr *= sc
+            vals.append(arr)
+
+        return vals
+
     def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
         """
         Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature

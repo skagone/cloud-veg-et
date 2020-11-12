@@ -36,13 +36,19 @@ class PathManager:
         file = 'dynamic_file'
         interval_key = 'interval_list'
         dynamic_key = 'dynamic_keys'
-        # TODO - if a scaling factor is present for a dynamic file, then apply it, otherwide the scaling factor should be 1
-        # TODO #2 - if a parameter is not nynamic, still set up how to set a scaling factor.
         scaling_key = 'scaling_factor'
         # ===
 
         dynamic_keys = settings[dynamic_key]
         interval_lst = settings[interval_key]
+
+        # see if a scaling factor has been entered into the dynamic settings
+        try:
+            scaling_factor = settings[scaling_key]
+            if scaling_factor == None:
+                scaling_factor = None
+        except KeyError:
+            scaling_factor = None
 
         # check to make sure the intervals and dynamic keys are the same len
         if not len(dynamic_keys) == len(interval_lst):
@@ -67,6 +73,8 @@ class PathManager:
 #                 print('dynamic settings dictionary \n', dynamic_settings_dict)
 #                 print('of type: ', type(dynamic_settings_dict))
                 new_settings = dynamic_settings_dict[dk]
+                # add the scaling factor if it exists. Otherwise a 'scaling_factor' of None will be in there
+                new_settings[scaling_key] = scaling_factor
                 return new_settings
             # go on down the list to find a day that is within the interval
             else:
@@ -93,6 +101,7 @@ class PathManager:
         except KeyError:
             dynamic_settings = False
 
+
         name_key = 'name_fmt'
         loc_key = 'dir_loc'
         dt_key = 'dt_fmt'
@@ -104,6 +113,15 @@ class PathManager:
         if dynamic_settings:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
+
+        # regardless of wheter the settings are dynamic or not, we need to check to see if there is a scaling factor
+        # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
+        try:
+            scaling_factor = settings['scaling_factor']
+            if scaling_factor == None:
+                scaling_factor = None
+        except KeyError:
+            scaling_factor = None
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
@@ -199,7 +217,7 @@ class PathManager:
             sys.exit()
 
         fpath = os.path.join(final_path, settings[name_key].format(dynamic_key))
-        return fpath
+        return fpath, scaling_factor
 
 
     def get_static_data(self, settings):
