@@ -132,7 +132,7 @@ if __name__ == "__main__":
                         # writer.writerow(["Year", "DOY", "parameter", "zon_mean_forID1", "zon_mean_forID2", "zon_mean_forID3", ...])
                         outimage, out_transform = msk.mask(src, src_shp, crop=True)
                         # scrap too-large datasets
-                        outimage[outimage >= 3000] = np.nan
+                        outimage[outimage >= 9000] = np.nan
                         outimage[outimage < 0] = np.nan
 
                         ws_mean = np.nanmean(outimage)
