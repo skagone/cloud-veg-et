@@ -117,6 +117,7 @@ class PathManager:
         # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
         # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
         try:
+            # why no commit
             scaling_factor = settings['scaling_factor']
             if scaling_factor == None:
                 scaling_factor = 1
