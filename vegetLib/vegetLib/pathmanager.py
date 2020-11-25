@@ -46,9 +46,9 @@ class PathManager:
         try:
             scaling_factor = settings[scaling_key]
             if scaling_factor == None:
-                scaling_factor = None
+                scaling_factor = 1.0
         except KeyError:
-            scaling_factor = None
+            scaling_factor = 1.0
 
         # check to make sure the intervals and dynamic keys are the same len
         if not len(dynamic_keys) == len(interval_lst):
