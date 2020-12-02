@@ -324,7 +324,7 @@ class VegET:
         :param SWf: final/ending soil water balance for the day after taking out ET
         :return:  eta, SWf
         """
-
+        # TODO - GELP 'n steffi 12-2-2020
         netet = np.zeros(ndvi.shape)
         etasw1 = np.zeros(ndvi.shape)
         etasw3 = np.zeros(ndvi.shape)
@@ -333,7 +333,10 @@ class VegET:
         etasw = np.zeros(ndvi.shape)
         SWf = np.zeros(ndvi.shape)
 
+        # TODO - GELP 'n steffi 12-2-2020
         etasw1A = (k_factor * ndvi + ndvi_factor) * (pet * bias_corr)
+        self.log.info(f'(k_factor * ndvi + ndvi_factor) * (pet * bias_corr)\n values: {k_factor}, {ndvi},'
+                      f' {ndvi_factor}, {pet}, {bias_corr}')
         etasw1B = (k_factor * ndvi) * (pet * bias_corr)
 
         # etasw1 = if ndvi > 0.4, make it etasw1A, else etasw1B
@@ -407,6 +410,7 @@ class VegET:
         """
 
         #dynamic inputs to the model
+        # Todo - Gelp 'n steffi 12-2-2020
         self.ndvi, self.ndvi_scale = self.pmanager.get_dynamic_data(today, self.ndvi_settings)
         if self.ndvi == None:
             print('ndvi is none')
@@ -431,12 +435,25 @@ class VegET:
         self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
             self.rmanager.normalize_to_std_grid_fast(inputs=dynamic_inpts, resamplemethod='nearest')
 
-        npys = [self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax]
-        scales = [self.ndvi_scale, self.pet_scale, self.ppt_scale, self.tavg_scale, self.tmin_scale, self.tmax_scale]
+        thing1 = ['self.ndvi', 'self.pet', 'self.ppt', 'self.tavg', 'self.tmin', 'self.tmax']
+        thing2 = [self.ndvi_scale, self.pet_scale, self.ppt_scale, self.tavg_scale, self.tmin_scale, self.tmax_scale]
 
-        # All the variables are now scaled!
-        self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
-            self.rmanager.scale_rasters(numpys=npys, scalefactors=scales)
+        for i, j in zip(thing1, thing2):
+            print(f'today is {today} and the scaling factor for {i} is {j}')
+            self.log.info(f'today is {today} and the scaling factor for {i} is {j}')
+
+
+        # All the variables are now scaled! VERY EXPLICITLY
+        self.ndvi = self.ndvi * self.ndvi_scale
+        self.pet = self.pet * self.pet_scale
+        self.ppt = self.ppt * self.ppt_scale
+        self.tavg = self.tavg * self.tavg_scale
+        self.tmin = self.tmin * self.tmin_scale
+        self.tmax = self.tmax * self.tmax_scale
+        # npys = [self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax]
+        # scales = [self.ndvi_scale, self.pet_scale, self.ppt_scale, self.tavg_scale, self.tmin_scale, self.tmax_scale]
+        # self.ndvi, self.pet, self.ppt, self.tavg, self.tmin, self.tmax = \
+        #     self.rmanager.scale_rasters(numpys=npys, scalefactors=scales)
 
         # ====== Call the functions ======
         # output SWi and SNWpk
