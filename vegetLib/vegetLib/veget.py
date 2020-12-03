@@ -221,6 +221,7 @@ class VegET:
         snow_melt_fac[tavg > rf_high_thresh_temp] = 0
 
         if i == 0:  # first day of model run to initalize and establish the soil water balance
+            print('does the first day happen?')
             # Usage: Creates a fraction value based on average temperature that determines
             # if the incoming precipitation is falling as rain, sleet, or snow.
             # if tavg <= 0, make it 0, else if tavg >= 6, make it 1, else (0.167*(tavg-6))
@@ -236,6 +237,7 @@ class VegET:
             SNWpk = np.zeros(ppt.shape)  # inital snowpack raster with only 0 values
             SWi = (self.whc * 0.5) + effppt + snow_melt
             SWi[SWi < 0] = np.nan
+            print(SWi, SNWpk, RAIN, SWE, snow_melt)
 
             return SWi, SNWpk, RAIN, SWE, snow_melt
 
