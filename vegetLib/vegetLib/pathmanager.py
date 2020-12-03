@@ -44,13 +44,6 @@ class PathManager:
         dynamic_keys = settings[dynamic_key]
         interval_lst = settings[interval_key]
 
-        # see if a scaling factor has been entered into the dynamic settings
-        self.log.info('scaling factor from settings: ', settings[scaling_key])
-        #     if scaling_factor == None:
-        #         settings[scaling_key] = 1.0
-        # except KeyError:
-        #     settings[scaling_key] = 1.0
-
         # check to make sure the intervals and dynamic keys are the same len
         if not len(dynamic_keys) == len(interval_lst):
             print(f'there should me the same number of'
