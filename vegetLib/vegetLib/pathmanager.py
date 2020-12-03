@@ -45,12 +45,11 @@ class PathManager:
         interval_lst = settings[interval_key]
 
         # see if a scaling factor has been entered into the dynamic settings
-        try:
-            scaling_factor = settings[scaling_key]
-            if scaling_factor == None:
-                settings[scaling_key] = 1.0
-        except KeyError:
-            settings[scaling_key] = 1.0
+        self.log.info('scaling factor from settings: ', settings[scaling_key])
+        #     if scaling_factor == None:
+        #         settings[scaling_key] = 1.0
+        # except KeyError:
+        #     settings[scaling_key] = 1.0
 
         # check to make sure the intervals and dynamic keys are the same len
         if not len(dynamic_keys) == len(interval_lst):
@@ -76,9 +75,10 @@ class PathManager:
 #                 print('of type: ', type(dynamic_settings_dict))
                 new_settings = dynamic_settings_dict[dk]
                 self.log.info(f'the new settings \n, {new_settings}')
-                # add the scaling factor if it exists. Otherwise a 'scaling_factor' of 1.0 will be in there
-                new_settings[scaling_key] = settings[scaling_key]
-                self.log.info(f'the new settings after scaling is added \n, {new_settings}')
+                # todo - was this not necessary? Why did i do this then?!
+                # # add the scaling factor if it exists. Otherwise a 'scaling_factor' of 1.0 will be in there
+                # new_settings[scaling_key] = settings[scaling_key]
+                # self.log.info(f'the new settings after scaling is added \n, {new_settings}')
                 return new_settings
             # go on down the list to find a day that is within the interval
             else:
@@ -118,12 +118,14 @@ class PathManager:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
 
-        # try:
-        #     scaling_factor = settings['scaling_factor']
-        # except KeyError:
-        #     self.log.info('the scaling factor is not set and we set it to 1.0')
-        #     scaling_factor = 1.0
-        scaling_factor = 0.0001 # TODO - start here tomorrow 12-3-2020
+        try:
+            scaling_factor = settings['scaling_factor']
+            if scaling_factor == None:
+                scaling_factor = 1.0
+        except KeyError:
+            self.log.info('the scaling factor is not set and we set it to 1.0')
+            scaling_factor = 1.0
+        # scaling_factor = 0.0001 # TODO - start here tomorrow 12-3-2020
 
         # ==============================================
         # # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
