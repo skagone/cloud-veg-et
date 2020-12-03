@@ -39,6 +39,8 @@ class PathManager:
         scaling_key = 'scaling_factor'
         # ===
 
+        self.log.info('here are settings \n', settings)
+
         dynamic_keys = settings[dynamic_key]
         interval_lst = settings[interval_key]
 
@@ -116,11 +118,12 @@ class PathManager:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
 
-        try:
-            scaling_factor = settings['scaling_factor']
-        except KeyError:
-            self.log.info('the scaling factor is not set and we set it to 1.0')
-            scaling_factor = 1.0
+        # try:
+        #     scaling_factor = settings['scaling_factor']
+        # except KeyError:
+        #     self.log.info('the scaling factor is not set and we set it to 1.0')
+        #     scaling_factor = 1.0
+        scaling_factor = 0.0001
 
         # # TODO - start here tomorrow 12-3-2020
         # ==============================================
