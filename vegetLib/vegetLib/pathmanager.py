@@ -115,8 +115,16 @@ class PathManager:
         if dynamic_settings:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
+            scaling_factor = settings['scaling_factor']
+
+        try:
+            scaling_factor = settings['scaling_factor']
+        except KeyError:
+            self.log.info('the scaling factor is not set and we set it to 1.0')
+            scaling_factor = 1.0
 
         # # TODO - start here tomorrow 12-3-2020
+        # ==============================================
         # # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
         # # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
         # try:
@@ -133,13 +141,12 @@ class PathManager:
         #
         # except KeyError:
         #     scaling_factor = 1.0
-
-
-        self.log.info(f"{scaling_factor} is the scaling factor after the try/except loop")
-        try:
-            self.log.info(f"{settings['scaling_factor']} is this the same scaling factor")
-        except:
-            self.log.info('it wasnt present')
+        # self.log.info(f"{scaling_factor} is the scaling factor after the try/except loop")
+        # try:
+        #     self.log.info(f"{settings['scaling_factor']} is this the same scaling factor")
+        # except:
+        #     self.log.info('it wasnt present')
+        # ==============================================
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
