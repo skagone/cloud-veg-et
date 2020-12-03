@@ -123,9 +123,8 @@ class PathManager:
         # except KeyError:
         #     self.log.info('the scaling factor is not set and we set it to 1.0')
         #     scaling_factor = 1.0
-        scaling_factor = 0.0001
+        scaling_factor = 0.0001 # TODO - start here tomorrow 12-3-2020
 
-        # # TODO - start here tomorrow 12-3-2020
         # ==============================================
         # # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
         # # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()

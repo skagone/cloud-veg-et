@@ -249,8 +249,11 @@ class VegET:
             temp_diff_boolean = (tavg < rf_high_thresh_temp) & (tavg > rf_low_thresh_temp)
             rain_frac[temp_diff_boolean] = self.rf_value * tavg[temp_diff_boolean]
 
+            self.log.info(f'rain frac, effppt, 1-rain frac \n {rain_frac} {effppt} {1-rain_frac}')
+
             RAIN = rain_frac * effppt
             SWE = (1 - rain_frac) * effppt
+            self.log.info(f"SWE {SWE},RAIN {RAIN}")
 
             # snow melt
             snow_melt = np.zeros(ppt.shape)
@@ -422,6 +425,9 @@ class VegET:
         self.tavg, self.tavg_scale = self.pmanager.get_dynamic_data(today, self.tavg_settings)
         self.tmin, self.tmin_scale = self.pmanager.get_dynamic_data(today, self.tmin_settings)
         self.tmax, self.tmax_scale = self.pmanager.get_dynamic_data(today, self.tmax_settings)
+
+        self.log.info(f'SCales in order \n {self.ndvi_scale}, {self.pet_scale},'
+                      f' {self.tavg_scale}, {self.tmin_scale}, {self.tmax_scale}')
 
         if daily_mode:
             self.daypath = os.path.join(self.outdir, 'Daily', f'{today.year}')
