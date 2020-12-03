@@ -118,23 +118,26 @@ class PathManager:
         # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
         # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
         try:
-            log_make_logger(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+            self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
         except:
-            log_make_logger(('there is not scaling factor prior to try/except loop'))
+            self.log.info(('there is not scaling factor prior to try/except loop'))
         try:
             # made it a float
             scaling_factor = settings['scaling_factor']
-            log_make_logger(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+            self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
             if scaling_factor == None:
-                log_make_logger(" scaling factor. was set to none")
+                self.log.info(" scaling factor. was set to none")
                 scaling_factor = 1.0
 
         except KeyError:
             scaling_factor = 1.0
 
 
-        log_make_logger(f"{scaling_factor} is the scaling factor after the try/except loop")
-        log_make_logger(f"{settings['scaling_factor']} is this the same scaling factor")
+        self.log.info(f"{scaling_factor} is the scaling factor after the try/except loop")
+        try:
+            self.log.info(f"{settings['scaling_factor']} is this the same scaling factor")
+        except:
+            self.log.info('it wasnt present')
 
         # the date finding tool is flexible enough so the non-climatological
         # data doesnt have to be organized in year folders. It CAN be though.
