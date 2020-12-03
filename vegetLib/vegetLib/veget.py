@@ -450,9 +450,9 @@ class VegET:
         thing1 = ['self.ndvi', 'self.pet', 'self.ppt', 'self.tavg', 'self.tmin', 'self.tmax']
         thing2 = [self.ndvi_scale, self.pet_scale, self.ppt_scale, self.tavg_scale, self.tmin_scale, self.tmax_scale]
 
-        for i, j in zip(thing1, thing2):
-            print(f'today is {today} and the scaling factor for {i} is {j}')
-            self.log.info(f'today is {today} and the scaling factor for {i} is {j}')
+        for cc, dd in zip(thing1, thing2):
+            print(f'today is {today} and the scaling factor for {cc} is {dd}')
+            self.log.info(f'today is {today} and the scaling factor for {cc} is {dd}')
 
 
         # All the variables are now scaled! VERY EXPLICITLY
@@ -470,6 +470,7 @@ class VegET:
         # ====== Call the functions ======
         # output SWi and SNWpk
         #         RAIN, SWf, SNWpk, SWE, DDrain, SRf, etc, etasw, netet
+        print('IV', i)
         SWi, SNWpk, RAIN, SWE, snow_melt = self._soil_water(i, self.ppt, interception, self.tmin, self.tmax, self.tavg,
                                                             self.melt_factor, self.rf_high_thresh_temp, self.rf_low_thresh_temp,
                                                             yest_swf, yest_snwpck)
