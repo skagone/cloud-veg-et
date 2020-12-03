@@ -46,9 +46,9 @@ class PathManager:
         try:
             scaling_factor = settings[scaling_key]
             if scaling_factor == None:
-                scaling_factor = 1.0
+                settings[scaling_key] = 1.0
         except KeyError:
-            scaling_factor = 1.0
+            settings[scaling_key] = 1.0
 
         # check to make sure the intervals and dynamic keys are the same len
         if not len(dynamic_keys) == len(interval_lst):
@@ -70,11 +70,13 @@ class PathManager:
                 
                 with open(settings[file], 'r') as rfile:
                     dynamic_settings_dict = yaml.safe_load(rfile)
-#                 print('dynamic settings dictionary \n', dynamic_settings_dict)
+                self.log.info('dynamic settings dictionary \n', dynamic_settings_dict)
 #                 print('of type: ', type(dynamic_settings_dict))
                 new_settings = dynamic_settings_dict[dk]
-                # add the scaling factor if it exists. Otherwise a 'scaling_factor' of None will be in there
-                new_settings[scaling_key] = scaling_factor
+                self.log.info(f'the new settings \n, {new_settings}')
+                # add the scaling factor if it exists. Otherwise a 'scaling_factor' of 1.0 will be in there
+                new_settings[scaling_key] = settings[scaling_key]
+                self.log.info(f'the new settings after scaling is added \n, {new_settings}')
                 return new_settings
             # go on down the list to find a day that is within the interval
             else:
@@ -114,23 +116,23 @@ class PathManager:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
 
-        # TODO - start here tomorrow 12-3-2020
-        # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
-        # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
-        try:
-            self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
-        except:
-            self.log.info(('there is not scaling factor prior to try/except loop'))
-        try:
-            # made it a float
-            scaling_factor = settings['scaling_factor']
-            self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
-            if scaling_factor == None:
-                self.log.info(" scaling factor. was set to none")
-                scaling_factor = 1.0
-
-        except KeyError:
-            scaling_factor = 1.0
+        # # TODO - start here tomorrow 12-3-2020
+        # # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
+        # # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
+        # try:
+        #     self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+        # except:
+        #     self.log.info(('there is not scaling factor prior to try/except loop'))
+        # try:
+        #     # made it a float
+        #     scaling_factor = settings['scaling_factor']
+        #     self.log.info(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+        #     if scaling_factor == None:
+        #         self.log.info(" scaling factor. was set to none")
+        #         scaling_factor = 1.0
+        #
+        # except KeyError:
+        #     scaling_factor = 1.0
 
 
         self.log.info(f"{scaling_factor} is the scaling factor after the try/except loop")
