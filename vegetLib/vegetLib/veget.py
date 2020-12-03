@@ -255,6 +255,7 @@ class VegET:
             # snow melt
             snow_melt = np.zeros(ppt.shape)
             # snow_melt = if melt_rate <= (SWE + yesterday's snowpack), make it melt_rate, else (SWE + yesterday's snowpack)
+            print(f'snow melt what? \n snow_melt_boolean = (melt_rate <= (SWE + yest_snwpck)) \n {melt_rate} {SWE} {yest_snwpck}')
             snow_melt_boolean = (melt_rate <= (SWE + yest_snwpck))
             snow_melt[snow_melt_boolean] = melt_rate[snow_melt_boolean]
             snow_melt[~snow_melt_boolean] = SWE[~snow_melt_boolean] + yest_snwpck[~snow_melt_boolean]
