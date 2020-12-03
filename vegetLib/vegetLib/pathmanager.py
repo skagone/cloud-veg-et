@@ -117,7 +117,10 @@ class PathManager:
         # TODO - start here tomorrow 12-3-2020
         # regardless of whether the settings are dynamic or not, we need to check to see if there is a scaling factor
         # applied to the input. If there is a scaling factor, it is applied to the numpy array in _run_water_bal()
-        log_make_logger(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+        try:
+            log_make_logger(f"{settings['scaling_factor']} is the scaling factor prior to the try/except loop")
+        except:
+            log_make_logger(('there is not scaling factor prior to try/except loop'))
         try:
             # made it a float
             scaling_factor = settings['scaling_factor']
@@ -127,7 +130,6 @@ class PathManager:
                 scaling_factor = 1.0
 
         except KeyError:
-
             scaling_factor = 1.0
 
 
