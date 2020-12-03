@@ -115,7 +115,6 @@ class PathManager:
         if dynamic_settings:
             # the settings for the dynamic data are modified based on the date.
             settings = self.get_dynamic_settings(today=today, settings=settings)
-            scaling_factor = settings['scaling_factor']
 
         try:
             scaling_factor = settings['scaling_factor']
