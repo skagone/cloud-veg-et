@@ -1,1 +1,0 @@
-docker run -i -v /opt/etops/drb_40yr_tile_veget_c/AOI:/home/veget/cloud-veg-et/veget/api_veget/AOI tbutzer/40yr_veget_c python3 api_veget.py -c running_config -s ./AOI/drb_tile_20yr_ward_sandford_chip44N-78E.shp  drb_tile_20yr_ward_sandford_chip44N-78E  2>&1 | tee  ./log/drb_tile_20yr_ward_sandford_chip44N-78E.log&
