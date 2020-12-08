@@ -158,7 +158,7 @@ class GridMeister:
             if not optimize:
                 cmd = 'docker run -i {} {} python3 api_veget.py -c running_config -s {} --optimize no  {}'.format(vols,image,full_filename,tile)
             print(cmd)
-            logname = filename = make_filename(self.tile_name, chip_name, '.log')
+            logname = make_filename(self.tile_name, chip_name, '.log')
             full_logname = './log' + '/' + logname
             print(full_logname)
 

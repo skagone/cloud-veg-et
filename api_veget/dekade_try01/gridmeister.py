@@ -80,7 +80,7 @@ class GridMeister:
         self.ychip_increment = None
 
 
-    def chip_list(self, max_pixels=250000):
+    def chip_list(self, max_pixels=250000): #250000
         CHIP_LIST = []
         # box={'left': -78, 'bottom':36 , 'right': -72, 'top': 44}
         box = {'left': self.extent[0], 'bottom': self.extent[1],
@@ -148,7 +148,8 @@ class GridMeister:
     def build_docker_run_bash(self, chip_list, optimize):
         print(chip_list)
         vols = '-v `pwd`/AOI:/home/veget/cloud-veg-et/api_veget/AOI'
-        mycwd = os.getcwd()
+        self.getcwd = os.getcwd()
+        mycwd = self.getcwd
         image_custom = mycwd.split('/')[-1]
         image = 'tbutzer/' + image_custom
         cmds=[]
@@ -187,19 +188,22 @@ if __name__ == "__main__":
     print('======================')
     print('TESTING ZE GRIDMEISTER')
     print('======================')
+    """
+Extent
+-119.8574927865128785,35.9034863472722066 : -119.0533678625198633,36.4552598723535723
+"""
 
-    chip_output = r'D:\Users\gparrish\Desktop\gridmeistertest_Darin'
+    chip_output = r'Z:\Projects\VegET_ndviLSP\aa_30m_run\shapefiles'
     # (left(lon), bottom(lat) : right(lon), top(lat) lon=x, lat=y
-    exp_extent = (-76.7937822733839965, 38.0837012906591070,
-                  -73.7104960956225455, 43.0419587927349596)
-    darin_extent = (-77.4226093565661415, 38.3565890497327118, -73.2480170973858122, 42.7829967799980722)
+    # exp_extent = (-119.8574927865128785, 35.9034863472722066,
+    #               -119.0533678625198633, 36.4552598723535723)
+    exp_extent = (-119.813, 35.859,
+                  -119.051, 36.471)
+    # darin_extent = (-77.4226093565661415, 38.3565890497327118, -73.2480170973858122, 42.7829967799980722)
     # (left, bottom: right, top)
     # tony_extent = (-78, 36, -72, 44)
-    gm = GridMeister(tile_name='testtile', raster_extent=darin_extent,
+    gm = GridMeister(tile_name='testtile', raster_extent=exp_extent,
                      x_raster_res=0.002310233679679207525, y_raster_res=0.002310233679679207525)
-    # gm = GridMeister(tile_name='testtile', raster_extent=exp_extent,
-    #                  x_raster_res=0.04166602942920882846, y_raster_res=0.04166602942920882846)
-    #0.04166602942920882846
     lst = gm.chip_list()
     print('resulting chip list \n', lst)
     gm.create_chip_shp(ul_lat=None, ul_lon=None, out_location=chip_output, unit_chip=True)

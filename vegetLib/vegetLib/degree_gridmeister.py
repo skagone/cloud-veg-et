@@ -37,8 +37,8 @@ def _write_shp(geojson_filename):
 
 def _make_chip_poly(ul_lat, ul_lon, increment):
     coord_list = []
-    ul_lat = int(ul_lat)
-    ul_lon = int(ul_lon)
+    ul_lat = float(ul_lat)
+    ul_lon = float(ul_lon)
     ul_lon_lat = [ul_lon, ul_lat]
     ur_lon_lat = [ul_lon + increment, ul_lat]
     lr_lon_lat = [ul_lon + increment, ul_lat - increment]
@@ -101,7 +101,7 @@ class GridMeister:
 
     def chip_list(self):
         CHIP_LIST = []
-        box={'left': -78, 'bottom':36 , 'right': -72, 'top': 44}
+        box = {'left': -120.183, 'bottom': 35.526 , 'right': -118.672, 'top': 36.832}
 
         starting_lat = box['top']
         ending_lat = box['bottom']
@@ -119,18 +119,21 @@ class GridMeister:
             lon = starting_lon
             while lon < ending_lon:
                 print(lon)
-                chip_name = 'chip' + str(lat) + 'N' + str(lon) +'E'
+                chip_name = 'chip' + str(round(lat,3)) + 'N' + str(round(lon, 3)) +'E'
                 CHIP_LIST.append(chip_name)
-                lon = lon + 2
+                lon = lon + self.chip_increment
 
-            lat = lat - 2
+            lat = lat - self.chip_increment
 
         return CHIP_LIST
 
-    def create_chip_shp(self, chip_name):
-        self.aoi_dir = './AOI'
+    def create_chip_shp(self, chip_name, dir=None):
+        if dir==None:
+            self.aoi_dir = './AOI'
+        else:
+            self.aoi_dir = dir
         print(chip_name)
-        ul_lat,ul_lon = _parse_chip_name(chip_name)
+        ul_lat, ul_lon = _parse_chip_name(chip_name)
         print(ul_lat,ul_lon)
         coord_list = _make_chip_poly(ul_lat,ul_lon, self.chip_increment)
         print(coord_list)

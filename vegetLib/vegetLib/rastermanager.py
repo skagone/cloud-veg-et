@@ -176,7 +176,7 @@ class RasterManager:
         :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
         # https://rasterio.readthedocs.io/en/latest/topics/virtual-warping.html
         """
-        # print(self.shapefile)
+        print(self.shapefile)
         with fiona.open(self.shapefile, 'r') as shapefile:
             # todo - set up an error if user has shapefile with more than one feature. GELP n STEFFI
             # shape = shapefile[0]['geometry']
@@ -186,8 +186,10 @@ class RasterManager:
                 # matching the FID of the given shapefile from a typical geoJSON (Not Ordered Dict nonsense)
                 if feat == feature['id']:
                     shapes = [feature['geometry']]
-        # print('This is the shape var:', shapes)
 
+
+        print(f'geoproperties file {self.geoproperties_file}')
+        print('This is the shape var:', shapes)
         with rasterio.open(self.geoproperties_file, 'r') as src:
             out_image, out_transform = rasterio.mask.mask(src, shapes, crop=True)
             out_meta = src.meta
