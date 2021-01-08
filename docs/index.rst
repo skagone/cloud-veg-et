@@ -10,7 +10,9 @@ Welcome to VegET's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   install
+   support
+   introduction
 
 Indices and tables
 ==================
