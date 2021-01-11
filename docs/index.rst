@@ -13,6 +13,9 @@ Welcome to VegET's documentation!
    install
    support
    introduction
+   VegET
+   PathManager
+   RasterManager
 
 Indices and tables
 ==================

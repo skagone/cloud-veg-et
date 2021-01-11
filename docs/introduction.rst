@@ -9,6 +9,9 @@ Soil Water Balance Modeling
 The VegET Model
 =================
 
+Model Algorithms
+~~~~~~~~~~~~~~~~~~
+
 Model Inputs
 ~~~~~~~~~~~~~
 
