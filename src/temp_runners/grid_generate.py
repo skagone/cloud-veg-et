@@ -1,8 +1,7 @@
-from src.api_veget.dekade_try01 import GridMeister
+from src.api_veget.dekade_try01.gridmeister import GridMeister
 '''
 This is an example of how to use gridmeister to create shapefiles locally.
 '''
-# D:\Users\gparrish\PycharmProjects\cloud-veg-et\api_veget\dekade_try01\gridmeister.py
 
 chip_output = r'Z:\Projects\VegET_ndviLSP\aa_30m_run\shapefiles'
 

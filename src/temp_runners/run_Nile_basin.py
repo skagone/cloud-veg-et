@@ -1,10 +1,6 @@
 from src.vegetLib import VegET
 import os
-# ##ERROR 1: PROJ: proj_create_from_database: Cannot find proj.db
-# ##PROJ: proj_create_from_database: Cannot find proj.db
-# ##https://gis.stackexchange.com/questions/326968/ogr2ogr-error-1-proj-pj-obj-create-cannot-find-proj-db
-# os.environ['PROJ_LIB'] = r'D:\ProgramFiles\Anaconda3\envs\vegetbasin\Library\share\proj'
-# os.environ['GDAL_DATA'] = r'D:\ProgramFiles\Anaconda3\envs\vegetbasin\Library\share'
+
 """
 This runner was made on 9/21/2020 from Oct 2002-Dec 2019. This run is being done locally but more runs
  (for the Danube, Ganges-Bramaputra etc) will be run in the cloud if possible...

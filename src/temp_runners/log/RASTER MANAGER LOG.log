@@ -1,3 +1,14 @@
-2020-12-08 08:39:26,671 - RASTER MANAGER LOG - INFO - Logging Begins
-2020-12-08 08:39:26,672 - RASTER MANAGER LOG - INFO - tile name is - shp
-2020-12-08 08:39:26,672 - RASTER MANAGER LOG - INFO - temp folder is
+2021-01-22 10:15:16,863 - RASTER MANAGER LOG - INFO - Logging Begins
+2021-01-22 10:15:16,864 - RASTER MANAGER LOG - INFO - tile name is - shp
+2021-01-22 10:15:16,864 - RASTER MANAGER LOG - INFO - temp folder is
+2021-01-22 10:15:17,409 - RASTER MANAGER LOG - INFO - _warp_inputs
+2021-01-22 10:15:17,794 - RASTER MANAGER LOG - INFO - _warp_one Completed Z:\Data\Soil_grids\Intercept\v2017\Intercept2016_nowater_int.tif
+2021-01-22 10:15:17,795 - RASTER MANAGER LOG - INFO - WARP - TIME - 0.38536020000000093 - Z:\Data\Soil_grids\Intercept\v2017\Intercept2016_nowater_int.tif
+2021-01-22 10:15:18,214 - RASTER MANAGER LOG - INFO - _warp_one Completed Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\awc_gNATSGO_US.tif
+2021-01-22 10:15:18,214 - RASTER MANAGER LOG - INFO - WARP - TIME - 0.4167078999999987 - Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\awc_gNATSGO_US.tif
+2021-01-22 10:15:18,667 - RASTER MANAGER LOG - INFO - _warp_one Completed Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\fc_gNATSGO_US.tif
+2021-01-22 10:15:18,667 - RASTER MANAGER LOG - INFO - WARP - TIME - 0.45058679999999995 - Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\fc_gNATSGO_US.tif
+2021-01-22 10:15:18,845 - RASTER MANAGER LOG - INFO - _warp_one Completed Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\por_gNATSGO_US.tif
+2021-01-22 10:15:18,846 - RASTER MANAGER LOG - INFO - WARP - TIME - 0.17361399999999882 - Z:\Data\Soil_grids\CONUS\gNATSGO\Version2020\por_gNATSGO_US.tif
+2021-01-22 10:15:19,157 - RASTER MANAGER LOG - INFO - _warp_one Completed Z:\Data\Soil_grids\Global\global_water_mask_inland.tif
+2021-01-22 10:15:19,157 - RASTER MANAGER LOG - INFO - WARP - TIME - 0.3090889999999984 - Z:\Data\Soil_grids\Global\global_water_mask_inland.tif

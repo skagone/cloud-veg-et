@@ -171,6 +171,99 @@ class RasterManager:
             sys.exit(0)
 
 
+
+    def _warp_one(self, warpfile, rs):
+        t0 = t_now()
+        cnt=10
+        while(cnt>0):
+            try:
+                with rasterio.open(warpfile) as src:
+                    if src.crs == None:
+                        src.crs = CRS.from_epsg(4326)
+                    # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
+                    with WarpedVRT(src, resampling=rs,
+                           crs=self.crs,
+                           transform=self.transform,
+                           height=self.rows,
+                           width=self.cols) as vrt:
+                        data = vrt.read(1)
+                        # print(type(vrt))
+                        print("data shape =", data.shape)
+                        self.log.info("_warp_one Completed {}".format(warpfile))
+                        t_total = t_now() - t0
+                        self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
+                    return data
+            except rasterio.errors.RasterioIOError:
+                    # raise
+                    print("Unexpected error:", sys.exc_info()[0])
+                    print('oops',cnt)
+                    # print(f'cant find warpfile: \n {warpfile}')
+                    # sys.exit()
+                    cnt = cnt - 1
+                    time.sleep(4)
+
+    def _warp_inputs(self, inputs, resamplemethod):
+
+        self.log.info("_warp_inputs")
+        outputs = []
+        npy_outputs = []
+        if resamplemethod == 'nearest':
+            rs = Resampling.nearest
+        else:
+            print('only nearest neighbor resampling is supported at this time')
+            sys.exit(0)
+
+        for i, warpfile in enumerate(inputs):
+            print('warpfile', warpfile)
+            if (self.optimize):
+                data = self.opti.o_warp_one(warpfile, rs, self.crs, self.transform, self.rows, self.cols)
+            else:
+                data = self._warp_one(warpfile, rs)
+            npy_outputs.append(data)
+
+        return npy_outputs
+
+    def scale_rasters(self, numpys, scalefactors):
+
+        vals = []
+        for arr, sc in zip(numpys, scalefactors):
+
+            arr *= sc
+            vals.append(arr)
+
+        return vals
+
+    def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
+        """
+        Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
+        :param inputs: a list of (daily) raster input files for the water balance.
+        :param outloc: output locations 'temp' for the virtual files
+        :return: list of numpy arrays
+        """
+
+        npy_outputs = self._warp_inputs(inputs, resamplemethod)
+
+        return npy_outputs
+
+    def s3_delete_local(self, local_file, bucket, bucket_filepath):
+        """
+        This function will move the model outputs from a local folder to a cloud bucket.
+        :param local_file: path the the local geo file
+        :param outpath: path of a directory to be created in the cloud bucket
+        :param bucket: name of the cloud bucket = 'dev-et-data'
+        :param bucket_folder: "folder" in cloud bucket  = 'v1DRB_outputs'
+        :return:
+        """
+
+        s3 = boto3.client('s3')
+        with open(local_file, "rb") as f:
+            if 'vsis3' in bucket:
+                bucket = bucket.split('/')[-1]
+                print(bucket, bucket_filepath)
+            s3.upload_fileobj(f, bucket, bucket_filepath)
+        os.remove(local_file)
+
+
     def set_model_std_grid(self, feat=0):
         """Clips and crops a tiff to the extent of a feature in a shapefile
         :param feat: feat is  the feature id of the shapefile from like a GeoJSON)
@@ -253,96 +346,4 @@ class RasterManager:
                 npy_outputs.append(arr)
 
         return npy_outputs
-
-    def _warp_one(self, warpfile, rs):
-        t0 = t_now()
-        cnt=10
-        while(cnt>0):
-            try:
-                with rasterio.open(warpfile) as src:
-                    if src.crs == None:
-                        src.crs = CRS.from_epsg(4326)
-                    # create the virtual raster based on the standard rasterio attributes from the sample tiff and shapefile feature.
-                    with WarpedVRT(src, resampling=rs,
-                           crs=self.crs,
-                           transform=self.transform,
-                           height=self.rows,
-                           width=self.cols) as vrt:
-                        data = vrt.read(1)
-                        # print(type(vrt))
-                        print("data shape =", data.shape)
-                        self.log.info("_warp_one Completed {}".format(warpfile))
-                        t_total = t_now() - t0
-                        self.log.info("WARP - TIME - {} - {}".format(t_total, warpfile))
-                    return data
-            except rasterio.errors.RasterioIOError:
-                    print("Unexpected error:", sys.exc_info()[0])
-                    print('oops',cnt)
-                    cnt = cnt - 1
-                    time.sleep(4)
-
-    def _warp_inputs(self, inputs, resamplemethod):
-
-        self.log.info("_warp_inputs")
-        outputs = []
-        npy_outputs = []
-        if resamplemethod == 'nearest':
-            rs = Resampling.nearest
-        else:
-            print('only nearest neighbor resampling is supported at this time')
-            sys.exit(0)
-
-        for i, warpfile in enumerate(inputs):
-            print('warpfile', warpfile)
-            if (self.optimize):
-                data = self.opti.o_warp_one(warpfile, rs, self.crs, self.transform, self.rows, self.cols)
-            else:
-                data = self._warp_one(warpfile, rs)
-            npy_outputs.append(data)
-
-        return npy_outputs
-
-    def scale_rasters(self, numpys, scalefactors):
-
-        vals = []
-        for arr, sc in zip(numpys, scalefactors):
-
-            arr *= sc
-            vals.append(arr)
-
-        return vals
-
-    def normalize_to_std_grid_fast(self, inputs, resamplemethod='nearest'):
-        """
-        Uses rasterio virtual raster to standardize grids of different crs, resolution, boundaries based on  a shapefile geometry feature
-        :param inputs: a list of (daily) raster input files for the water balance.
-        :param outloc: output locations 'temp' for the virtual files
-        :return: list of numpy arrays
-        """
-
-        npy_outputs = self._warp_inputs(inputs, resamplemethod)
-
-        return npy_outputs
-
-
-
-    def s3_delete_local(self, local_file, bucket, bucket_filepath):
-        """
-        This function will move the model outputs from a local folder to a cloud bucket.
-        :param local_file: path the the local geo file
-        :param outpath: path of a directory to be created in the cloud bucket
-        :param bucket: name of the cloud bucket = 'dev-et-data'
-        :param bucket_folder: "folder" in cloud bucket  = 'v1DRB_outputs'
-        :return:
-        """
-
-        s3 = boto3.client('s3')
-        with open(local_file, "rb") as f:
-            if 'vsis3' in bucket:
-                bucket = bucket.split('/')[-1]
-                print(bucket, bucket_filepath)
-            s3.upload_fileobj(f, bucket, bucket_filepath)
-        os.remove(local_file)
-
-
 

@@ -28,7 +28,7 @@ from .log_logger import s3_save_log_file
 class VegET:
     """
     This is the heart of the Veg ET model, a soil-water balance model.
-    There are 3 main functions: soil_water, surface_runoff, veg_et which include the model calculations.
+    There are 3 main functions: soil_water, surface_runoff, veg_et which include the model calculations..
     """
     ### Atttributes = None, True False to start out.
 
@@ -374,7 +374,7 @@ class VegET:
         water_var = water_factor * bias_corr * alfa_factor
         print(watermask.shape)
 
-        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI
+        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI, p
         # if NDVI < 0 make it water ET value (water_var)
 
         print(pet.shape)
@@ -385,6 +385,7 @@ class VegET:
 
         # put the final etasw values for where there is land (no water)
         etasw[~etawater_boolean] = etasw5[~etawater_boolean ]
+        ## trivial
 
         # else make it ETo*water_var
         etasw[etawater_boolean | neg_ndvi_boolean] = pet[etawater_boolean | neg_ndvi_boolean] * water_var
