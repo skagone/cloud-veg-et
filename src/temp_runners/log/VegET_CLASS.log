@@ -1,4 +1,6 @@
-2020-12-08 08:39:26,615 - VegET_CLASS - INFO - Logging Begins
-2020-12-08 08:39:26,615 - VegET_CLASS - INFO - TILE is shp
-2020-12-08 08:39:26,616 - VegET_CLASS - INFO - Important Config path is Z:\Projects\VegET_ndviLSP\aa_30m_run\chip3598N-1192E
-2020-12-08 08:39:26,670 - VegET_CLASS - INFO - Important path mode is local
+2021-01-22 10:15:16,785 - VegET_CLASS - INFO - Logging Begins
+2021-01-22 10:15:16,786 - VegET_CLASS - INFO - TILE is shp
+2021-01-22 10:15:16,786 - VegET_CLASS - INFO - Important Config path is Z:\Projects\VegET_ndviLSP\aa_1km_run\chip3598N-1192E
+2021-01-22 10:15:16,862 - VegET_CLASS - INFO - Important path mode is local
+2021-01-22 10:15:17,400 - VegET_CLASS - INFO - OUTPUT Directory is: Z:\Projects\VegET_ndviLSP\aa_1km_run\chip3598N-1192E
+2021-01-22 10:15:17,409 - VegET_CLASS - INFO - self.rmanager.normalize_to_std_grid_fast ['Z:\\Data\\Soil_grids\\Intercept\\v2017\\Intercept2016_nowater_int.tif', 'Z:\\Data\\Soil_grids\\CONUS\\gNATSGO\\Version2020\\awc_gNATSGO_US.tif', 'Z:\\Data\\Soil_grids\\CONUS\\gNATSGO\\Version2020\\fc_gNATSGO_US.tif', 'Z:\\Data\\Soil_grids\\CONUS\\gNATSGO\\Version2020\\por_gNATSGO_US.tif', 'Z:\\Data\\Soil_grids\\Global\\global_water_mask_inland.tif']

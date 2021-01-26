@@ -28,7 +28,7 @@ from .log_logger import s3_save_log_file
 class VegET:
     """
     This is the heart of the Veg ET model, a soil-water balance model.
-    There are 3 main functions: soil_water, surface_runoff, veg_et which include the model calculations.
+    There are 3 main functions: soil_water, surface_runoff, veg_et which include the model calculations..
     """
     ### Atttributes = None, True False to start out.
 
