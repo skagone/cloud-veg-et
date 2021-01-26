@@ -374,7 +374,7 @@ class VegET:
         water_var = water_factor * bias_corr * alfa_factor
         print(watermask.shape)
 
-        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI, yepp
+        # TODO - add new condition for negative NDVI values to model non-existing or water NDVI, p
         # if NDVI < 0 make it water ET value (water_var)
 
         print(pet.shape)
