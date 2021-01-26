@@ -385,6 +385,7 @@ class VegET:
 
         # put the final etasw values for where there is land (no water)
         etasw[~etawater_boolean] = etasw5[~etawater_boolean ]
+        ## trivial
 
         # else make it ETo*water_var
         etasw[etawater_boolean | neg_ndvi_boolean] = pet[etawater_boolean | neg_ndvi_boolean] * water_var
