@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>VegET Tutorial &mdash; VegET 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="VegET" href="VegET.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> VegET
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the VegET Soil Water Balance Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#soil-water-balance-modeling">Soil Water Balance Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#the-veget-model">The VegET Model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">VegET Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#datasets">Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gridmet-precipitation">Gridmet Precipitation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modis-ndvi">MODIS NDVI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gridmet-eto-maca-eto">Gridmet ETo, MACA ETo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ncrs-soils">NCRS Soils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-configuration-file">Creating a Configuration File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#non-dynamic-configuration-file">Non-Dynamic Configuration File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-configuration-file">Dynamic Configuration File</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#case-study-setting-up-a-model-run-for-the-mesilla-valley">Case Study: Setting up a Model Run for the Mesilla Valley.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#case-study-ii-setting-up-a-model-run-for-a-large-study-area-using-future-climate-scenarios">Case Study II: Setting up a Model Run for a Large Study Area, using future climate scenarios.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VegET.html">VegET</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PathManager.html">PathManager Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RasterManager.html">Raster Manager</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VegET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>VegET Tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="veget-tutorial">
+<h1>VegET Tutorial<a class="headerlink" href="#veget-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Blah blah</p>
+<div class="section" id="datasets">
+<h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">¶</a></h2>
+<p>The datasets, etc.</p>
+<div class="section" id="gridmet-precipitation">
+<h3>Gridmet Precipitation<a class="headerlink" href="#gridmet-precipitation" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="modis-ndvi">
+<h3>MODIS NDVI<a class="headerlink" href="#modis-ndvi" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="gridmet-eto-maca-eto">
+<h3>Gridmet ETo, MACA ETo<a class="headerlink" href="#gridmet-eto-maca-eto" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="ncrs-soils">
+<h3>NCRS Soils<a class="headerlink" href="#ncrs-soils" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="creating-a-configuration-file">
+<h2>Creating a Configuration File<a class="headerlink" href="#creating-a-configuration-file" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="non-dynamic-configuration-file">
+<h3>Non-Dynamic Configuration File<a class="headerlink" href="#non-dynamic-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>The most common application of the VegET model involves selecting time-series of gridded data that have overlapping
+temporal coverage, and running the soil water balance using the same datasources of gridded input throughout the run. If
+the user wishes to change datasources mid-stream (e.g. switching from Gridmet ETo to NLDAS ETo after 2005), please refer
+to the section below on creating dynamic configuration files.</p>
+<p>The standard configuration file is created in the YAML (YAML Ain’t Markup Language) format…</p>
+</div>
+<div class="section" id="dynamic-configuration-file">
+<h3>Dynamic Configuration File<a class="headerlink" href="#dynamic-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>In some situations, you may want to run VegET
+soil-water-balance with different datasources during different time periods.
+A good example is setting up a VegET run based on historical gridded dataset
+availability, and transitioning datasets later in the run to model soil-water-balance
+under future climate regimes.</p>
+<p>The primary configuration files remain the same in this case, with the addtion of a dynamic configuration file…</p>
+</div>
+</div>
+</div>
+<div class="section" id="case-study-setting-up-a-model-run-for-the-mesilla-valley">
+<h1>Case Study: Setting up a Model Run for the Mesilla Valley.<a class="headerlink" href="#case-study-setting-up-a-model-run-for-the-mesilla-valley" title="Permalink to this headline">¶</a></h1>
+<p>Using many of the datasets above, let us demonstrate how a user would run the</p>
+</div>
+<div class="section" id="case-study-ii-setting-up-a-model-run-for-a-large-study-area-using-future-climate-scenarios">
+<h1>Case Study II: Setting up a Model Run for a Large Study Area, using future climate scenarios.<a class="headerlink" href="#case-study-ii-setting-up-a-model-run-for-a-large-study-area-using-future-climate-scenarios" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="VegET.html" class="btn btn-neutral float-right" title="VegET" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Stefanie Kagone, Gabe Parrish, Tony Butzer, Gabriel Senay
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
