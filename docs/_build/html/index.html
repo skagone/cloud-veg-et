@@ -35,7 +35,8 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing the VegET Soil Water Balance Model" href="install.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,12 +81,21 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to VegET’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the VegET Soil Water Balance Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#soil-water-balance-modeling">Soil Water Balance Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#the-veget-model">The VegET Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">VegET Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html#case-study-setting-up-a-model-run-for-the-mesilla-valley">Case Study: Setting up a Model Run for the Mesilla Valley.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html#case-study-ii-setting-up-a-model-run-for-a-large-study-area-using-future-climate-scenarios">Case Study II: Setting up a Model Run for a Large Study Area, using future climate scenarios.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VegET.html">VegET</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PathManager.html">PathManager Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RasterManager.html">Raster Manager</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -152,6 +162,42 @@
   <div class="section" id="welcome-to-veget-s-documentation">
 <h1>Welcome to VegET’s documentation!<a class="headerlink" href="#welcome-to-veget-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing the VegET Soil Water Balance Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#clone-from-github">Clone from GitHub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install.html#install-dependencies">Install Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#soil-water-balance-modeling">Soil Water Balance Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html#the-veget-model">The VegET Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#model-algorithms">Model Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#model-inputs">Model Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#veget-class">VegET Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#pathmanager-class">PathManager Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#rastermanager-class">RasterManager Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#cloud-computing">Cloud Computing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">VegET Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#creating-a-configuration-file">Creating a Configuration File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html#case-study-setting-up-a-model-run-for-the-mesilla-valley">Case Study: Setting up a Model Run for the Mesilla Valley.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html#case-study-ii-setting-up-a-model-run-for-a-large-study-area-using-future-climate-scenarios">Case Study II: Setting up a Model Run for a Large Study Area, using future climate scenarios.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VegET.html">VegET</a></li>
+<li class="toctree-l1"><a class="reference internal" href="PathManager.html">PathManager Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PathManager.html#pathmanager-attributes">PathManager Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PathManager.html#get-static-data">get_static_data()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PathManager.html#get-dynamic-data">get_dynamic_data()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PathManager.html#get-dynamic-settings">get_dynamic_settings()</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="RasterManager.html">Raster Manager</a></li>
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -168,6 +214,13 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="install.html" class="btn btn-neutral float-right" title="Installing the VegET Soil Water Balance Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
   
 
   <hr/>

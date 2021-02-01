@@ -5,6 +5,7 @@ Blah blah
 
 Datasets
 ---------------------
+
 The datasets, etc.
 
 Gridmet Precipitation
@@ -14,7 +15,7 @@ MODIS NDVI
 ~~~~~~~~~~~~~
 
 Gridmet ETo, MACA ETo
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NCRS Soils
 ~~~~~~~~~~~
@@ -24,6 +25,7 @@ Creating a Configuration File
 
 Non-Dynamic Configuration File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The most common application of the VegET model involves selecting time-series of gridded data that have overlapping
 temporal coverage, and running the soil water balance using the same datasources of gridded input throughout the run. If
 the user wishes to change datasources mid-stream (e.g. switching from Gridmet ETo to NLDAS ETo after 2005), please refer
@@ -33,6 +35,7 @@ The standard configuration file is created in the YAML (YAML Ain't Markup Langua
 
 Dynamic Configuration File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 In some situations, you may want to run VegET
 soil-water-balance with different datasources during different time periods.
 A good example is setting up a VegET run based on historical gridded dataset
