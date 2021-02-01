@@ -55,6 +55,8 @@ open-source Python packages such as Rasterio to integrate
 and standardize the gridded datasets that make up the inputs to
 the VegET model.
 
+More complete documentation found at (TODO - How do I internally Link??) #:doc:`PathManager`
+
 Cloud Computing
 ~~~~~~~~~~~~~~~~~~~
 
