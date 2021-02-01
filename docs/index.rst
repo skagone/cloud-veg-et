@@ -13,6 +13,7 @@ Welcome to VegET's documentation!
    install
    support
    introduction
+   quickstart
    VegET
    PathManager
    RasterManager
